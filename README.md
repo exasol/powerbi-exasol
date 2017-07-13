@@ -8,3 +8,9 @@ you to connect from Power BI Desktop to EXASOL in *Direct Query* mode (classical
 * 
 
 ## Installation
+
+
+1. Create a [My Documents]\Microsoft Power BI Desktop\Custom Connectors directory
+2. Copy the EXASOL extension file  [exasol.mez](https://github.com/EXASOL/powerbi-exasol/blob/master/Exasol/bin/Release/Exasol.mez)  into this directory
+3. Enable the **Custom data connectors preview feature** in Power BI Desktop (under File | Options and settings | Custom data connectors)
+4. Restart Power BI Desktop

@@ -38,7 +38,7 @@ you to connect from Power BI Desktop to EXASOL in *Direct Query* mode (classical
 
 ![alt text](https://github.com/EXASOL/powerbi-exasol/blob/master/screenshots/Navigator.PNG )
 
-5. Review relational model, it's recommended to have foregein keys set in the database so Power BI can autodetect the relations
+5. Review relational model, it's recommended to have foreign keys set in the database so Power BI can autodetect the relations
 
 ![alt text](https://github.com/EXASOL/powerbi-exasol/blob/master/screenshots/PowerBI_RelationalModel.PNG )
 

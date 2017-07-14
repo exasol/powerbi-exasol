@@ -42,7 +42,7 @@ you to connect from Power BI Desktop to EXASOL in *Direct Query* mode (classical
 
 ![alt text](https://github.com/EXASOL/powerbi-exasol/blob/master/screenshots/PowerBI_RelationalModel.PNG )
 
-6. Build fast reports on billions of rows in EXASOL
+6. Build fast dashboards on billions of rows in EXASOL
 
 ![alt text](https://github.com/EXASOL/powerbi-exasol/blob/master/screenshots/Example_Dashboard_Billion_Rows.PNG )
 

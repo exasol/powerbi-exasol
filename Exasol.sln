@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 14
 VisualStudioVersion = 14.0.25420.1
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{4DF76451-A46A-4C0B-BE03-459FAAFA07E6}") = "Exasol", "Exasol\Exasol.mproj", "{EE71075F-3240-4D37-BA22-813453A6D780}"
+Project("{4DF76451-A46A-4C0B-BE03-459FAAFA07E6}") = "Exasol", "Exasol\Exasol.mproj", "{874E9092-991A-44F0-8F2F-17E28E8217B1}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -11,10 +11,10 @@ Global
 		Release|x86 = Release|x86
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{EE71075F-3240-4D37-BA22-813453A6D780}.Debug|x86.ActiveCfg = Debug|x86
-		{EE71075F-3240-4D37-BA22-813453A6D780}.Debug|x86.Build.0 = Debug|x86
-		{EE71075F-3240-4D37-BA22-813453A6D780}.Release|x86.ActiveCfg = Release|x86
-		{EE71075F-3240-4D37-BA22-813453A6D780}.Release|x86.Build.0 = Release|x86
+		{874E9092-991A-44F0-8F2F-17E28E8217B1}.Debug|x86.ActiveCfg = Debug|x86
+		{874E9092-991A-44F0-8F2F-17E28E8217B1}.Debug|x86.Build.0 = Debug|x86
+		{874E9092-991A-44F0-8F2F-17E28E8217B1}.Release|x86.ActiveCfg = Release|x86
+		{874E9092-991A-44F0-8F2F-17E28E8217B1}.Release|x86.Build.0 = Release|x86
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

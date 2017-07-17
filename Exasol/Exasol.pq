@@ -2,7 +2,20 @@
 section Exasol;
 
 [DataSource.Kind="Exasol", Publish="Exasol.Publish"]
-shared Exasol.Database = (server as text ) as table =>
+shared Exasol.Database = Value.ReplaceType(ExasolImpl, ExasolType);
+
+ExasolType = type function (
+    server as (type text meta [
+        Documentation.FieldCaption = "Connection String",
+        Documentation.FieldDescription = "Exasol Connection String, e.g. 192.168.80.11..15:8563",
+        Documentation.SampleValues = {"192.168.80.11..15:8563"}
+    ])) 
+    as table meta [
+        Documentation.Name = "Exasol",
+        Documentation.LongDescription = "Exasol"
+    ];
+
+ExasolImpl = (server as text ) as table =>
     let
         ConnectionString =
         [

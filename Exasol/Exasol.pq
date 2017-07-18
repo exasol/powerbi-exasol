@@ -9,18 +9,29 @@ ExasolType = type function (
         Documentation.FieldCaption = "Connection String",
         Documentation.FieldDescription = "Exasol Connection String, e.g. 192.168.80.11..15:8563",
         Documentation.SampleValues = {"192.168.80.11..15:8563"}
-    ])) 
+    ]),
+    encrypted as (type text meta [
+        Documentation.FieldCaption = "Encrypted",
+        Documentation.FieldDescription = "If set to Yes, connection will be encrpyted",
+        Documentation.AllowedValues = { "Yes", "No" },
+        Documentation.DefaultValue = { "No" }
+    ]) 
+    
+    ) 
     as table meta [
         Documentation.Name = "Exasol",
-        Documentation.LongDescription = "Exasol"
+        Documentation.LongDescription = "Exasol",
+        Documentation.Icon = Extension.Contents("Exasol32.png")
     ];
 
-ExasolImpl = (server as text ) as table =>
+ExasolImpl = (server as text,encrypted as text) as table =>
     let
+        _encrypt = if encrypted = "Yes" then "Y" else "N",
         ConnectionString =
         [
             DRIVER = "EXASolution Driver",
-            EXAHOST = server
+            EXAHOST = server,
+            ENCRYPTION = _encrypt
         ],
         OdbcDataSource = Odbc.DataSource(ConnectionString, [
             AstVisitor = [
@@ -48,6 +59,7 @@ ExasolImpl = (server as text ) as table =>
                                         ]
             ],
             HierarchicalNavigation = true,
+            ClientConnectionPooling = true,
             SqlCapabilities = [
                 Sql92Conformance = 8 /* SQL_SC_SQL92_FULL */,
                 //GroupByCapabilities = 2 /*SQL_GB_GROUP_BY_CONTAINS_SELECT = 0x0002*/,
@@ -62,9 +74,9 @@ ExasolImpl = (server as text ) as table =>
             ]
             ,
             SQLGetInfo = [
-                SQL_SQL92_PREDICATES = 0x0000FFFF,
-                SQL_AGGREGATE_FUNCTIONS = 0xFF,
-                SQL_SQL92_RELATIONAL_JOIN_OPERATORS = 0x000003FF
+                SQL_SQL92_PREDICATES = 0x00001F07,
+                SQL_AGGREGATE_FUNCTIONS = 0x7F,
+                SQL_SQL92_RELATIONAL_JOIN_OPERATORS = 0x0000037F
             ]
         ]),
         Database = OdbcDataSource{[Name = "EXA_DB"]}[Data]

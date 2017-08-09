@@ -5,6 +5,12 @@ you to connect from Power BI Desktop to EXASOL in *Direct Query* mode (classical
 
 ###### Please note that this is an open source project which is *not yet officially supported* by EXASOL. We will try to help you as much as possible, but can't guarantee anything since this is not an official EXASOL product.
 
+
+For installation you can also watch the following How-To on Youtube:
+
+[![Alt text](https://img.youtube.com/vi/izR8RRQ2vSs/0.jpg)](https://www.youtube.com/watch?v=izR8RRQ2vSs)
+
+
 ## Prerequisites
 
 * Install the [EXASOL ODBC driver (EXASOL_ODBC_*.msi)](https://www.exasol.com/portal/display/DOWNLOAD/6.0) (if you are not sure if you shall install the 32 Bit or 64 Bit version install both versions)

@@ -3,9 +3,6 @@
 The EXASOL Microsoft Power BI Connector (Beta) is based on the new [DataConnector SDK from Microsoft](https://github.com/Microsoft/DataConnectors) and enables 
 you to connect from Power BI Desktop to EXASOL in *Direct Query* mode (classical import mode is supported as well).
 
-###### Please note that this is an open source project which is *not yet officially supported* by EXASOL. We will try to help you as much as possible, but can't guarantee anything since this is not an official EXASOL product.
-
-
 For installation you can also watch the following How-To on Youtube:
 
 [![Alt text](https://img.youtube.com/vi/izR8RRQ2vSs/0.jpg)](https://www.youtube.com/watch?v=izR8RRQ2vSs)

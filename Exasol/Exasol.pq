@@ -31,7 +31,9 @@ ExasolImpl = (server as text,encrypted as text) as table =>
         [
             DRIVER = "EXASolution Driver",
             EXAHOST = server,
-            ENCRYPTION = _encrypt
+            ENCRYPTION = _encrypt,
+            LOGMODE = "DEFAULT",
+            EXALOGFILE = "D:\tmp\odbclogfilepowerbi.txt"
         ],
         OdbcDataSource = Odbc.DataSource(ConnectionString, [
             AstVisitor = [
@@ -59,6 +61,7 @@ ExasolImpl = (server as text,encrypted as text) as table =>
                                         ]
             ],
             HierarchicalNavigation = true,
+            HideNativeQuery = true,
             ClientConnectionPooling = true,
             SqlCapabilities = [
                 Sql92Conformance = 8 /* SQL_SC_SQL92_FULL */,

@@ -31,9 +31,9 @@ ExasolImpl = (server as text,encrypted as text) as table =>
         [
             DRIVER = "EXASolution Driver",
             EXAHOST = server,
-            ENCRYPTION = _encrypt,
-            LOGMODE = "DEFAULT",
-            EXALOGFILE = "D:\tmp\odbclogfilepowerbi.txt"
+            ENCRYPTION = _encrypt
+            //,LOGMODE = "DEFAULT"
+            //,EXALOGFILE = "D:\tmp\odbclogfilepowerbi.txt"
         ],
         OdbcDataSource = Odbc.DataSource(ConnectionString, [
             AstVisitor = [

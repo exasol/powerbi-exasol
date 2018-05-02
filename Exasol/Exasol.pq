@@ -1,4 +1,5 @@
-﻿// This file contains your Data Connector logic
+﻿// This file contains the Exasol Connector logic
+[version = "1.0.0"]
 section Exasol;
 
 [DataSource.Kind="Exasol", Publish="Exasol.Publish"]

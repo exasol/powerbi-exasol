@@ -67,5 +67,5 @@ The Exasol connector was tested successfully with the On-premises data gateway v
 
 
 
-5. Now you are ready to go to and publish your Workbooks to powerbi.com from from Power Bi Desktop, when connection to Exasol from power-bi use the exact same settings (Connection-String/ Encrpytion Setting / User Credentials). When the workbook is published the connection of the gateway is then associated with this workbook.
+5. Now you are ready to go to and publish your Workbooks to powerbi.com from from Power Bi Desktop. When connecting to Exasol from Power BI desktop use the exact same settings (Connection-String / Encrpytion Setting / User Credentials). When the workbook is published the connection of the gateway is then associated with this workbook.
 

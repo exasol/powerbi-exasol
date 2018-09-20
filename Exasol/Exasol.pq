@@ -90,6 +90,13 @@ ExasolImpl = (server as text,encrypted as text) as table =>
 // Data Source Kind description
 Exasol = [
     Description = "Exasol",
+	TestConnection = (dataSourcePath) => 
+        let
+            json = Json.Document(dataSourcePath),
+            server = json[server],   // connection string
+			encrypted = json[encrypted]
+        in
+            { "Exasol.Database", server, encrypted },
     Authentication = [
         // Key = [],
         UsernamePassword = []

@@ -11,7 +11,7 @@ For installation you can watch the following How-To on Youtube:
 ## Prerequisites
 
 * Install the [Exasol ODBC driver (EXASOL_ODBC_*.msi)](https://www.exasol.com/portal/display/DOWNLOAD/6.0) (if you are not sure if you shall install the 32 Bit or 64 Bit version install both versions)
-* Install the current version of Power BI desktop (the connector was tested with version Version: 2.48.4792.481 64-bit (July, 2017)) 
+* Install the current version of Power BI desktop (latest tested version 2.62.5222.601 64-bit (September 2018)) 
 
 ## Enable Connector in Power BI Desktop
 

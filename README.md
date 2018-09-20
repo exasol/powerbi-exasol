@@ -57,7 +57,7 @@ The Exasol connector was tested successfully with the On-premises data gateway v
 
 1. Install and configure the On-premises data gateway (https://powerbi.microsoft.com/en-us/gateway/ )
 
-2. Copy the [exasol.mez](https://github.com/EXASOL/powerbi-exasol/blob/master/Exasol/bin/Release/Exasol.mez)file to e.g. C:\Users\PBIEgwService\Documents\Power BI Desktop\Custom Connectors
+2. Copy the [exasol.mez](https://github.com/EXASOL/powerbi-exasol/blob/master/Exasol/bin/Release/Exasol.mez) file to e.g. C:\Users\PBIEgwService\Documents\Power BI Desktop\Custom Connectors
 
 3. The Exasol connector will now be listed in the Connectors section of the On-premises data gateway GUI
 

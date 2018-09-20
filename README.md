@@ -65,6 +65,10 @@ The Exasol connector was tested successfully with the On-premises data gateway v
 
 4. Go now to powerbi.com to create a new Exasol connection for this Gateway:
 
+Allow custom connectors in your gateway
+![alt text](https://github.com/EXASOL/powerbi-exasol/blob/master/screenshots/GatewayAllowCustomDataConnectors.PNG )
+
+Create the Exasol Connection (Type Yes for Encryption)
 ![alt text](https://github.com/EXASOL/powerbi-exasol/blob/master/screenshots/ExasolOnPremiseGatewayConnection.PNG )
 
 5. Now you are ready to go to publish your workbooks to powerbi.com from from Power BI Desktop. When connecting to Exasol from Power BI desktop use the exact same settings (Connection-String / Encrpytion Setting / User Credentials). When the workbook is published the connection of the gateway is then associated with this workbook.

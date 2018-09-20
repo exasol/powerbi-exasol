@@ -51,21 +51,24 @@ For installation you can watch the following How-To on Youtube:
 ![alt text](https://github.com/EXASOL/powerbi-exasol/blob/master/screenshots/Example_Dashboard_Billion_Rows.PNG )
 
 
-## How To Use the Exasol Connector with the On-premises data gateway
+## How To use the Exasol Power BI Connector with the On-premises data gateway
 
-The Exasol connector was tested successfully with the On-premises data gateway version 14.16.6808.1 (September 2018).
+The Exasol connector was tested successfully with the On-premises data gateway version 14.16.6808.1 (September 2018) and also supports Direct Query.
 
 1. Install and configure the On-premises data gateway (https://powerbi.microsoft.com/en-us/gateway/ )
 
-2. Copy the [exasol.mez](https://github.com/EXASOL/powerbi-exasol/blob/master/Exasol/bin/Release/Exasol.mez)file to e.g. C:\Users\PBIEgwService\Documents\Power BI Desktop\Custom Connectors
+2. Copy the [exasol.mez](https://github.com/EXASOL/powerbi-exasol/blob/master/Exasol/bin/Release/Exasol.mez) file to e.g. C:\Users\PBIEgwService\Documents\Power BI Desktop\Custom Connectors
 
 3. The Exasol connector will now be listed in the Connectors section of the On-premises data gateway GUI
 
-
+![alt text](https://github.com/EXASOL/powerbi-exasol/blob/master/screenshots/OnPremisesDataGatewayListExasolConnector.PNG )
 
 4. Go now to powerbi.com to create a new Exasol connection for this Gateway:
 
+![alt text](https://github.com/EXASOL/powerbi-exasol/blob/master/screenshots/ExasolOnPremiseGatewayConnection.PNG )
 
+5. Now you are ready to go to publish your workbooks to powerbi.com from from Power BI Desktop. When connecting to Exasol from Power BI desktop use the exact same settings (Connection-String / Encrpytion Setting / User Credentials). When the workbook is published the connection of the gateway is then associated with this workbook.
 
-5. Now you are ready to go to and publish your Workbooks to powerbi.com from from Power Bi Desktop. When connecting to Exasol from Power BI desktop use the exact same settings (Connection-String / Encrpytion Setting / User Credentials). When the workbook is published the connection of the gateway is then associated with this workbook.
+![alt text](https://github.com/EXASOL/powerbi-exasol/blob/master/screenshots/ExasolOnPremisePublishedWorkbookDirectQuery.PNG )
+
 

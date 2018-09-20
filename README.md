@@ -51,7 +51,7 @@ For installation you can watch the following How-To on Youtube:
 ![alt text](https://github.com/EXASOL/powerbi-exasol/blob/master/screenshots/Example_Dashboard_Billion_Rows.PNG )
 
 
-## How To Use the Exasol Connector with the On-premises data gateway
+## How To use the Exasol Power BI Connector with the On-premises data gateway
 
 The Exasol connector was tested successfully with the On-premises data gateway version 14.16.6808.1 (September 2018) and also supports Direct Query.
 

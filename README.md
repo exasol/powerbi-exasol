@@ -1,7 +1,7 @@
 # Powerbi-Exasol Connector
 The Exasol Microsoft Power BI Connector enables you to connect from Power BI Desktop to Exasol in *Direct Query* mode (classical import mode is supported as well).
 
-**The Exasol Microsoft Power BI Connector is a Certified Custom Connector now. Therefore, you'll find the stable version in the [Microsoft Custom Connector Gallery](https://github.com/Microsoft/CustomConnectorGallery). The powerbi-exasol repository will contain the latest beta release which might contain modifications not yet included in the stable version.**
+**The Exasol Microsoft Power BI Connector is a Certified Custom Connector now and is also shipped with Power BI desktop. The powerbi-exasol repository will contain the latest release which might contain modifications not yet included in the stable version.**
 
 For installation you can watch the following How-To on Youtube:
 

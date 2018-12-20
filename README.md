@@ -11,16 +11,7 @@ For installation you can watch the following How-To on Youtube:
 ## Prerequisites
 
 * Install the [Exasol ODBC driver (EXASOL_ODBC_*.msi)](https://www.exasol.com/portal/display/DOWNLOAD/6.0) (if you are not sure if you shall install the 32 Bit or 64 Bit version install both versions)
-* Install the current version of Power BI desktop (latest tested version 2.62.5222.601 64-bit (September 2018)) 
-
-## Enable Connector in Power BI Desktop
-
-Starting with August 2018 the certified Exasol Connector is shipped with Power BI Desktop, you only need to enable the connector:
-
-1. Enable the **Custom data connectors preview feature** in Power BI Desktop (under File | Options and settings | Options | Preview features | Custom data connectors)
-2. Restart Power BI Desktop
-3. Exasol Connection is now available in Get Data -> Database -> Exasol
-
+* Install the current version of Power BI desktop
 
 ## Usage
 

@@ -2,6 +2,22 @@
 [version = "1.0.0"]
 section Exasol;
 
+EnableTraceOutput = false; // for Development and Troubleshooting
+
+// Load common library functions
+// 
+Extension.LoadFunction = (name as text) =>
+    let
+        binary = Extension.Contents(name),
+        asText = Text.FromBinary(binary)
+    in
+        Expression.Evaluate(asText, #shared);
+
+// Diagnostics module contains multiple functions. We can take the ones we need.
+Diagnostics = Extension.LoadFunction("Diagnostics.pqm");
+Diagnostics.LogValue = if (EnableTraceOutput) then Diagnostics[LogValue] else (prefix, value) => value; 
+
+
 [DataSource.Kind="Exasol", Publish="Exasol.Publish"]
 shared Exasol.Database = Value.ReplaceType(ExasolImpl, ExasolType);
 
@@ -61,13 +77,48 @@ ExasolImpl = (server as text,encrypted as text) as table =>
                                             Location = "AfterQuerySpecification"
                                         ]
             ],
+             SQLColumns = (catalogName, schemaName, tableName, columnName, source) =>
+                if (EnableTraceOutput <> true) then source else
+                // the if statement conditions will force the values to evaluated/written to diagnostics
+                if (Diagnostics.LogValue("SQLColumns.TableName", tableName) <> "***" and Diagnostics.LogValue("SQLColumns.ColumnName", columnName) <> "***") then
+                    let
+                        // Outputting the entire table might be too large, and result in the value being truncated.
+                        // We can output a row at a time instead with Table.TransformRows()
+                        rows = Table.TransformRows(source, each Diagnostics.LogValue("SQLColumns", _)),
+                        toTable = Table.FromRecords(rows)
+                    in
+                        Value.ReplaceType(toTable, Value.Type(source))
+                else
+                    source,
+            SQLGetTypeInfo = (types as table) as table =>
+               let
+                   newTypes = #table(
+                       {
+                           "TYPE_NAME", "DATA_TYPE", "COLUMN_SIZE", "LITERAL_PREFIX", "LITERAL_SUFFIX", "CREATE_PARAMS", "NULLABLE", "CASE_SENSITIVE", "SEARCHABLE", "UNSIGNED_ATTRIBUTE", "FIXED_PREC_SCALE", "AUTO_UNIQUE_VALUE", "LOCAL_TYPE_NAME", "MINIMUM_SCALE", "MAXIMUM_SCALE", "SQL_DATA_TYPE", "SQL_DATETIME_SUB", "NUM_PREC_RADIX", "INTERVAL_PRECISION"
+                        },
+                        // we add a new entry for each type we want to add, the following entries are nneded so that Power BI is able to handle Unicode characters
+                        {
+                            {
+                                "SQL_WCHAR", -8, 2000, "'", "'", "max length", 1, 1, 3, null, 0, null, "SQL_WCHAR", null, null, -8, null, null, null
+                            },
+                            {
+                                "SQL_WVARCHAR", -9, 2000000, "'", "'", "max length", 1, 1, 3, null, 0, null, "SQL_WVARCHAR", null, null, -9, null, null, null
+                            },
+                            {
+                                "SQL_WLONGVARCHAR", -10, 2000000, "'", "'", null, 1, 1, 3, null, 0, null, "SQL_WLONGVARCHAR", null, null, -10, null, null, null
+                            }
+
+                        }),
+                    append = Table.Combine({types, newTypes})
+                in
+                    append,            
             HierarchicalNavigation = true,
             HideNativeQuery = true,
             ClientConnectionPooling = true,
             SqlCapabilities = [
                 Sql92Conformance = 8 /* SQL_SC_SQL92_FULL */,
                 //GroupByCapabilities = 2 /*SQL_GB_GROUP_BY_CONTAINS_SELECT = 0x0002*/,
-                FractionalSecondsScale = 3,
+                FractionalSecondsScale = 3 ,
                 SupportsNumericLiterals = true,
                 SupportsStringLiterals = true,
                 SupportsOdbcDateLiterals = true,
@@ -80,8 +131,11 @@ ExasolImpl = (server as text,encrypted as text) as table =>
             SQLGetInfo = [
                 SQL_SQL92_PREDICATES = 0x00001F07,
                 SQL_AGGREGATE_FUNCTIONS = 0x7F,
-                SQL_SQL92_RELATIONAL_JOIN_OPERATORS = 0x0000037F
-            ]
+                SQL_SQL92_RELATIONAL_JOIN_OPERATORS = 0x0000037F,
+                SQL_CONVERT_FUNCTIONS = 0x00000002, //  Tell Power BI that Exasol only knows Casts so no CONVERT functions are generated
+                SQL_CONVERT_VARCHAR = 0x0082F1FF,   // Tell Power BI that Exasol also is able to convert SQL_WVARCHAR, additional fix for Unicode characters (Exasol ODBC returns 0x0002F1FF)
+                SQL_CONVERT_CHAR = 0x0022F1FF    // Tell Power BI that Exasol also is able to convert SQL_WCHAR, additional fix for Unicode characters (Exasol ODBC returns 0x0002F1FF)
+                ]
         ]),
         Database = OdbcDataSource{[Name = "EXA_DB"]}[Data]
     in

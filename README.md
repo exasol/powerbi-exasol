@@ -14,7 +14,7 @@ The Exasol Microsoft Power BI Connector enables you to connect from Power BI Des
 If you face issues with únicode characters, you can install the newest connector as described below:
 
 If you want to use the most current connector provided in this repository to be able to use the newest connector available, before the
-next offical release of Power BI, please us the following instroductions:
+next official release of Power BI, please us the following instructions:
 
 * Download [Exasol.mez](https://github.com/EXASOL/powerbi-exasol/blob/master/Exasol/bin/Release/Exasol.mez) 
 * Create A directory like  [Documents]\Power BI Desktop\Custom Connectors

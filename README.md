@@ -13,6 +13,24 @@ For installation you can watch the following How-To on Youtube:
 * Install the [Exasol ODBC driver (EXASOL_ODBC_*.msi)](https://www.exasol.com/portal/display/DOWNLOAD/6.0) (if you are not sure if you shall install the 32 Bit or 64 Bit version install both versions)
 * Install the current version of Power BI desktop
 
+## Use the Custom Connector from this Repository instead of the official shipped connector in Power BI Desktop
+
+:exclamation:  The current version of the conenctor in this Repository contains some major fixes for Unicode.
+If you face Issues with Unicode characters, you can install the newest Conenctor as described below:
+
+If you want to use the most current connector provided in this Repository to be able to use the newest Connector available  before the
+next offical release of Power BI, please us ethe following instroductions:
+
+* Download [Exasol.mez](https://github.com/EXASOL/powerbi-exasol/blob/master/Exasol/bin/Release/Exasol.mez) 
+* Create A directory like  [Documents]\Power BI Desktop\Custom Connectors
+* Copy Exasol.mez into the [Documents]\Power BI Desktop\Custom Connectors directory
+* Open Power BI Desktop and  lower the security level for extensions in Power BI Desktop to enable loading unsigned/uncertified connectors.
+* Go to File | Options and settings | Options
+* Go the Security tab
+* Under Data Extensions, select Allow any extension to load without warning or validation
+* Restart Power BI Desktop
+* Now Power BI uses the Custom Connector for Exasol instead of the official included connector
+
 ## Usage
 
 1. Choose  Get Data -> Database -> Exasol

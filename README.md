@@ -15,11 +15,11 @@ For installation you can watch the following How-To on Youtube:
 
 ## Use the Custom Connector from this Repository instead of the official shipped connector in Power BI Desktop
 
-:exclamation:  The current version of the Exasol connector in this Repository contains some major fixes for Unicode.
-If you face Issues with Unicode characters, you can install the newest Conenctor as described below:
+:exclamation:  The current version of the Exasol connector in this repository contains some major fixes for Unicode.
+If you face Issues with Unicode characters, you can install the newest connector as described below:
 
-If you want to use the most current connector provided in this Repository to be able to use the newest Connector available  before the
-next offical release of Power BI, please us ethe following instroductions:
+If you want to use the most current connector provided in this repository to be able to use the newest connector available, before the
+next offical release of Power BI, please us the following instroductions:
 
 * Download [Exasol.mez](https://github.com/EXASOL/powerbi-exasol/blob/master/Exasol/bin/Release/Exasol.mez) 
 * Create A directory like  [Documents]\Power BI Desktop\Custom Connectors

@@ -3,11 +3,6 @@ The Exasol Microsoft Power BI Connector enables you to connect from Power BI Des
 
 **The Exasol Microsoft Power BI Connector is a Certified Custom Connector now and is also shipped with Power BI desktop. The powerbi-exasol repository will contain the latest release which might contain modifications not yet included in the stable version.**
 
-For installation you can watch the following How-To on Youtube:
-
-[![Alt text](https://img.youtube.com/vi/izR8RRQ2vSs/0.jpg)](https://www.youtube.com/watch?v=izR8RRQ2vSs)
-
-
 ## Prerequisites
 
 * Install the [Exasol ODBC driver (EXASOL_ODBC_*.msi)](https://www.exasol.com/portal/display/DOWNLOAD/6.0) (if you are not sure if you shall install the 32 Bit or 64 Bit version install both versions)

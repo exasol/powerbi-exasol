@@ -15,7 +15,7 @@ For installation you can watch the following How-To on Youtube:
 
 ## Use the Custom Connector from this Repository instead of the official shipped connector in Power BI Desktop
 
-:exclamation:  The current version of the conenctor in this Repository contains some major fixes for Unicode.
+:exclamation:  The current version of the Exasol connector in this Repository contains some major fixes for Unicode.
 If you face Issues with Unicode characters, you can install the newest Conenctor as described below:
 
 If you want to use the most current connector provided in this Repository to be able to use the newest Connector available  before the

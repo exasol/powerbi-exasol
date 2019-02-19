@@ -10,8 +10,7 @@ The Exasol Microsoft Power BI Connector enables you to connect from Power BI Des
 
 ## Use the Custom Connector from this Repository instead of the official shipped connector in Power BI Desktop
 
-:exclamation:  The current version of the Exasol connector in this repository contains some major fixes for unicode.
-If you face issues with únicode characters, you can install the newest connector as described below:
+:exclamation: The Power BI Release 2.66.5376.1681 64-bit (February 2019) contains all recent fixes of the EXASOL connector regarding unicode.
 
 If you want to use the most current connector provided in this repository to be able to use the newest connector available, before the
 next official release of Power BI, please us the following instructions:

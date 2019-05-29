@@ -51,7 +51,7 @@ ExasolImpl = (server as text,encrypted as text) as table =>
             EXAHOST = server,
             ENCRYPTION = _encrypt
             //,LOGMODE = "DEFAULT"
-            //,EXALOGFILE = "D:\tmp\odbclogfilepowerbi.txt"
+            //,EXALOGFILE = "C:\tmp\odbclogfilepowerbi.txt"
         ],
         OdbcDataSource = Odbc.DataSource(ConnectionString, [
             AstVisitor = [
@@ -85,6 +85,8 @@ ExasolImpl = (server as text,encrypted as text) as table =>
                     OdbcSqlType.CHAR = 1,
                     OdbcSqlType.SQL_WVARCHAR = -9,
                     OdbcSqlType.SQL_WCHAR = -8,
+                    OdbcSqlType.DECIMAL = 3,
+                    OdbcSqlType.BIGINT = -5,
 
                     FixDataType = (dataType) =>
                         if dataType = OdbcSqlType.VARCHAR then
@@ -96,13 +98,19 @@ ExasolImpl = (server as text,encrypted as text) as table =>
                     FixDataTypeName = (dataTypeName) =>
                         if dataTypeName = "VARCHAR" then
                             "SQL_WVARCHAR"
-                         else if dataTypeName = "CHAR" then
+                        else if dataTypeName = "CHAR" then
                             "SQL_WCHAR"
                         else
                             dataTypeName,
-                    Transform = Table.TransformColumns(source, { { "DATA_TYPE", FixDataType }, { "TYPE_NAME", FixDataTypeName } })
+                    Transform1 = Table.TransformColumns(source, { { "DATA_TYPE", FixDataType }, { "TYPE_NAME", FixDataTypeName } }),
+                    Transform2  = Table.FromRecords(Table.TransformRows(Transform1, (r) => Record.TransformFields(r, {
+                    {"DATA_TYPE", each if (r[DATA_TYPE]=OdbcSqlType.DECIMAL and r[DECIMAL_DIGITS]=0)  then OdbcSqlType.BIGINT else _},
+                    {"TYPE_NAME", each if (r[TYPE_NAME]="DECIMAL" and r[DECIMAL_DIGITS]=0)  then "BIGINT" else _}
+
+                    }))),
+                    Transform3 = Value.ReplaceType(Transform2, Value.Type(source))
                 in
-                    Transform,
+                    Transform3,
             SQLGetTypeInfo = (types as table) as table =>
                let
                    newTypes = #table(
@@ -130,8 +138,8 @@ ExasolImpl = (server as text,encrypted as text) as table =>
                 //GroupByCapabilities = 2 /*SQL_GB_GROUP_BY_CONTAINS_SELECT = 0x0002*/,
                 FractionalSecondsScale = 3 ,
                 SupportsNumericLiterals = true,
-                SupportsStringLiterals = true,
-                SupportsOdbcDateLiterals = true,
+                SupportsStringLiterals = true ,
+                SupportsOdbcDateLiterals = true ,
                 SupportsOdbcTimestampLiterals = true
             ],
             SQLGetFunctions = [

@@ -92,14 +92,14 @@ ExasolImpl = (server as text,encrypted as text) as table =>
                         if dataType = OdbcSqlType.VARCHAR then
                             OdbcSqlType.SQL_WVARCHAR
                         else if dataType = OdbcSqlType.CHAR then
-                            OdbcSqlType.SQL_WCHAR
+                            OdbcSqlType.SQL_WVARCHAR
                         else
                             dataType,
                     FixDataTypeName = (dataTypeName) =>
                         if dataTypeName = "VARCHAR" then
                             "SQL_WVARCHAR"
                         else if dataTypeName = "CHAR" then
-                            "SQL_WCHAR"
+                            "SQL_WVARCHAR"
                         else
                             dataTypeName,
                     Transform1 = Table.TransformColumns(source, { { "DATA_TYPE", FixDataType }, { "TYPE_NAME", FixDataTypeName } }),
@@ -152,9 +152,7 @@ ExasolImpl = (server as text,encrypted as text) as table =>
                 SQL_SQL92_RELATIONAL_JOIN_OPERATORS = 0x0000037F,
                 SQL_CONVERT_FUNCTIONS = 0x00000002, //  Tell Power BI that Exasol only knows Casts so no CONVERT functions are generated
                 SQL_CONVERT_VARCHAR = 0x0082F1FF,   // Tell Power BI that Exasol also is able to convert SQL_WVARCHAR, additional fix for Unicode characters (Exasol ODBC returns 0x0002F1FF)
-                SQL_CONVERT_CHAR = 0x0022F1FF ,   // Tell Power BI that Exasol also is able to convert SQL_WCHAR, additional fix for Unicode characters (Exasol ODBC returns 0x0002F1FF)
-                SQL_CONVERT_WVARCHAR = 0x0082F1FF,   // Tell Power BI that Exasol also is able to convert SQL_WVARCHAR, additional fix for Unicode characters (Exasol ODBC returns 0x0002F1FF)
-                SQL_CONVERT_WCHAR = 0x0022F1FF    // Tell Power BI that Exasol also is able to convert SQL_WCHAR, additional fix for Unicode characters (Exasol ODBC returns 0x0002F1FF)
+                SQL_CONVERT_WVARCHAR = 0x0082F1FF //,   // Tell Power BI that Exasol also is able to convert SQL_WVARCHAR, additional fix for Unicode characters (Exasol ODBC returns 0x0002F1FF)
                 ]
         ]),
         Database = OdbcDataSource{[Name = "EXA_DB"]}[Data]

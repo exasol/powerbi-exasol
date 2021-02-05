@@ -100,6 +100,8 @@ ExasolImpl = (server as text,encrypted as text) as table =>
                             "SQL_WVARCHAR"
                         else if dataTypeName = "CHAR" then
                             "SQL_WVARCHAR"
+                        else if dataTypeName = "HASHTYPE" then
+                            "SQL_WVARCHAR"
                         else
                             dataTypeName,
                     Transform1 = Table.TransformColumns(source, { { "DATA_TYPE", FixDataType }, { "TYPE_NAME", FixDataTypeName } }),

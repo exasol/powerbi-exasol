@@ -1,5 +1,5 @@
 ﻿// This file contains the Exasol Connector logic
-[version = "1.0.0"]
+[Version = "1.0.5"]
 section Exasol;
 
 

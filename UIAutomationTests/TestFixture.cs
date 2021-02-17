@@ -44,13 +44,9 @@ namespace UIAutomationTests
             AcquireDebugTargetButton();
             PressDebugTargetButton();
 
-            //this needs to be checked
             AcquireMQueryWindowAndAcquireTabsWhenFullyLoaded();
-            //LoadCredentials -> this might be expanded later (and moved), several credential types will probably be possible & supported, for now we'll use the 1 local credential file always
-            //LoadCredentials(credentialsFile, cf, MQueryOutput, tabItemAEs).Wait();
-            //LoadCredentials is too wonky, it sometimes seems to work, sometimes don't, it complains about the Exasol datasource not being supported
-            
-            //entering the credentials seems to be more trustworthy
+
+            //entering the credentials seems to be more reliable
             EnterCredentials();
 
             SaveAndBackupOriginalQueryString();
@@ -67,13 +63,13 @@ namespace UIAutomationTests
             var errorsTabAE = tabItemAEs[2];
             errorsTabAE.AsTabItem().Select();
 
-            var comboBoxes = WaitUntilMultipleFoundAsync(errorsTabAE,FlaUI.Core.Definitions.TreeScope.Descendants, cf.ByControlType(FlaUI.Core.Definitions.ControlType.ComboBox)).Result;
+            var comboBoxes = WaitUntilMultipleFoundAsync(errorsTabAE, FlaUI.Core.Definitions.TreeScope.Descendants, cf.ByControlType(FlaUI.Core.Definitions.ControlType.ComboBox)).Result;
             //comboBoxes = errorsTabAE.FindAll(FlaUI.Core.Definitions.TreeScope.Descendants, cf.ByControlType(FlaUI.Core.Definitions.ControlType.ComboBox));
             var cbCredentialType = comboBoxes[1].AsComboBox();
             cbCredentialType.Select(0);
 
             var textBoxes = errorsTabAE.FindAll(FlaUI.Core.Definitions.TreeScope.Descendants, cf.ByControlType(FlaUI.Core.Definitions.ControlType.Edit));
-            textBoxes[0].AsTextBox().Text="sys";
+            textBoxes[0].AsTextBox().Text = "sys";
             textBoxes[1].AsTextBox().Text = "exasol";
 
             var buttons = errorsTabAE.FindAll(FlaUI.Core.Definitions.TreeScope.Descendants, cf.ByControlType(FlaUI.Core.Definitions.ControlType.Button));
@@ -83,7 +79,6 @@ namespace UIAutomationTests
 
         private void PrepVisualStudio()
         {
-
             app = FlaUI.Core.Application.Launch(vsExecutablePath, slnPath);
 
             automation = new UIA3Automation();
@@ -93,16 +88,13 @@ namespace UIAutomationTests
             //https://markheath.net/post/async-antipatterns
             mainWindow = WaitUntillSlnIsLoadedAsync(app, automation).Result;
 
-
-
         }
 
         private void AcquireMQueryWindowAndAcquireTabsWhenFullyLoaded()
         {
             MQueryOutput = WaitUntilFindFirstFoundAsync(mainWindow, FlaUI.Core.Definitions.TreeScope.Descendants, cf.ByName("M Query Output")).Result;
-            //!!!TODO: check if on the second test the tabs are correctly loaded after it's run or they're visible before the query has executed..
+
             //acquire tabs
-            //tabItemAEs = WaitUntilMultipleFoundAsync(MQueryOutput, FlaUI.Core.Definitions.TreeScope.Descendants, cf.ByControlType(FlaUI.Core.Definitions.ControlType.TabItem)).Result;
             tabItemAEs = WaitUntilMultipleFoundAsync(MQueryOutput, FlaUI.Core.Definitions.TreeScope.Descendants, cf.ByControlType(FlaUI.Core.Definitions.ControlType.TabItem)).Result;
         }
 
@@ -167,9 +159,7 @@ namespace UIAutomationTests
 
             while (debugTargetButton is null)
             {
-                
                 mainWindow = app.GetMainWindow(automation);
-
 
                 debugTargetButton = mainWindow.FindFirst(FlaUI.Core.Definitions.TreeScope.Descendants, cf.ByName("Debug Target"));
 
@@ -179,7 +169,6 @@ namespace UIAutomationTests
                 }
 
                 await Task.Delay(delayMSeconds);
-
             }
             return mainWindow;
 

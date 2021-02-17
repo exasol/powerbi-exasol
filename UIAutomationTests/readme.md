@@ -13,5 +13,4 @@ Provides a way of automatically testing the Exasol PowerBI Connector
 
 ## Current todos:
 - Elaborate tests (highest prio)
-- Figure out why visual studio isn't closed properly in the TextFixture.dispose
 - provide configuration in a config file eventually

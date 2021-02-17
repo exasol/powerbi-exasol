@@ -18,8 +18,6 @@ namespace UIAutomationTests
         string vsExecutablePath = $@"C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\Common7\IDE\devenv.exe";
         string slnPath = $@"C:\repos\powerbi-exasol\Exasol\Exasol.mproj";
 
-        string credentialsFile = $@"C:\repos\powerbi-exasol\Exasol\localExaUsernameAndPassword.crd";
-
         string queryPqPath = $@"C:\repos\powerbi-exasol\Exasol\Exasol.query.pq";
         string originalQueryPqStr;
 
@@ -187,31 +185,6 @@ namespace UIAutomationTests
 
         }
 
-        private static async Task LoadCredentials(string credentialsFile, ConditionFactory cf, AutomationElement MQueryOutput, AutomationElement[] tabItemAEs)
-        {
-
-
-            var credentialsTab = tabItemAEs[3];
-            //You need to select the tab explicitly for this to load, we'll need to do this for every action on the respective tab
-            credentialsTab.AsTabItem().Select();
-
-            var credentialsTabButtons = credentialsTab.FindAll(FlaUI.Core.Definitions.TreeScope.Descendants, cf.ByControlType(FlaUI.Core.Definitions.ControlType.Button));
-
-            var loadCredentialsTabButton = credentialsTabButtons[3];
-            loadCredentialsTabButton.AsButton().Invoke();
-            //Here the load screen opens so it's possible we need to wait a bit
-
-            var loadCredentialsPathFileNameAE = await WaitUntilFindFirstFoundAsync(MQueryOutput, FlaUI.Core.Definitions.TreeScope.Descendants, cf.ByAutomationId("1148"));
-            var txtFileName = loadCredentialsPathFileNameAE.AsComboBox();
-            //simulate entering the path
-            txtFileName.EditableText = credentialsFile;
-            loadCredentialsPathFileNameAE.FocusNative();
-            await Task.Delay(200);
-            Keyboard.Type(VirtualKeyShort.ENTER);
-            await Task.Delay(200);
-        }
-
-
         private static async Task<AutomationElement> WaitUntilFindFirstFoundAsync(AutomationElement parent, FlaUI.Core.Definitions.TreeScope treeScope, ConditionBase condition)
         {
             int delayMSeconds = 200;
@@ -242,25 +215,6 @@ namespace UIAutomationTests
                 elements = parent.FindAll(treeScope, condition);
 
                 if (elements.Length > 0)
-                {
-                    break;
-                }
-                await Task.Delay(delayMSeconds);
-            }
-            return elements;
-
-        }
-        private static async Task<AutomationElement[]> WaitUntilMultipleFoundWithNrOfElementsAsync(AutomationElement parent, FlaUI.Core.Definitions.TreeScope treeScope, ConditionBase condition, int nr)
-        {
-            int delayMSeconds = 200;
-            AutomationElement[] elements = { };
-
-            while (elements.Length != nr)
-            {
-
-                elements = parent.FindAll(treeScope, condition);
-
-                if (elements.Length == nr)
                 {
                     break;
                 }

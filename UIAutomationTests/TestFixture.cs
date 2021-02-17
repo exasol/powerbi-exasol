@@ -12,7 +12,7 @@ using System.Threading.Tasks;
 
 namespace UIAutomationTests
 {
-    public class TestFixture
+    public class TestFixture : IDisposable
     {
 
         string vsExecutablePath = $@"C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\Common7\IDE\devenv.exe";

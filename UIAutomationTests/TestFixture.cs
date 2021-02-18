@@ -38,17 +38,12 @@ namespace UIAutomationTests
         public TestFixture()
         {
             PrepVisualStudio();
-
             SetupConditionFactory();
-
             AcquireDebugTargetButton();
             PressDebugTargetButton();
-
             AcquireMQueryWindowAndAcquireTabsWhenFullyLoaded();
-
-            //entering the credentials seems to be more reliable
+            //entering the credentials seems to be more reliable than loading them
             EnterCredentials();
-
             SaveAndBackupOriginalQueryString();
         }
 
@@ -64,7 +59,6 @@ namespace UIAutomationTests
             errorsTabAE.AsTabItem().Select();
 
             var comboBoxes = WaitUntilMultipleFoundAsync(errorsTabAE, FlaUI.Core.Definitions.TreeScope.Descendants, cf.ByControlType(FlaUI.Core.Definitions.ControlType.ComboBox)).Result;
-            //comboBoxes = errorsTabAE.FindAll(FlaUI.Core.Definitions.TreeScope.Descendants, cf.ByControlType(FlaUI.Core.Definitions.ControlType.ComboBox));
             var cbCredentialType = comboBoxes[1].AsComboBox();
             cbCredentialType.Select(0);
 
@@ -87,13 +81,11 @@ namespace UIAutomationTests
 
             //https://markheath.net/post/async-antipatterns
             mainWindow = WaitUntillSlnIsLoadedAsync(app, automation).Result;
-
         }
 
         private void AcquireMQueryWindowAndAcquireTabsWhenFullyLoaded()
         {
             MQueryOutput = WaitUntilFindFirstFoundAsync(mainWindow, FlaUI.Core.Definitions.TreeScope.Descendants, cf.ByName("M Query Output")).Result;
-
             //acquire tabs
             tabItemAEs = WaitUntilMultipleFoundAsync(MQueryOutput, FlaUI.Core.Definitions.TreeScope.Descendants, cf.ByControlType(FlaUI.Core.Definitions.ControlType.TabItem)).Result;
         }
@@ -130,10 +122,8 @@ namespace UIAutomationTests
             btn.Invoke();
 
             //Read results
-
             Console.WriteLine("Writing from output grid :");
             var outputDataGridAE = await WaitUntilFindFirstFoundAsync(tabItemAEs[0], FlaUI.Core.Definitions.TreeScope.Descendants, (cf.ByControlType(FlaUI.Core.Definitions.ControlType.DataGrid)));
-
             var outputDataGrid = outputDataGridAE.AsGrid();
 
             return outputDataGrid;

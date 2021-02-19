@@ -13,27 +13,27 @@ namespace UIAutomationTests
             testFixture = tf;
         }
         [Fact]
-        public async void TestAW()
+        public void TestAW()
         {
             string MQueryExpression = File.ReadAllText("QueryPqFiles/ExasolAW.query.pq");
 
-            var resultGrid = await testFixture.RunTest(MQueryExpression);
+            var resultGrid = testFixture.RunTest(MQueryExpression);
             Assert.True(resultGrid.RowCount > 1, $@"actual rowCount is {resultGrid.RowCount}");
         }
         [Fact]
-        public async void  Test1()
+        public void  Test1()
         {
             string MQueryExpression = File.ReadAllText("QueryPqFiles/Exasol.query.pq");
 
-            var resultGrid = await testFixture.RunTest(MQueryExpression);
+            var resultGrid = testFixture.RunTest(MQueryExpression);
             Assert.True(resultGrid.RowCount == 1,$@"actual rowCount is {resultGrid.RowCount}");
         }
         [Fact]
-        public async void TestAW2()
+        public void TestAW2()
         {
             string MQueryExpression = File.ReadAllText("QueryPqFiles/ExasolAW.query.pq");
 
-            var resultGrid = await testFixture.RunTest(MQueryExpression);
+            var resultGrid = testFixture.RunTest(MQueryExpression);
             Assert.True(resultGrid.RowCount > 1,$@"actual rowCount is {resultGrid.RowCount}");
         }
 

@@ -111,7 +111,7 @@ namespace UIAutomationTests
 
         private void AcquireDebugTargetButton()
         {
-            debugTargetButtonAE = mainWindow.FindFirst(FlaUI.Core.Definitions.TreeScope.Descendants, cf.ByName("Debug Target"));
+            debugTargetButtonAE =WaitUntilFirstFound(mainWindow, FlaUI.Core.Definitions.TreeScope.Descendants, cf.ByName("Debug Target"));
             debugTargetButton = debugTargetButtonAE.AsButton();
         }
 

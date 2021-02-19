@@ -21,6 +21,9 @@ namespace UIAutomationTests
         string queryPqPath = $@"C:\repos\powerbi-exasol\Exasol\Exasol.query.pq";
         string originalQueryPqStr;
 
+        string username = "sys";
+        string password = "exasol";
+
         Application app;
         UIA3Automation automation;
 
@@ -63,8 +66,8 @@ namespace UIAutomationTests
             cbCredentialType.Select(0);
 
             var textBoxes = errorsTabAE.FindAll(FlaUI.Core.Definitions.TreeScope.Descendants, cf.ByControlType(FlaUI.Core.Definitions.ControlType.Edit));
-            textBoxes[0].AsTextBox().Text = "sys";
-            textBoxes[1].AsTextBox().Text = "exasol";
+            textBoxes[0].AsTextBox().Text = username;
+            textBoxes[1].AsTextBox().Text = password;
 
             var buttons = errorsTabAE.FindAll(FlaUI.Core.Definitions.TreeScope.Descendants, cf.ByControlType(FlaUI.Core.Definitions.ControlType.Button));
             buttons[0].AsButton().Invoke();

@@ -61,22 +61,22 @@ ExasolImpl = (server as text,encrypted as text) as table =>
                             else
                                 if skip = 0 then
                                     let
-
-                                    in 
-
-                                    [
+                                    rec = [
                                         Text = Text.Format("LIMIT #{0}", { take }),
                                         Location = "AfterQuerySpecification"
                                     ]
+                                    in 
+                                    rec
                                 else
                                     let
-                                        
-                                    in
-                                        [
+                                    rec = [
  
                                             Text = Text.Format("LIMIT #{0} OFFSET #{1}", { take, skip }),
                                             Location = "AfterQuerySpecification"
-                                        ]
+                                        ]   
+                                    in
+                                    rec
+
             ],
             // Fixing Unicode issue by mapping the Exasol VARCHAR and CHAR Datatypes to SQL_WVARCHAR and SQL_WCHAR
             SQLColumns = (catalogName, schemaName, tableName, columnName, source) =>

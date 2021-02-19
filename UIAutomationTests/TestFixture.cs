@@ -126,10 +126,10 @@ namespace UIAutomationTests
         public Grid RunTest(string MQueryExpression)
         {
             File.WriteAllText(queryPqPath, MQueryExpression);
-            return RunTest(cf, debugTargetButton, tabItemAEs);
+            return RunTest();
         }
 
-        private Grid RunTest(ConditionFactory cf, Button btn, AutomationElement[] tabItemAEs)
+        private Grid RunTest()
         {
             //Run again
             PressDebugTargetButton();

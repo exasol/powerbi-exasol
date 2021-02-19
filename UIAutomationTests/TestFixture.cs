@@ -44,6 +44,7 @@ namespace UIAutomationTests
             SetupConditionFactory();
             AcquireDebugTargetButton();
             PressDebugTargetButton();
+            WaitUntilBuildTasksAreDone();
             AcquireMQueryWindowAndAcquireTabsWhenFullyLoaded();
             //entering the credentials seems to be more reliable than loading them
             EnterCredentials();
@@ -96,6 +97,17 @@ namespace UIAutomationTests
         private void PressDebugTargetButton()
         {
             debugTargetButton.Invoke();
+        }
+
+        private void WaitUntilBuildTasksAreDone()
+        {
+            int delayMSeconds = 200;
+            AcquireDebugTargetButton();
+            while (debugTargetButton.IsEnabled == false)
+            {
+                Task.Delay(delayMSeconds).Wait();
+                AcquireDebugTargetButton();
+            }
         }
 
         private void AcquireDebugTargetButton()

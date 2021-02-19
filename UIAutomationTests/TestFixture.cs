@@ -126,18 +126,23 @@ namespace UIAutomationTests
         public Grid RunTest(string MQueryExpression)
         {
             File.WriteAllText(queryPqPath, MQueryExpression);
-            return await RunTest(cf, debugTargetButton, tabItemAEs);
+            return RunTest(cf, debugTargetButton, tabItemAEs);
         }
 
-        private static async Task<Grid> RunTest(ConditionFactory cf, Button btn, AutomationElement[] tabItemAEs)
+        private Grid RunTest(ConditionFactory cf, Button btn, AutomationElement[] tabItemAEs)
         {
             //Run again
-            btn.Invoke();
+            PressDebugTargetButton();
+            WaitUntilBuildTasksAreDone();
+            AcquireMQueryWindowAndAcquireTabsWhenFullyLoaded();
+            return GetResultGrid();
+        }
 
-            //Read results
-            var outputDataGridAE = await WaitUntilFindFirstFoundAsync(tabItemAEs[0], FlaUI.Core.Definitions.TreeScope.Descendants, (cf.ByControlType(FlaUI.Core.Definitions.ControlType.DataGrid)));
+        private Grid GetResultGrid()
+        {
+            var resultTab = tabItemAEs[0];
+            var outputDataGridAE = WaitUntilFirstFound(resultTab, FlaUI.Core.Definitions.TreeScope.Descendants, (cf.ByControlType(FlaUI.Core.Definitions.ControlType.DataGrid)));
             var outputDataGrid = outputDataGridAE.AsGrid();
-
             return outputDataGrid;
         }
 

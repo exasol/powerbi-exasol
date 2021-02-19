@@ -89,9 +89,9 @@ namespace UIAutomationTests
 
         private void AcquireMQueryWindowAndAcquireTabsWhenFullyLoaded()
         {
-            MQueryOutput = WaitUntilFindFirstFoundAsync(mainWindow, FlaUI.Core.Definitions.TreeScope.Descendants, cf.ByName("M Query Output")).Result;
+            MQueryOutput = WaitUntilFirstFound(mainWindow, FlaUI.Core.Definitions.TreeScope.Descendants, cf.ByName("M Query Output"));
             //acquire tabs
-            tabItemAEs = WaitUntilMultipleFoundAsync(MQueryOutput, FlaUI.Core.Definitions.TreeScope.Descendants, cf.ByControlType(FlaUI.Core.Definitions.ControlType.TabItem)).Result;
+            tabItemAEs = WaitUntilAtLeastNFound(MQueryOutput, FlaUI.Core.Definitions.TreeScope.Descendants, cf.ByControlType(FlaUI.Core.Definitions.ControlType.TabItem), 4);
         }
 
         private void PressDebugTargetButton()
@@ -214,7 +214,22 @@ namespace UIAutomationTests
                 await Task.Delay(delayMSeconds);
             }
             return elements;
+        private static AutomationElement[] WaitUntilAtLeastNFound(AutomationElement parent, FlaUI.Core.Definitions.TreeScope treeScope, ConditionBase condition,int nr)
+        {
+            int delayMSeconds = 200;
+            AutomationElement[] elements = { };
 
+            while (elements.Length < nr)
+            {
+                elements = parent.FindAll(treeScope, condition);
+
+                if (elements.Length >= nr)
+                {
+                    break;
+                }
+                Task.Delay(delayMSeconds).Wait();
+            }
+            return elements;
         }
 
     }

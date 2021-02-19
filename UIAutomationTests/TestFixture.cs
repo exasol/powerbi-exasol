@@ -62,7 +62,7 @@ namespace UIAutomationTests
             var errorsTabAE = tabItemAEs[2];
             errorsTabAE.AsTabItem().Select();
 
-            var comboBoxes = WaitUntilMultipleFoundAsync(errorsTabAE, FlaUI.Core.Definitions.TreeScope.Descendants, cf.ByControlType(FlaUI.Core.Definitions.ControlType.ComboBox)).Result;
+            var comboBoxes = WaitUntilMultipleFound(errorsTabAE, FlaUI.Core.Definitions.TreeScope.Descendants, cf.ByControlType(FlaUI.Core.Definitions.ControlType.ComboBox));
             var cbCredentialType = comboBoxes[1].AsComboBox();
             cbCredentialType.Select(0);
 
@@ -83,8 +83,7 @@ namespace UIAutomationTests
             automation.ConnectionTimeout = new TimeSpan(0, 1, 0);
             automation.TransactionTimeout = new TimeSpan(0, 1, 0);
 
-            //https://markheath.net/post/async-antipatterns
-            mainWindow = WaitUntillSlnIsLoadedAsync(app, automation).Result;
+            mainWindow = WaitUntillSlnIsLoaded(app, automation);
         }
 
         private void AcquireMQueryWindowAndAcquireTabsWhenFullyLoaded()
@@ -124,8 +123,7 @@ namespace UIAutomationTests
             File.WriteAllText($@"c:\temp\pq.backup", originalQueryPqStr);
         }
 
-        //
-        public async Task<Grid> RunTest(string MQueryExpression)
+        public Grid RunTest(string MQueryExpression)
         {
             File.WriteAllText(queryPqPath, MQueryExpression);
             return await RunTest(cf, debugTargetButton, tabItemAEs);
@@ -143,7 +141,6 @@ namespace UIAutomationTests
             return outputDataGrid;
         }
 
-
         public void Dispose()
         {
             // Do "global" teardown here; Only called once.
@@ -153,7 +150,7 @@ namespace UIAutomationTests
             File.WriteAllText(queryPqPath, originalQueryPqStr);
         }
 
-        private static async Task<Window> WaitUntillSlnIsLoadedAsync(FlaUI.Core.Application app, UIA3Automation automation)
+        private static Window WaitUntillSlnIsLoaded(FlaUI.Core.Application app, UIA3Automation automation)
         {
             int delayMSeconds = 500;
 
@@ -172,13 +169,13 @@ namespace UIAutomationTests
                     break;
                 }
 
-                await Task.Delay(delayMSeconds);
+                Task.Delay(delayMSeconds).Wait();
             }
             return mainWindow;
 
         }
 
-        private static async Task<AutomationElement> WaitUntilFindFirstFoundAsync(AutomationElement parent, FlaUI.Core.Definitions.TreeScope treeScope, ConditionBase condition)
+        private static AutomationElement WaitUntilFirstFound(AutomationElement parent, FlaUI.Core.Definitions.TreeScope treeScope, ConditionBase condition)
         {
             int delayMSeconds = 200;
             AutomationElement futureHandle = null;
@@ -192,12 +189,12 @@ namespace UIAutomationTests
                 {
                     break;
                 }
-                await Task.Delay(delayMSeconds);
+                Task.Delay(delayMSeconds).Wait();
             }
             return futureHandle;
 
         }
-        private static async Task<AutomationElement[]> WaitUntilMultipleFoundAsync(AutomationElement parent, FlaUI.Core.Definitions.TreeScope treeScope, ConditionBase condition)
+        private static AutomationElement[] WaitUntilMultipleFound(AutomationElement parent, FlaUI.Core.Definitions.TreeScope treeScope, ConditionBase condition)
         {
             int delayMSeconds = 200;
             AutomationElement[] elements = { };
@@ -211,9 +208,10 @@ namespace UIAutomationTests
                 {
                     break;
                 }
-                await Task.Delay(delayMSeconds);
+                Task.Delay(delayMSeconds).Wait();
             }
             return elements;
+        }
         private static AutomationElement[] WaitUntilAtLeastNFound(AutomationElement parent, FlaUI.Core.Definitions.TreeScope treeScope, ConditionBase condition,int nr)
         {
             int delayMSeconds = 200;

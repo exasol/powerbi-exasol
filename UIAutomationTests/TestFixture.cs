@@ -66,7 +66,7 @@ namespace UIAutomationTests
             var cbCredentialType = comboBoxes[1].AsComboBox();
             cbCredentialType.Select(0);
 
-            var textBoxes = errorsTabAE.FindAll(FlaUI.Core.Definitions.TreeScope.Descendants, cf.ByControlType(FlaUI.Core.Definitions.ControlType.Edit));
+            var textBoxes = WaitUntilAtLeastNFound( errorsTabAE,FlaUI.Core.Definitions.TreeScope.Descendants, cf.ByControlType(FlaUI.Core.Definitions.ControlType.Edit), 2);
             textBoxes[0].AsTextBox().Text = username;
             textBoxes[1].AsTextBox().Text = password;
 

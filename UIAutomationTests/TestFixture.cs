@@ -122,7 +122,6 @@ namespace UIAutomationTests
             btn.Invoke();
 
             //Read results
-            Console.WriteLine("Writing from output grid :");
             var outputDataGridAE = await WaitUntilFindFirstFoundAsync(tabItemAEs[0], FlaUI.Core.Definitions.TreeScope.Descendants, (cf.ByControlType(FlaUI.Core.Definitions.ControlType.DataGrid)));
             var outputDataGrid = outputDataGridAE.AsGrid();
 

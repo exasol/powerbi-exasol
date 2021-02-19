@@ -46,9 +46,10 @@ namespace UIAutomationTests
             PressDebugTargetButton();
             WaitUntilBuildTasksAreDone();
             AcquireMQueryWindowAndAcquireTabsWhenFullyLoaded();
-            //entering the credentials seems to be more reliable than loading them
+            //the errors tab will pop up and ask for credentials
+            //entering the credentials seems to be more reliable than loading them (credential loading seems buggy!)
             EnterCredentials();
-            SaveAndBackupOriginalQueryString();
+            MakeBackup();
         }
 
         private void SetupConditionFactory()
@@ -58,7 +59,6 @@ namespace UIAutomationTests
 
         private void EnterCredentials()
         {
-            //the errors tab will pop up and ask for credentials
             var errorsTabAE = tabItemAEs[2];
             errorsTabAE.AsTabItem().Select();
 
@@ -115,11 +115,9 @@ namespace UIAutomationTests
             debugTargetButton = debugTargetButtonAE.AsButton();
         }
 
-        private void SaveAndBackupOriginalQueryString()
+        private void MakeBackup()
         {
-            //store original query pq text
             originalQueryPqStr = File.ReadAllText(queryPqPath);
-            //make a backup
             File.WriteAllText($@"c:\temp\pq.backup", originalQueryPqStr);
         }
 
@@ -131,7 +129,6 @@ namespace UIAutomationTests
 
         private Grid RunTest()
         {
-            //Run again
             PressDebugTargetButton();
             WaitUntilBuildTasksAreDone();
             AcquireMQueryWindowAndAcquireTabsWhenFullyLoaded();
@@ -151,14 +148,17 @@ namespace UIAutomationTests
             // Do "global" teardown here; Only called once.
             automation.Dispose();
             app.Close();
-            //put original query pq file back
+            RestoreQueryPq();
+        }
+        //put original query pq file back
+        private void RestoreQueryPq()
+        {         
             File.WriteAllText(queryPqPath, originalQueryPqStr);
         }
 
         private static Window WaitUntillSlnIsLoaded(FlaUI.Core.Application app, UIA3Automation automation)
         {
             int delayMSeconds = 500;
-
             var cf = new ConditionFactory(new UIA3PropertyLibrary());
             AutomationElement debugTargetButton = null;
             Window mainWindow = null;

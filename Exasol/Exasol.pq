@@ -157,7 +157,12 @@ Odbc.DataSource.Options = [
     SQLGetFunctions = Odbc.Datasource.Options.SQLGetFunctions,
     SQLGetInfo = Odbc.Datasource.Options.SQLGetInfo
 ];
-//!!! definitely recheck the changes to AstVisitor
+// General information on all the Odbc Datasource options:
+// https://docs.microsoft.com/en-us/power-query/odbc
+
+// AstVisitor
+// A record containing one or more overrides to control SQL query generation. 
+// The most common usage of this field is to provide logic to generate a LIMIT/OFFSET clause for drivers that don't support TOP.
 Odbc.DataSource.Options.AstVisitor = 
 [
                         LimitClause = (skip, take) =>
@@ -182,6 +187,8 @@ Odbc.DataSource.Options.AstVisitor =
                                             Location = "AfterQuerySpecification"
                                         ]
 ]
+
+// A function that allows you to modify column metadata returned by the SQLColumns function.
 // Fixing Unicode issue by mapping the Exasol VARCHAR and CHAR Datatypes to SQL_WVARCHAR and SQL_WCHAR
 Odbc.DataSource.Options.SQLColumns =
     (catalogName, schemaName, tableName, columnName, source) =>
@@ -273,6 +280,10 @@ Odbc.DataSource.Options.SQLColumns =
                 )
         in
             Transform3;
+
+// A table, or function that returns a table, that overrides the type information returned by SQLGetTypeInfo.
+// ...
+// When the value is set to a function, your function will receive the result of the original call to SQLGetTypeInfo, allowing you to modify the table.
 Odbc.DataSource.Options.SQLGetTypeInfo =
     (types as table) as table =>
         let
@@ -354,6 +365,8 @@ Odbc.DataSource.Options.SQLGetTypeInfo =
                 )
         in
             append;
+
+// A record providing various overrides of driver capabilities, and a way to specify capabilities that aren't expressed through ODBC 3.8.
 Odbc.Datasource.Options.SqlCapabilities = [
     Sql92Conformance = 8/* SQL_SC_SQL92_FULL */ ,
     //GroupByCapabilities = 2 /*SQL_GB_GROUP_BY_CONTAINS_SELECT = 0x0002*/,
@@ -363,9 +376,14 @@ Odbc.Datasource.Options.SqlCapabilities = [
     SupportsOdbcDateLiterals = true,
     SupportsOdbcTimestampLiterals = true
 ];
+
+// A record that allows you to override values returned by calls to SQLGetFunctions.
+// A common use of this field is to disable the use of parameter binding, or to specify that generated queries should use CAST rather than CONVERT.
 Odbc.Datasource.Options.SQLGetFunctions = [
     SQL_API_SQLBINDPARAMETER = false
 ];
+
+// A record that allows you to override values returned by calls to SQLGetInfo.
 Odbc.Datasource.Options.SQLGetInfo = [
     SQL_SQL92_PREDICATES = 0x00001F07,
     SQL_AGGREGATE_FUNCTIONS = 0x7F,

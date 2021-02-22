@@ -158,35 +158,30 @@ Odbc.DataSource.Options = [
     SQLGetInfo = Odbc.Datasource.Options.SQLGetInfo
 ];
 //!!! definitely recheck the changes to AstVisitor
-Odbc.DataSource.Options.AstVisitor = [
-    LimitClause =
-        (skip, take) =>
-            if skip = 0 and take = null then
-                ...
-            else if skip = 0 then
-                let
-                    rec = [
-                        Text = Text.Format("LIMIT #{0}", {take}),
-                        Location = "AfterQuerySpecification"
-                    ]
-                in
-                    rec
-            else
-                let
-                    rec = [
-                        Text =
-                            Text.Format(
-                                "LIMIT #{0} OFFSET #{1}",
-                                {
-                                    take,
-                                    skip
-                                }
-                            ),
-                        Location = "AfterQuerySpecification"
-                    ]
-                in
-                    rec
-];
+Odbc.DataSource.Options.AstVisitor = 
+[
+                        LimitClause = (skip, take) =>
+                            if skip = 0 and take = null then
+                                ...
+                            else
+                                if skip = 0 then
+                                    let
+                                    
+                                    in
+                                    [
+                                        Text = Text.Format("LIMIT #{0}", { take }),
+                                        Location = "AfterQuerySpecification"
+                                    ]
+                                else
+                                    let
+                                        
+                                    in
+                                        [
+ 
+                                            Text = Text.Format("LIMIT #{0} OFFSET #{1}", { take, skip }),
+                                            Location = "AfterQuerySpecification"
+                                        ]
+]
 // Fixing Unicode issue by mapping the Exasol VARCHAR and CHAR Datatypes to SQL_WVARCHAR and SQL_WCHAR
 Odbc.DataSource.Options.SQLColumns =
     (catalogName, schemaName, tableName, columnName, source) =>

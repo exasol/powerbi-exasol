@@ -29,6 +29,7 @@ Diagnostics.LogValue =
     DataSource.Kind = "Exasol",
     Publish = "Exasol.Publish"
 ]
+
 shared Exasol.Database =
     Value.ReplaceType(
         ExasolImpl,
@@ -73,6 +74,13 @@ ExasolType =
 ExasolImpl =
     (server as text, encrypted as text) as table =>
         let
+        Odbc.ConnectionString = [
+    DRIVER = "EXASolution Driver",
+    EXAHOST = server,
+    ENCRYPTION = _encrypt
+//,LOGMODE = "DEFAULT"
+//,EXALOGFILE = "C:\tmp\odbclogfilepowerbi.txt"
+],
             _encrypt =
                 if encrypted = "Yes" then
                     "Y"
@@ -139,13 +147,7 @@ Exasol.Icons = [
     }
 ];
 
-Odbc.ConnectionString = [
-    DRIVER = "EXASolution Driver",
-    EXAHOST = server,
-    ENCRYPTION = _encrypt
-//,LOGMODE = "DEFAULT"
-//,EXALOGFILE = "C:\tmp\odbclogfilepowerbi.txt"
-];
+
 Odbc.DataSource.Options = [
     AstVisitor = Odbc.DataSource.Options.AstVisitor,
     SQLColumns = Odbc.DataSource.Options.SQLColumns,
@@ -171,7 +173,7 @@ Odbc.DataSource.Options.AstVisitor =
                             else
                                 if skip = 0 then
                                     let
-                                    
+                                    b = ""
                                     in
                                     [
                                         Text = Text.Format("LIMIT #{0}", { take }),
@@ -179,14 +181,14 @@ Odbc.DataSource.Options.AstVisitor =
                                     ]
                                 else
                                     let
-                                        
+                                    b = ""
                                     in
                                         [
  
                                             Text = Text.Format("LIMIT #{0} OFFSET #{1}", { take, skip }),
                                             Location = "AfterQuerySpecification"
                                         ]
-]
+];
 
 // A function that allows you to modify column metadata returned by the SQLColumns function.
 // Fixing Unicode issue by mapping the Exasol VARCHAR and CHAR Datatypes to SQL_WVARCHAR and SQL_WCHAR

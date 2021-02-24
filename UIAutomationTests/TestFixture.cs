@@ -121,28 +121,68 @@ namespace UIAutomationTests
             File.WriteAllText($@"c:\temp\pq.backup", originalQueryPqStr);
         }
 
-        public Grid RunTest(string MQueryExpression)
+        public (string Error, Grid Grid) Test(string MQueryExpression)
         {
             File.WriteAllText(queryPqPath, MQueryExpression);
-            return RunTest();
+            RunTest();
+            return GetResults();
         }
 
-        private Grid RunTest()
+        private (string Error,Grid Grid) GetResults()
+        {
+            var error = GetErrorReport();
+            var grid = GetResultGrid();
+            var t = (error,grid);
+            return t;
+        }
+
+        private string GetErrorReport()
+        {
+            SelectErrorsTab();
+            return  GrabErrorText();
+
+        }
+
+        private string GrabErrorText()
+        {
+            var errorsTab = tabItemAEs[2];
+            var errorReportText = WaitUntilFirstFound(errorsTab, FlaUI.Core.Definitions.TreeScope.Descendants, (cf.ByAutomationId("ErrorReport")));
+            var errorReportTextLabel = errorReportText.AsLabel();
+            return errorReportTextLabel.Text;
+        }
+
+        private void RunTest()
         {
             PressDebugTargetButton();
             WaitUntilBuildTasksAreDone();
             AcquireMQueryWindowAndAcquireTabsWhenFullyLoaded();
-            return GetResultGrid();
+
         }
 
         private Grid GetResultGrid()
         {
-            var resultTab = tabItemAEs[0];
-            var outputDataGridAE = WaitUntilFirstFound(resultTab, FlaUI.Core.Definitions.TreeScope.Descendants, (cf.ByControlType(FlaUI.Core.Definitions.ControlType.DataGrid)));
+            SelectOutputTab();      
+            return GrabGrid();
+        }
+
+        private Grid GrabGrid()
+        {
+            var outputTab = tabItemAEs[0];
+            var outputDataGridAE = WaitUntilFirstFound(outputTab, FlaUI.Core.Definitions.TreeScope.Descendants, (cf.ByControlType(FlaUI.Core.Definitions.ControlType.DataGrid)));
             var outputDataGrid = outputDataGridAE.AsGrid();
             return outputDataGrid;
         }
 
+        private void SelectOutputTab()
+        {
+            var outputTab = tabItemAEs[0];
+            outputTab.AsTabItem().Select();
+        }
+        private void SelectErrorsTab()
+        {
+            var errorsTab = tabItemAEs[2];
+            errorsTab.AsTabItem().Select();
+        }
         public void Dispose()
         {
             // Do "global" teardown here; Only called once.

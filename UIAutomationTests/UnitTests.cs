@@ -17,24 +17,31 @@ namespace UIAutomationTests
         {
             string MQueryExpression = File.ReadAllText("QueryPqFiles/ExasolAW.query.pq");
 
-            var resultGrid = testFixture.RunTest(MQueryExpression);
-            Assert.True(resultGrid.RowCount > 1, $@"actual rowCount is {resultGrid.RowCount}");
+            var (error, grid) = testFixture.Test(MQueryExpression);
+
+            
+            Assert.True(String.IsNullOrWhiteSpace(error),$@"Errormessage: {error}");
+            Assert.True(grid.RowCount > 1, $@"actual rowCount is {grid.RowCount}");
         }
         [Fact]
         public void  Test1()
         {
             string MQueryExpression = File.ReadAllText("QueryPqFiles/Exasol.query.pq");
 
-            var resultGrid = testFixture.RunTest(MQueryExpression);
-            Assert.True(resultGrid.RowCount == 1,$@"actual rowCount is {resultGrid.RowCount}");
+            var (error, grid) = testFixture.Test(MQueryExpression);
+
+            Assert.True(String.IsNullOrWhiteSpace(error), $@"Errormessage: {error}");
+            Assert.True(grid.RowCount == 1,$@"actual rowCount is {grid.RowCount}");
         }
         [Fact]
         public void TestAW2()
         {
             string MQueryExpression = File.ReadAllText("QueryPqFiles/ExasolAW.query.pq");
 
-            var resultGrid = testFixture.RunTest(MQueryExpression);
-            Assert.True(resultGrid.RowCount > 1,$@"actual rowCount is {resultGrid.RowCount}");
+            var (error, grid) = testFixture.Test(MQueryExpression);
+
+            Assert.True(String.IsNullOrWhiteSpace(error), $@"Errormessage: {error}");
+            Assert.True(grid.RowCount > 1,$@"actual rowCount is {grid.RowCount}");
         }
 
     }

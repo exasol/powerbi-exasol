@@ -1,6 +1,6 @@
 ﻿// This file contains the Exasol Connector logic
 [
-    Version = "1.0.5"
+    Version = "1.0.6"
 ]
 section Exasol;
 
@@ -34,7 +34,7 @@ shared Exasol.Database =
         ExasolImpl,
         ExasolType
     );
-//UI
+//UI ( https://docs.microsoft.com/en-us/power-query/handlingdocumentation )
 ExasolType =
     type function (server as
         (
@@ -65,8 +65,9 @@ ExasolType =
         ), optional query as
         (
             type text meta [
-                Documentation.FieldCaption = "Query (Optional)", //Extension.LoadString("Parameter.Query.Caption"),
+                Documentation.FieldCaption = "Query", //Extension.LoadString("Parameter.Query.Caption"),
                 Documentation.FieldDescription = "You can enter a custom query here.",
+                Documentation.SampleValues = {"SELECT * FROM [SCHEMA].[TABLE] LIMIT 5 ;"},
                 Formatting.IsMultiLine = true,
                 Formatting.IsCode = true
             ]

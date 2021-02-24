@@ -43,6 +43,16 @@ namespace UIAutomationTests
             Assert.True(String.IsNullOrWhiteSpace(error), $@"Errormessage: {error}");
             Assert.True(grid.RowCount > 1,$@"actual rowCount is {grid.RowCount}");
         }
+        [Fact]
+        public void TestSqlQueryLimit5()
+        {
+            string MQueryExpression = File.ReadAllText("QueryPqFiles/CustomQuery.query.pq");
+
+            var (error, grid) = testFixture.Test(MQueryExpression);
+
+            Assert.True(String.IsNullOrWhiteSpace(error), $@"Errormessage: {error}");
+            Assert.True(grid.RowCount == 5 + 1, $@"actual rowCount is {grid.RowCount}");
+        }
 
     }
 }

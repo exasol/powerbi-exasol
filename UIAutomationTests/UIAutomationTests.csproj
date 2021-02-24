@@ -25,6 +25,9 @@
   </ItemGroup>
 
   <ItemGroup>
+    <None Update="QueryPqFiles\CustomQuery.query.pq">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Update="QueryPqFiles\Exasol.query.pq">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>

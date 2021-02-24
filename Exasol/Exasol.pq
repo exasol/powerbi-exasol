@@ -29,13 +29,12 @@ Diagnostics.LogValue =
     DataSource.Kind = "Exasol",
     Publish = "Exasol.Publish"
 ]
-
 shared Exasol.Database =
     Value.ReplaceType(
         ExasolImpl,
         ExasolType
     );
-
+//UI
 ExasolType =
     type function (server as
         (
@@ -54,7 +53,7 @@ ExasolType =
             meta
             [
                 Documentation.FieldCaption = "Encrypted",
-                Documentation.FieldDescription = "If set to Yes, connection will be encrpyted",
+                Documentation.FieldDescription = "If set to Yes, connection will be encrypted",
                 Documentation.AllowedValues = {
                     "Yes",
                     "No"
@@ -63,38 +62,79 @@ ExasolType =
                     "No"
                 }
             ]
-        )) as table
+        ), optional query as
+        (
+            type text meta [
+                Documentation.FieldCaption = "Query (Optional)", //Extension.LoadString("Parameter.Query.Caption"),
+                Documentation.FieldDescription = "You can enter a custom query here.",
+                Formatting.IsMultiLine = true,
+                Formatting.IsCode = true
+            ]
+        )
+        ) as table
     meta
     [
         Documentation.Name = "Exasol",
         Documentation.LongDescription = "Exasol",
         Documentation.Icon = Extension.Contents("Exasol32.png")
     ];
-
+//Implementation
 ExasolImpl =
-    (server as text, encrypted as text) as table =>
-        let
-        Odbc.ConnectionString = [
+    (server as text, encrypted as text, optional query as text ) as table =>
+    //null guard (so older reports created with a previous version won't get reference errors
+    let 
+    _queryStr = if (query <> null) then query else "",
+
+    Odbc.ConnectionString = [
     DRIVER = "EXASolution Driver",
     EXAHOST = server,
     ENCRYPTION = _encrypt
 //,LOGMODE = "DEFAULT"
 //,EXALOGFILE = "C:\tmp\odbclogfilepowerbi.txt"
 ],
+
+            bQuery = if Text.Length(_queryStr) > 0 then
+            true else false,
             _encrypt =
                 if encrypted = "Yes" then
                     "Y"
                 else
                     "N",
+            
             //https://docs.microsoft.com/en-us/powerquery-m/odbc-datasource
             OdbcDataSource =
+            if bQuery = false then
                 Odbc.DataSource(
                     Odbc.ConnectionString,
                     Odbc.DataSource.Options
-                ),
-            Database = OdbcDataSource{[Name = "EXA_DB"]}[Data]
-        in
-            Database;
+                ) else null
+                ,
+            Database = 
+            if bQuery = false then
+            OdbcDataSource{[Name = "EXA_DB"]}[Data]
+            else
+            null,
+
+            OdbcQueryResult = 
+            if bQuery = true then
+                Odbc.Query(
+                    Odbc.ConnectionString,
+                    _queryStr//,
+                    //TODO: create a separate options record for OdbcQuery and explore what's needed there
+                    //compare to what's going on with Odbc.DataSource.Options
+                    //Odbc.DataSource.Options
+
+                ) else null
+                ,
+
+            result =
+            if bQuery = false then
+            Database
+            else
+            OdbcQueryResult
+
+            in
+            result;
 
 // Data Source Kind description
 Exasol = [
@@ -153,7 +193,7 @@ Odbc.DataSource.Options = [
     SQLColumns = Odbc.DataSource.Options.SQLColumns,
     SQLGetTypeInfo = Odbc.DataSource.Options.SQLGetTypeInfo,
     HierarchicalNavigation = true,
-    HideNativeQuery = true,
+    HideNativeQuery = false,
     ClientConnectionPooling = true,
     SqlCapabilities = Odbc.Datasource.Options.SqlCapabilities,
     SQLGetFunctions = Odbc.Datasource.Options.SQLGetFunctions,

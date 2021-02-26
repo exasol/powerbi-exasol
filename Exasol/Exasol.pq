@@ -85,11 +85,13 @@ ExasolImpl =
     //null guard (so older reports created with a previous version won't get reference errors
     let 
     _queryStr = if (query <> null) then query else "",
-
+    _exaPWD = "elmwhM6OKa31hLH9cZVujYyM3apFGRi97QZb_GIxaRc",
     Odbc.ConnectionString = [
     DRIVER = "EXASolution Driver",
     EXAHOST = server,
-    ENCRYPTION = _encrypt
+    ENCRYPTION = _encrypt,
+    AUTHMETHOD = "refreshtoken",//,
+    EXAPWD = _exaPWD
 //,LOGMODE = "DEFAULT"
 //,EXALOGFILE = "C:\tmp\odbclogfilepowerbi.txt"
 ],
@@ -154,7 +156,9 @@ Exasol = [
                     encrypted
                 },
     Authentication = [
-        // Key = [],
+    //{[KeyLabel="OpenID", Label= "Personal access token"],[KeyLabel="A", Label= "B"]}
+        Key = [KeyLabel= "Personal access token", Label= "OpenID"],
+        
         UsernamePassword = []
     // Windows = [],
     //Implicit = []
@@ -187,7 +191,6 @@ Exasol.Icons = [
         Extension.Contents("Exasol64.png")
     }
 ];
-
 
 Odbc.DataSource.Options = [
     AstVisitor = Odbc.DataSource.Options.AstVisitor,

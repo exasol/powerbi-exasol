@@ -126,8 +126,8 @@ ExasolImpl =
             Database = 
             OdbcDataSource{[Name = "EXA_DB"]}[Data],
      
-            OdbcQueryResult = if OdbcOptions <> null then Odbc.Query( OdbcConnectionString, _queryStr ) else
-             Odbc.Query( OdbcConnectionString, _queryStr,OdbcOptions ),
+            OdbcQueryResult = if OdbcOptions <> null then Odbc.Query( OdbcConnectionString, _queryStr,OdbcOptions ) else
+             Odbc.Query( OdbcConnectionString, _queryStr ),
             //since mashup has 'lazy evaluation' we should be able to simplify it to this
             result = 
              if bQuery = false then

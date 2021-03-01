@@ -93,11 +93,7 @@ ExasolImpl =
         currentCredentials = Extension.CurrentCredential(),
         authenticationKind = currentCredentials[AuthenticationKind],
 
-        OpenIDKey = currentCredentials[Password],
-
-    rec = PJTrace("trace",OpenIDKey),
-    rec1 = PJTrace("trace",OpenIDKey),
-    rec2 = PJTrace("trace current Credentials record:", currentCredentials),
+        OpenIDKey = if (currentCredentials[Password] <> null) then currentCredentials[Password] else "",
 
     //null guard (so older reports created with a previous version won't get reference errors
     _queryStr = if (query <> null) then query else "",
@@ -111,27 +107,8 @@ ExasolImpl =
 //,EXALOGFILE = "C:\tmp\odbclogfilepowerbi.txt"
 ],
 
-    OpenIdConnectionStringRecord = [
-    AUTHMETHOD = "refreshtoken",
-    EXAPWD = OpenIDKey//"elmwhM6OKa31hLH9cZVujYyM3apFGRi97QZb_GIxaRc"
-    ],//_exaPWD
-
-    Odbc.DataSource.Options = [
-    CredentialConnectionString = OpenIdConnectionStringRecord,
-    AstVisitor = Odbc.DataSource.Options.AstVisitor,
-    SQLColumns = Odbc.DataSource.Options.SQLColumns,
-    SQLGetTypeInfo = Odbc.DataSource.Options.SQLGetTypeInfo,
-    HierarchicalNavigation = true,
-    HideNativeQuery = false,
-    ClientConnectionPooling = true,
-    SqlCapabilities = Odbc.Datasource.Options.SqlCapabilities,
-    SQLGetFunctions = Odbc.Datasource.Options.SQLGetFunctions,
-    SQLGetInfo = Odbc.Datasource.Options.SQLGetInfo
-],
-Odbc.Query.Options = [
-    CredentialConnectionString = OpenIdConnectionStringRecord
-],
-
+    bOpenId = if authenticationKind = "Key" then true else false,
+    OdbcOptions = GetOptions(bOpenId,bQuery,OpenIDKey),
 
             _encrypt =
                 if encrypted = "Yes" then
@@ -144,7 +121,7 @@ Odbc.Query.Options = [
             if bQuery = false then
                 Odbc.DataSource(
                     Odbc.ConnectionString,
-                    Odbc.DataSource.Options
+                    OdbcOptions
                 ) else null
                 ,
             Database = 
@@ -158,9 +135,6 @@ Odbc.Query.Options = [
                 Odbc.Query(
                     Odbc.ConnectionString,
                     _queryStr//,
-                    //TODO: create a separate options record for OdbcQuery and explore what's needed there
-                    //compare to what's going on with Odbc.DataSource.Options
-                    //Odbc.DataSource.Options
 
                 ) else null
                 ,
@@ -172,8 +146,59 @@ Odbc.Query.Options = [
             OdbcQueryResult
 
             in
-            rec & rec1 & rec2;
+            result;
 
+GetOptions = ( openId as logical, query as logical, openIDKey as text) =>
+let
+    
+    OpenIdConnectionStringRecord = [
+    AUTHMETHOD = "refreshtoken",
+    EXAPWD = openIDKey
+    ],//_exaPWD
+    DatasourceUsernamePassword = [
+    
+    AstVisitor = Odbc.DataSource.Options.AstVisitor,
+    SQLColumns = Odbc.DataSource.Options.SQLColumns,
+    SQLGetTypeInfo = Odbc.DataSource.Options.SQLGetTypeInfo,
+    HierarchicalNavigation = true,
+    HideNativeQuery = false,
+    ClientConnectionPooling = true,
+    SqlCapabilities = Odbc.Datasource.Options.SqlCapabilities,
+    SQLGetFunctions = Odbc.Datasource.Options.SQLGetFunctions,
+    SQLGetInfo = Odbc.Datasource.Options.SQLGetInfo
+],
+    DatasourceOpenId = [
+    CredentialConnectionString = OpenIdConnectionStringRecord,
+    AstVisitor = Odbc.DataSource.Options.AstVisitor,
+    SQLColumns = Odbc.DataSource.Options.SQLColumns,
+    SQLGetTypeInfo = Odbc.DataSource.Options.SQLGetTypeInfo,
+    HierarchicalNavigation = true,
+    HideNativeQuery = false,
+    ClientConnectionPooling = true,
+    SqlCapabilities = Odbc.Datasource.Options.SqlCapabilities,
+    SQLGetFunctions = Odbc.Datasource.Options.SQLGetFunctions,
+    SQLGetInfo = Odbc.Datasource.Options.SQLGetInfo
+],
+
+    QueryOpenId = [
+    CredentialConnectionString = OpenIdConnectionStringRecord
+],
+QueryUsernamePassword = null,
+
+options = 
+    if query = false and openId = false then
+    DatasourceUsernamePassword
+    else if query = false and openId = true then
+    DatasourceOpenId
+    else if query = true and openId = false then
+    QueryUsernamePassword
+    else if query = true and openId = true then
+    QueryOpenId
+    else
+    ... //not implemented error
+in
+options
+;
 
 // Data Source Kind description
 Exasol = [

@@ -99,7 +99,7 @@ ExasolImpl =
     _queryStr = if (query <> null) then query else "",
             bQuery = if Text.Length(_queryStr) > 0 then
             true else false,
-    Odbc.ConnectionString = [
+    OdbcConnectionString = [
     DRIVER = "EXASolution Driver",
     EXAHOST = server,
     ENCRYPTION = _encrypt
@@ -118,32 +118,22 @@ ExasolImpl =
             
             //https://docs.microsoft.com/en-us/powerquery-m/odbc-datasource
             OdbcDataSource =
-            if bQuery = false then
+            
                 Odbc.DataSource(
-                    Odbc.ConnectionString,
-                    OdbcOptions
-                ) else null
+                    OdbcConnectionString,
+                    OdbcOptions)
                 ,
             Database = 
-            if bQuery = false then
-            OdbcDataSource{[Name = "EXA_DB"]}[Data]
-            else
-            null,
-
-            OdbcQueryResult = 
-            if bQuery = true then
-                Odbc.Query(
-                    Odbc.ConnectionString,
-                    _queryStr//,
-
-                ) else null
-                ,
-
-            result =
-            if bQuery = false then
-            Database
-            else
-            OdbcQueryResult
+            OdbcDataSource{[Name = "EXA_DB"]}[Data],
+     
+            OdbcQueryResult = if OdbcOptions <> null then Odbc.Query( OdbcConnectionString, _queryStr ) else
+             Odbc.Query( OdbcConnectionString, _queryStr,OdbcOptions ),
+            //since mashup has 'lazy evaluation' we should be able to simplify it to this
+            result = 
+             if bQuery = false then
+             Database
+             else
+             OdbcQueryResult
 
             in
             result;
@@ -154,7 +144,7 @@ let
     OpenIdConnectionStringRecord = [
     AUTHMETHOD = "refreshtoken",
     EXAPWD = openIDKey
-    ],//_exaPWD
+    ],
     DatasourceUsernamePassword = [
     
     AstVisitor = Odbc.DataSource.Options.AstVisitor,
@@ -217,10 +207,9 @@ Exasol = [
                     encrypted
                 },
     Authentication = [
-        Key = [KeyLabel= "Personal access token", Label= "OpenID"],
         UsernamePassword = [],
-    Windows = [],
-    Implicit = []
+        Key = [KeyLabel= "Personal access token", Label= "OpenID"]
+
     ],
     Label = Extension.LoadString("DataSourceLabel")
 ];

@@ -7,6 +7,7 @@ using FlaUI.UIA3;
 using Microsoft.Extensions.Configuration;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Text;
 using System.Threading.Tasks;
@@ -26,6 +27,9 @@ namespace UIAutomationTests
         string server;
         string username;
         string password;
+
+        string tokenFilePath;
+        string generateTokenPath;
 
         Application app;
         UIA3Automation automation;
@@ -52,6 +56,9 @@ namespace UIAutomationTests
             vsExecutablePath = config["vsExecutablePath"];
             slnPath = config["slnPath"];
             queryPqPath = config["queryPqPath"];
+
+            tokenFilePath = config["tokenFilePath"];
+            generateTokenPath = config["generateTokenPath"];
         }
         //https://stackoverflow.com/questions/12976319/xunit-net-global-setup-teardown
         //Do "global" initialization here; Only called once.
@@ -66,12 +73,37 @@ namespace UIAutomationTests
             PressDebugTargetButton();
             WaitUntilBuildTasksAreDone();
             AcquireMQueryWindowAndAcquireTabsWhenFullyLoaded();
-            //the errors tab will pop up and ask for credentials
-            //entering the credentials seems to be more reliable than loading them (credential loading seems buggy!)
-            EnterCredentialsUsernameAndPassword();
+
             
         }
+        public enum AuthenticationMethod
+        {
+            UsernamePassword,
+            KeyOIDCToken
+        }
+        bool bAuthenticated = false;
 
+        //the errors tab will pop up and ask for credentials
+        //entering the credentials seems to be more reliable than loading them (credential loading seems buggy!)
+        public void Authenticate(AuthenticationMethod authenticationMethod)
+        {
+            if (!bAuthenticated)
+            {
+
+                switch (authenticationMethod)
+                {
+                    case AuthenticationMethod.UsernamePassword:
+                        EnterCredentialsUsernameAndPassword();
+                        break;
+                    case AuthenticationMethod.KeyOIDCToken:
+                        EnterCredentialsKeyOIDCToken();
+                        break;
+
+                }
+                bAuthenticated = true;
+            }
+
+        }
         private void SetPqFileBeforeCredentials()
         {
             string MQueryExpression = File.ReadAllText("QueryPqFiles/Exasol.query.pq");
@@ -99,6 +131,50 @@ namespace UIAutomationTests
             var buttons = errorsTabAE.FindAll(FlaUI.Core.Definitions.TreeScope.Descendants, cf.ByControlType(FlaUI.Core.Definitions.ControlType.Button));
             buttons[0].AsButton().Invoke();
 
+        }
+
+        private void EnterCredentialsKeyOIDCToken()
+        {
+            var token = FetchToken();
+            var errorsTabAE = tabItemAEs[2];
+            errorsTabAE.AsTabItem().Select();
+
+            var comboBoxes = WaitUntilMultipleFound(errorsTabAE, FlaUI.Core.Definitions.TreeScope.Descendants, cf.ByControlType(FlaUI.Core.Definitions.ControlType.ComboBox));
+            var cbCredentialType = comboBoxes[1].AsComboBox();
+            cbCredentialType.Select(1);
+
+            var textBoxes = WaitUntilAtLeastNFound(errorsTabAE, FlaUI.Core.Definitions.TreeScope.Descendants, cf.ByControlType(FlaUI.Core.Definitions.ControlType.Edit), 1);
+            textBoxes[0].AsTextBox().Text = token;
+
+            var buttons = errorsTabAE.FindAll(FlaUI.Core.Definitions.TreeScope.Descendants, cf.ByControlType(FlaUI.Core.Definitions.ControlType.Button));
+            buttons[0].AsButton().Invoke();
+        }
+
+        private string FetchToken()
+        {
+            return GenerateToken();
+        }
+
+        private string GenerateToken()
+        {
+            string token;
+            string generateTokenPath = "C:\\auth\\tokens.py";
+            string cmd = generateTokenPath;
+            string arguments = "";
+            ProcessStartInfo start = new ProcessStartInfo();
+            start.FileName = "python";
+            start.Arguments = cmd;//, arguments);
+            start.UseShellExecute = false;
+            start.RedirectStandardOutput = true;
+            using (Process process = Process.Start(start))
+            {
+                using (StreamReader reader = process.StandardOutput)
+                {
+                    string result = reader.ReadToEnd();
+                    token = result;
+                }
+            }
+            return token;
         }
 
         private void PrepVisualStudio()
@@ -188,7 +264,6 @@ namespace UIAutomationTests
             PressDebugTargetButton();
             WaitUntilBuildTasksAreDone();
             AcquireMQueryWindowAndAcquireTabsWhenFullyLoaded();
-
         }
 
         private Grid GetResultGrid()

@@ -5,12 +5,15 @@ using Xunit;
 namespace UIAutomationTests
 {
     //https://xunit.net/docs/running-tests-in-parallel
-    public class UnitTests : IClassFixture<TestFixture>
+    //We don't want to run them in parallel (since we're doing automation UI testing) so we add the tests to the same test collection
+    [Collection("NotParallel")]
+    public class UnitTestsUsernamePassword : IClassFixture<TestFixture>
     {
         TestFixture testFixture;
-        public UnitTests(TestFixture tf)
+        public UnitTestsUsernamePassword(TestFixture tf)
         {
             testFixture = tf;
+            tf.Authenticate(TestFixture.AuthenticationMethod.UsernamePassword);
         }
         [Fact]
         public void TestAW()

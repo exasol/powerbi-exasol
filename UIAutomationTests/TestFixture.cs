@@ -4,6 +4,7 @@ using FlaUI.Core.Conditions;
 using FlaUI.Core.Input;
 using FlaUI.Core.WindowsAPI;
 using FlaUI.UIA3;
+using Microsoft.Extensions.Configuration;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -15,14 +16,16 @@ namespace UIAutomationTests
     public class TestFixture : IDisposable
     {
 
-        string vsExecutablePath = $@"C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\Common7\IDE\devenv.exe";
-        string slnPath = $@"C:\repos\powerbi-exasol\Exasol\Exasol.mproj";
 
-        string queryPqPath = $@"C:\repos\powerbi-exasol\Exasol\Exasol.query.pq";
+        string vsExecutablePath;
+        string slnPath;
+
+        string queryPqPath;
         string originalQueryPqStr;
 
-        string username = "sys";
-        string password = "exasol";
+        string server;
+        string username;
+        string password;
 
         Application app;
         UIA3Automation automation;
@@ -36,11 +39,28 @@ namespace UIAutomationTests
         AutomationElement MQueryOutput;
         AutomationElement[] tabItemAEs;
 
+        private void Config()
+        {
+            var config = new ConfigurationBuilder()
+            .AddJsonFile("config.json")
+            .Build();
+
+            server = config["server"];
+            username = config["username"];
+            password = config["password"];
+
+            vsExecutablePath = config["vsExecutablePath"];
+            slnPath = config["slnPath"];
+            queryPqPath = config["queryPqPath"];
+        }
         //https://stackoverflow.com/questions/12976319/xunit-net-global-setup-teardown
         //Do "global" initialization here; Only called once.
         public TestFixture()
         {
+            Config();
+            MakeBackup();
             PrepVisualStudio();
+            SetPqFileBeforeCredentials();
             SetupConditionFactory();
             AcquireDebugTargetButton();
             PressDebugTargetButton();
@@ -48,8 +68,14 @@ namespace UIAutomationTests
             AcquireMQueryWindowAndAcquireTabsWhenFullyLoaded();
             //the errors tab will pop up and ask for credentials
             //entering the credentials seems to be more reliable than loading them (credential loading seems buggy!)
-            EnterCredentials();
-            MakeBackup();
+            EnterCredentialsUsernameAndPassword();
+            
+        }
+
+        private void SetPqFileBeforeCredentials()
+        {
+            string MQueryExpression = File.ReadAllText("QueryPqFiles/Exasol.query.pq");
+            FormatAndSetPqFile(MQueryExpression);
         }
 
         private void SetupConditionFactory()
@@ -57,7 +83,7 @@ namespace UIAutomationTests
             cf = new ConditionFactory(new UIA3PropertyLibrary());
         }
 
-        private void EnterCredentials()
+        private void EnterCredentialsUsernameAndPassword()
         {
             var errorsTabAE = tabItemAEs[2];
             errorsTabAE.AsTabItem().Select();
@@ -123,9 +149,15 @@ namespace UIAutomationTests
 
         public (string Error, Grid Grid) Test(string MQueryExpression)
         {
-            File.WriteAllText(queryPqPath, MQueryExpression);
+            FormatAndSetPqFile(MQueryExpression);
             RunTest();
             return GetResults();
+        }
+
+        private void FormatAndSetPqFile(string MQueryExpression)
+        {
+            String plusServerStr = MQueryExpression.Replace("{server}", server);
+            File.WriteAllText(queryPqPath, plusServerStr);
         }
 
         private (string Error,Grid Grid) GetResults()

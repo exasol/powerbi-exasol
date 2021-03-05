@@ -15,7 +15,7 @@
     <AsAction>False</AsAction>
     <FastCombine>False</FastCombine>
     <ClearLog>False</ClearLog>
-    <ShowEngineTraces>False</ShowEngineTraces>
+    <ShowEngineTraces>True</ShowEngineTraces>
     <ShowUserTraces>True</ShowUserTraces>
     <LegacyRedirects>False</LegacyRedirects>
     <SuppressRowErrors>False</SuppressRowErrors>

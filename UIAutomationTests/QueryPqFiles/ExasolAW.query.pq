@@ -1,8 +1,7 @@
 ﻿//local exasol VM AW SCHEMA
+
 let
-    Server = "{server}",
-    Source = Exasol.Database(Server,"Yes"),
-    myDb = Source,
-    mySchema =  Source{[Name = "ADVENTUREWORKSDW2014",Kind="Schema"]}[Data]
+    Source = Exasol.Database("{server}", "Yes", null),
+    ADVENTUREWORKSDW2014_Schema = Source{[Name="ADVENTUREWORKSDW2014",Kind="Schema"]}[Data]
 in
-    mySchema
+    ADVENTUREWORKSDW2014_Schema

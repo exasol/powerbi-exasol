@@ -12,5 +12,11 @@ Provides a way of automatically testing the Exasol PowerBI Connector
 - xUnit (for test setup, + console runner and visual studio runner)
 
 ## Current todos:
-- Elaborate tests (highest prio)
-- provide configuration in a config file eventually
+- Elaborate tests (highest prio) (WIP)
+- provide configuration in a config file eventually (done)
+
+## Data used for the integration tests
+- adventureworks conversion by T.B.
+- "TEST": an empty schema
+- the originally named schema 'MORETESTS' described in MORETESTS.SQL
+

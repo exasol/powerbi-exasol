@@ -1,8 +1,5 @@
-﻿//local exasol VM TEST SCHEMA
-let
-    Server = "{server}",
-    Source = Exasol.Database(Server,"Yes"),
-    myDb = Source,
-    mySchema =  Source{[Name = "TEST",Kind="Schema"]}[Data]
+﻿let
+    Source = Exasol.Database("{server}", "Yes", null),
+    ADVENTUREWORKSDW2014_Schema = Source{[Name="TEST",Kind="Schema"]}[Data]
 in
-    mySchema
+    ADVENTUREWORKSDW2014_Schema

@@ -7,17 +7,17 @@ using Xunit;
 namespace UIAutomationTests
 {
     [Collection("NotParallel")]
-    public class UnitTestsKeyOIDC : IClassFixture<TestFixture>
+    public class TestsKeyOIDC : IClassFixture<TestFixture>
     {
         TestFixture testFixture;
-        public UnitTestsKeyOIDC(TestFixture tf)
+        public TestsKeyOIDC(TestFixture tf)
         {
             testFixture = tf;
             tf.Authenticate(TestFixture.AuthenticationMethod.KeyOIDCToken);
         }
         //2 tests here will be sufficient for now since we just want to see if we can authenticate and fetch data with odbc.datasource and odbc.query
         [Fact]
-        public void TestSqlQueryLimit5()
+        public void OdbcQueryAW()
         {
             string MQueryExpression = File.ReadAllText("QueryPqFiles/CustomQuery.query.pq");
 
@@ -27,7 +27,7 @@ namespace UIAutomationTests
             Assert.True(grid.RowCount == 5 + 1, $@"actual rowCount is {grid.RowCount}");
         }
         [Fact]
-        public void TestAW()
+        public void OdbcDatasourceAW()
         {
             string MQueryExpression = File.ReadAllText("QueryPqFiles/ExasolAW.query.pq");
 

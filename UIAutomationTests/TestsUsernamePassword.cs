@@ -306,6 +306,26 @@ namespace UIAutomationTests
             Assert.True(grid.RowCount == 5 + 1, $@"actual rowCount is {grid.RowCount}");
             Assert.True(grid.ColumnCount > 1);
         }
+        [Fact]
+        public void OdbcDatasourceViewSchema()
+        {
+            string MQueryExpression = Utilities.Queries.OdbcDatasourceGetTableSchema("ADVENTUREWORKSDW2014", "vDMPrep");
+
+            var (error, grid) = testFixture.Test(MQueryExpression);
+
+            Assert.True(String.IsNullOrWhiteSpace(error), $@"Errormessage: {error}");
+
+        }
+        [Fact]
+        public void OdbcQueryViewSchema()
+        {
+            string MQueryExpression = Utilities.Queries.OdbcQueryGetTableSchema("ADVENTUREWORKSDW2014", "vDMPrep");
+
+            var (error, grid) = testFixture.Test(MQueryExpression);
+
+            Assert.True(String.IsNullOrWhiteSpace(error), $@"Errormessage: {error}");
+
+        }
 
     }
 }

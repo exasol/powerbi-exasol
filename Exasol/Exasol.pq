@@ -75,7 +75,24 @@ ExasolType =
                 Formatting.IsMultiLine = true,
                 Formatting.IsCode = true
             ]
-        )) as table
+        ),
+        optional extraOdbcArgs as
+        (
+            type text
+            meta
+            [
+                Documentation.FieldCaption = "ODBC Driver Additional Parameters (Advanced)",
+                //Extension.LoadString("Parameter.Query.Caption"),
+                Documentation.FieldDescription = "You can enter additional ODBC driver parameters here, e.g. for debugging or advanced features.",
+                Documentation.SampleValues = {
+                    "LOGMODE = ""DEFAULT"",EXALOGFILE = ""C:\tmp\odbclogfilepowerbi.txt""",
+                    "LOGMODE = COMMDEBUG,EXALOGFILE = C:\tmp\odbclogfilepowerbi.txt"
+                },
+                //Formatting.IsMultiLine = true,
+                Formatting.IsCode = true
+            ]
+        )
+        ) as table
     meta
     [
         Documentation.Name = "Exasol",
@@ -85,7 +102,7 @@ ExasolType =
 
 //Implementation
 ExasolImpl =
-    (server as text, encrypted as text, optional query as text) =>
+    (server as text, encrypted as text, optional query as text, optional extraOdbcArgs as text) =>
         //as table =>
         let
             currentCredentials = Extension.CurrentCredential(),
@@ -113,6 +130,11 @@ ExasolImpl =
             //,LOGMODE = "DEFAULT"
             //,EXALOGFILE = "C:\tmp\odbclogfilepowerbi.txt"
             ],
+            OdbcConnectionStringAppended =
+                AppendOdbcConnectionString(
+                    OdbcConnectionString,
+                    extraOdbcArgs
+                ),
             bOpenId =
                 if authenticationKind = "Key" then
                     true
@@ -127,20 +149,20 @@ ExasolImpl =
             //https://docs.microsoft.com/en-us/powerquery-m/odbc-datasource
             OdbcDataSource =
                 Odbc.DataSource(
-                    OdbcConnectionString,
+                    OdbcConnectionStringAppended,
                     OdbcOptions
                 ),
             Database = OdbcDataSource{[Name = "EXA_DB"]}[Data],
             OdbcQueryResult =
                 if OdbcOptions <> null then
                     Odbc.Query(
-                        OdbcConnectionString,
+                        OdbcConnectionStringAppended,
                         _queryStr,
                         OdbcOptions
                     )
                 else
                     Odbc.Query(
-                        OdbcConnectionString,
+                        OdbcConnectionStringAppended,
                         _queryStr
                     ),
             //since mashup has 'lazy evaluation' we should be able to simplify it to this
@@ -150,8 +172,68 @@ ExasolImpl =
                 else
                     OdbcQueryResult
         in
-            result;
+            //result;
+            OdbcConnectionStringAppended;
 //END OF IMPLEMENTATION
+AppendOdbcConnectionString =
+    (OdbcConnectionString as record, extraOdbcArgs) as record =>
+        let
+            _extraOdbcArgsStr =
+                if (extraOdbcArgs <> null) then
+                    extraOdbcArgs
+                else
+                    "",
+            bExtraOdbcArgs =
+                if Text.Length(_extraOdbcArgsStr) > 0 then
+                    true
+                else
+                    false,
+            //CLEAN UP USER INPUT
+            charsToBeRemoved = """",
+            strArgumentsCleaned =
+                Text.Remove(
+                    _extraOdbcArgsStr,
+                    charsToBeRemoved
+                ),
+            //SPLIT (on , and =)
+            separators = ",=",
+            strArgumentsSplitList =
+                Text.SplitAny(
+                    strArgumentsCleaned,
+                    separators
+                ),
+            //https://docs.microsoft.com/en-us/powerquery-m/list-alternate
+            strKeysSplitList =
+                List.Alternate(
+                    strArgumentsSplitList,
+                    1,
+                    1,
+                    1
+                ),
+            strValuesSplitList =
+                List.Alternate(
+                    strArgumentsSplitList,
+                    1,
+                    1
+                ),
+            //https://docs.microsoft.com/en-us/powerquery-m/record-fromlist
+            newRecord =
+                Record.FromList(
+                    strValuesSplitList,
+                    strKeysSplitList
+                ),
+            toBeCombinedRecordsList = {
+                OdbcConnectionString,
+                newRecord
+            },
+            combinedRecord =
+                if bExtraOdbcArgs then
+                    Record.Combine(toBeCombinedRecordsList)
+                else
+                    OdbcConnectionString
+        in
+            combinedRecord;
+
 GetOptions =
     (openId as logical, query as logical, openIDKey as text) =>
         let
@@ -300,7 +382,6 @@ Odbc.DataSource.Options.SQLColumns =
             OdbcSqlType.SQL_WCHAR = -8,
             OdbcSqlType.DECIMAL = 3,
             OdbcSqlType.BIGINT = -5,
-
             FixDataType =
                 (dataType) =>
                     if dataType = OdbcSqlType.VARCHAR then
@@ -309,7 +390,6 @@ Odbc.DataSource.Options.SQLColumns =
                         OdbcSqlType.SQL_WVARCHAR
                     else
                         dataType,
-
             FixDataTypeName =
                 (dataTypeName) =>
                     if dataTypeName = "VARCHAR" then
@@ -320,7 +400,6 @@ Odbc.DataSource.Options.SQLColumns =
                         "SQL_WVARCHAR"
                     else
                         dataTypeName,
-
             Transform1 =
                 Table.TransformColumns(
                     source,
@@ -335,7 +414,6 @@ Odbc.DataSource.Options.SQLColumns =
                         }
                     }
                 ),
-
             Transform2 =
                 Table.FromRecords(
                     Table.TransformRows(
@@ -460,7 +538,7 @@ Odbc.DataSource.Options.SQLGetTypeInfo =
                         }
                     }
                 ),
-                //the new types get added to the exising ones and the merged table gets returned
+            //the new types get added to the exising ones and the merged table gets returned
             append =
                 Table.Combine(
                     {

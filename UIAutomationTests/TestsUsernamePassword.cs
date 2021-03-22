@@ -128,7 +128,7 @@ namespace UIAutomationTests
         [Fact]
         public void OdbcDatasourceDatatypeConversion()
         {
-            string MQueryExpression = Utilities.Queries.OdbcDatasourceGetTableSchema("MORETESTS", "MORETYPES");
+            string MQueryExpression = Utilities.Queries.OdbcDatasourceGetTableSchema("MORETESTS", "DATATYPES");
 
             var (error, grid) = testFixture.Test(MQueryExpression);
 
@@ -163,7 +163,7 @@ namespace UIAutomationTests
         [Fact]
         public void OdbcQueryDatatypeConversion()
         {
-            string MQueryExpression = Utilities.Queries.OdbcQueryGetTableSchema("MORETESTS", "MORETYPES");
+            string MQueryExpression = Utilities.Queries.OdbcQueryGetTableSchema("MORETESTS", "DATATYPES");
 
             var (error, grid) = testFixture.Test(MQueryExpression);
 

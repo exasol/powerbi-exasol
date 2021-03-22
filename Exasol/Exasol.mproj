@@ -8,7 +8,10 @@
     <RootNamespace>MyRootNamespace</RootNamespace>
     <AssemblyName>MyAssemblyName</AssemblyName>
     <EnableUnmanagedDebugging>False</EnableUnmanagedDebugging>
-    <AllowNativeQuery>False</AllowNativeQuery>
+    <!-- https://seddryck.wordpress.com/2017/06/11/running-a-native-query-within-an-m-project/ -->
+    <!-- This is def. needed for running a query using Odbc.Query, otherwise you get an error 'The evaluation requires a permission that has not been provided .... Permission kind 'NativeQuery' -->
+    <!-- We'll also write a test for this -->
+    <AllowNativeQuery>True</AllowNativeQuery>
     <AsAction>False</AsAction>
     <FastCombine>False</FastCombine>
     <ClearLog>False</ClearLog>
@@ -20,6 +23,7 @@
     <MaxRows>1000</MaxRows>
     <ExtensionProject>Yes</ExtensionProject>
     <Name>Exasol</Name>
+    <ThrowOnFoldingFailure>False</ThrowOnFoldingFailure>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
     <DebugSymbols>false</DebugSymbols>

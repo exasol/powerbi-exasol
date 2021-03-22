@@ -1,41 +1,39 @@
 ﻿// This file contains the Exasol Connector logic
 [
-    Version = "1.0.5"
+    Version = "1.0.6"
 ]
 section Exasol;
 
-EnableTraceOutput = false;
-
-// for Development and Troubleshooting
-// Load common library functions
-// 
-Extension.LoadFunction =
-    (name as text) =>
-        let
-            binary = Extension.Contents(name),
-            asText = Text.FromBinary(binary)
-        in
-            Expression.Evaluate(asText, #shared);
-
-// Diagnostics module contains multiple functions. We can take the ones we need.
-Diagnostics = Extension.LoadFunction("Diagnostics.pqm");
-Diagnostics.LogValue =
-    if (EnableTraceOutput) then
-        Diagnostics[LogValue]
-    else
-        (prefix, value) => value;
-
+// EnableTraceOutput = false;
+// // for Development and Troubleshooting
+// // Load common library functions
+// // 
+// // Defines a function capable of loading functions from other files
+// Extension.LoadFunction =
+//     (name as text) =>
+//         let
+//             binary = Extension.Contents(name),
+//             asText = Text.FromBinary(binary)
+//         in
+//             Expression.Evaluate(asText, #shared);
+// // Diagnostics module contains multiple functions. We can take the ones we need.
+// Diagnostics = Extension.LoadFunction("Diagnostics.pqm");
+// Diagnostics.LogValue =
+//     if (EnableTraceOutput) then
+//         Diagnostics[LogValue]
+//     else
+//         (prefix, value) => value;
 [
     DataSource.Kind = "Exasol",
     Publish = "Exasol.Publish"
 ]
-
 shared Exasol.Database =
     Value.ReplaceType(
         ExasolImpl,
         ExasolType
     );
 
+//UI ( https://docs.microsoft.com/en-us/power-query/handlingdocumentation )
 ExasolType =
     type function (server as
         (
@@ -54,7 +52,7 @@ ExasolType =
             meta
             [
                 Documentation.FieldCaption = "Encrypted",
-                Documentation.FieldDescription = "If set to Yes, connection will be encrpyted",
+                Documentation.FieldDescription = "If set to Yes, connection will be encrypted",
                 Documentation.AllowedValues = {
                     "Yes",
                     "No"
@@ -62,6 +60,20 @@ ExasolType =
                 Documentation.DefaultValue = {
                     "No"
                 }
+            ]
+        ), optional query as
+        (
+            type text
+            meta
+            [
+                Documentation.FieldCaption = "Query",
+                //Extension.LoadString("Parameter.Query.Caption"),
+                Documentation.FieldDescription = "You can enter a custom query here.",
+                Documentation.SampleValues = {
+                    "SELECT * FROM [SCHEMA].[TABLE] LIMIT 5 ;"
+                },
+                Formatting.IsMultiLine = true,
+                Formatting.IsCode = true
             ]
         )) as table
     meta
@@ -71,16 +83,42 @@ ExasolType =
         Documentation.Icon = Extension.Contents("Exasol32.png")
     ];
 
+//Implementation
 ExasolImpl =
-    (server as text, encrypted as text) as table =>
+    (server as text, encrypted as text, optional query as text) =>
+        //as table =>
         let
-        Odbc.ConnectionString = [
-    DRIVER = "EXASolution Driver",
-    EXAHOST = server,
-    ENCRYPTION = _encrypt
-//,LOGMODE = "DEFAULT"
-//,EXALOGFILE = "C:\tmp\odbclogfilepowerbi.txt"
-],
+            currentCredentials = Extension.CurrentCredential(),
+            authenticationKind = currentCredentials[AuthenticationKind],
+            OpenIDKey =
+                if (currentCredentials[Password] <> null) then
+                    currentCredentials[Password]
+                else
+                    "",
+            //null guard (so older reports created with a previous version won't get reference errors
+            _queryStr =
+                if (query <> null) then
+                    query
+                else
+                    "",
+            bQuery =
+                if Text.Length(_queryStr) > 0 then
+                    true
+                else
+                    false,
+            OdbcConnectionString = [
+                DRIVER = "EXASolution Driver",
+                EXAHOST = server,
+                ENCRYPTION = _encrypt
+            //,LOGMODE = "DEFAULT"
+            //,EXALOGFILE = "C:\tmp\odbclogfilepowerbi.txt"
+            ],
+            bOpenId =
+                if authenticationKind = "Key" then
+                    true
+                else
+                    false,
+            OdbcOptions = GetOptions(bOpenId, bQuery, OpenIDKey),
             _encrypt =
                 if encrypted = "Yes" then
                     "Y"
@@ -89,12 +127,80 @@ ExasolImpl =
             //https://docs.microsoft.com/en-us/powerquery-m/odbc-datasource
             OdbcDataSource =
                 Odbc.DataSource(
-                    Odbc.ConnectionString,
-                    Odbc.DataSource.Options
+                    OdbcConnectionString,
+                    OdbcOptions
                 ),
-            Database = OdbcDataSource{[Name = "EXA_DB"]}[Data]
+            Database = OdbcDataSource{[Name = "EXA_DB"]}[Data],
+            OdbcQueryResult =
+                if OdbcOptions <> null then
+                    Odbc.Query(
+                        OdbcConnectionString,
+                        _queryStr,
+                        OdbcOptions
+                    )
+                else
+                    Odbc.Query(
+                        OdbcConnectionString,
+                        _queryStr
+                    ),
+            //since mashup has 'lazy evaluation' we should be able to simplify it to this
+            result =
+                if bQuery = false then
+                    Database
+                else
+                    OdbcQueryResult
         in
-            Database;
+            result;
+//END OF IMPLEMENTATION
+GetOptions =
+    (openId as logical, query as logical, openIDKey as text) =>
+        let
+            OpenIdConnectionStringRecord = [
+                AUTHMETHOD = "refreshtoken",
+                EXAPWD = openIDKey
+            ],
+            DatasourceUsernamePassword = [
+                AstVisitor = Odbc.DataSource.Options.AstVisitor,
+                SQLColumns = Odbc.DataSource.Options.SQLColumns,
+                SQLGetTypeInfo = Odbc.DataSource.Options.SQLGetTypeInfo,
+                //HierarchicalNavigation : Turning this off will make datasource navigation work in a different way and would thus break all the existing reports
+                HierarchicalNavigation = true,
+                //HideNativeQuery = false,
+                ClientConnectionPooling = true,
+                SqlCapabilities = Odbc.Datasource.Options.SqlCapabilities,
+                SQLGetFunctions = Odbc.Datasource.Options.SQLGetFunctions,
+                SQLGetInfo = Odbc.Datasource.Options.SQLGetInfo
+            ],
+            DatasourceOpenId = [
+                CredentialConnectionString = OpenIdConnectionStringRecord,
+                AstVisitor = Odbc.DataSource.Options.AstVisitor,
+                SQLColumns = Odbc.DataSource.Options.SQLColumns,
+                SQLGetTypeInfo = Odbc.DataSource.Options.SQLGetTypeInfo,
+                HierarchicalNavigation = true,
+                HideNativeQuery = false,
+                ClientConnectionPooling = true,
+                SqlCapabilities = Odbc.Datasource.Options.SqlCapabilities,
+                SQLGetFunctions = Odbc.Datasource.Options.SQLGetFunctions,
+                SQLGetInfo = Odbc.Datasource.Options.SQLGetInfo
+            ],
+            QueryOpenId = [
+                CredentialConnectionString = OpenIdConnectionStringRecord
+            ],
+            QueryUsernamePassword = null,
+            options =
+                if query = false and openId = false then
+                    DatasourceUsernamePassword
+                else if query = false and openId = true then
+                    DatasourceOpenId
+                else if query = true and openId = false then
+                    QueryUsernamePassword
+                else if query = true and openId = true then
+                    QueryOpenId
+                else
+                    ...
+        //not implemented error
+        in
+            options;
 
 // Data Source Kind description
 Exasol = [
@@ -113,10 +219,11 @@ Exasol = [
                     encrypted
                 },
     Authentication = [
-        // Key = [],
-        UsernamePassword = []
-    // Windows = [],
-    //Implicit = []
+        UsernamePassword = [],
+        Key = [
+            KeyLabel = "Personal access token",
+            Label = "OpenID"
+        ]
     ],
     Label = Extension.LoadString("DataSourceLabel")
 ];
@@ -147,60 +254,53 @@ Exasol.Icons = [
     }
 ];
 
-
-Odbc.DataSource.Options = [
-    AstVisitor = Odbc.DataSource.Options.AstVisitor,
-    SQLColumns = Odbc.DataSource.Options.SQLColumns,
-    SQLGetTypeInfo = Odbc.DataSource.Options.SQLGetTypeInfo,
-    HierarchicalNavigation = true,
-    HideNativeQuery = true,
-    ClientConnectionPooling = true,
-    SqlCapabilities = Odbc.Datasource.Options.SqlCapabilities,
-    SQLGetFunctions = Odbc.Datasource.Options.SQLGetFunctions,
-    SQLGetInfo = Odbc.Datasource.Options.SQLGetInfo
-];
 // General information on all the Odbc Datasource options:
 // https://docs.microsoft.com/en-us/power-query/odbc
-
 // AstVisitor
 // A record containing one or more overrides to control SQL query generation. 
 // The most common usage of this field is to provide logic to generate a LIMIT/OFFSET clause for drivers that don't support TOP.
-Odbc.DataSource.Options.AstVisitor = 
-[
-                        LimitClause = (skip, take) =>
-                            if skip = 0 and take = null then
-                                ...
-                            else
-                                if skip = 0 then
-                                    let
-                                    b = ""
-                                    in
-                                    [
-                                        Text = Text.Format("LIMIT #{0}", { take }),
-                                        Location = "AfterQuerySpecification"
-                                    ]
-                                else
-                                    let
-                                    b = ""
-                                    in
-                                        [
- 
-                                            Text = Text.Format("LIMIT #{0} OFFSET #{1}", { take, skip }),
-                                            Location = "AfterQuerySpecification"
-                                        ]
+Odbc.DataSource.Options.AstVisitor = [
+    LimitClause =
+        (skip, take) =>
+            if skip = 0 and take = null then
+                ...
+            else if skip = 0 then
+                let
+                    b = ""
+                in
+                    [
+                        Text = Text.Format("LIMIT #{0}", {take}),
+                        Location = "AfterQuerySpecification"
+                    ]
+            else
+                let
+                    b = ""
+                in
+                    [
+                        Text =
+                            Text.Format(
+                                "LIMIT #{0} OFFSET #{1}",
+                                {
+                                    take,
+                                    skip
+                                }
+                            ),
+                        Location = "AfterQuerySpecification"
+                    ]
 ];
-
 // A function that allows you to modify column metadata returned by the SQLColumns function.
 // Fixing Unicode issue by mapping the Exasol VARCHAR and CHAR Datatypes to SQL_WVARCHAR and SQL_WCHAR
 Odbc.DataSource.Options.SQLColumns =
     (catalogName, schemaName, tableName, columnName, source) =>
         let
+            //DECLARE type values
             OdbcSqlType.VARCHAR = 12,
             OdbcSqlType.CHAR = 1,
             OdbcSqlType.SQL_WVARCHAR = -9,
             OdbcSqlType.SQL_WCHAR = -8,
             OdbcSqlType.DECIMAL = 3,
             OdbcSqlType.BIGINT = -5,
+
             FixDataType =
                 (dataType) =>
                     if dataType = OdbcSqlType.VARCHAR then
@@ -209,6 +309,7 @@ Odbc.DataSource.Options.SQLColumns =
                         OdbcSqlType.SQL_WVARCHAR
                     else
                         dataType,
+
             FixDataTypeName =
                 (dataTypeName) =>
                     if dataTypeName = "VARCHAR" then
@@ -219,6 +320,7 @@ Odbc.DataSource.Options.SQLColumns =
                         "SQL_WVARCHAR"
                     else
                         dataTypeName,
+
             Transform1 =
                 Table.TransformColumns(
                     source,
@@ -233,6 +335,7 @@ Odbc.DataSource.Options.SQLColumns =
                         }
                     }
                 ),
+
             Transform2 =
                 Table.FromRecords(
                     Table.TransformRows(
@@ -282,7 +385,6 @@ Odbc.DataSource.Options.SQLColumns =
                 )
         in
             Transform3;
-
 // A table, or function that returns a table, that overrides the type information returned by SQLGetTypeInfo.
 // ...
 // When the value is set to a function, your function will receive the result of the original call to SQLGetTypeInfo, allowing you to modify the table.
@@ -358,6 +460,7 @@ Odbc.DataSource.Options.SQLGetTypeInfo =
                         }
                     }
                 ),
+                //the new types get added to the exising ones and the merged table gets returned
             append =
                 Table.Combine(
                     {
@@ -367,7 +470,6 @@ Odbc.DataSource.Options.SQLGetTypeInfo =
                 )
         in
             append;
-
 // A record providing various overrides of driver capabilities, and a way to specify capabilities that aren't expressed through ODBC 3.8.
 Odbc.Datasource.Options.SqlCapabilities = [
     Sql92Conformance = 8/* SQL_SC_SQL92_FULL */ ,
@@ -378,13 +480,11 @@ Odbc.Datasource.Options.SqlCapabilities = [
     SupportsOdbcDateLiterals = true,
     SupportsOdbcTimestampLiterals = true
 ];
-
 // A record that allows you to override values returned by calls to SQLGetFunctions.
 // A common use of this field is to disable the use of parameter binding, or to specify that generated queries should use CAST rather than CONVERT.
 Odbc.Datasource.Options.SQLGetFunctions = [
     SQL_API_SQLBINDPARAMETER = false
 ];
-
 // A record that allows you to override values returned by calls to SQLGetInfo.
 Odbc.Datasource.Options.SQLGetInfo = [
     SQL_SQL92_PREDICATES = 0x00001F07,

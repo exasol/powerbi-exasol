@@ -27,11 +27,30 @@ section Exasol;
     DataSource.Kind = "Exasol",
     Publish = "Exasol.Publish"
 ]
+
 shared Exasol.Database =
     Value.ReplaceType(
         ExasolImpl,
         ExasolType
     );
+//handling the UI part of the connector requires using (custom) types and metadata, see the links below for more information:
+//https://docs.microsoft.com/en-us/powerquery-m/m-spec-types
+//https://bengribaudo.com/blog/2021/03/17/5523/power-query-m-primer-part20-metadata
+//https://docs.microsoft.com/en-us/power-query/handlingdocumentation
+//the implementation part itself is documented in the data connectors odbc sample (sqlODBC:
+//but for some reason no-one includes their UI definition.
+//recOptions = type [ Name = text, Age = number ]
+optionsRecordType.ExtraOdbcArgumentsType = type text meta [                
+Documentation.FieldCaption = "ODBC Driver Additional Parameters",
+                Documentation.FieldDescription = "You can enter additional ODBC driver parameters here, e.g. for debugging purposes.",
+                Documentation.SampleValues = {
+                    "LOGMODE=""COMMDEBUG"",EXALOGFILE=""C:\tmp\odbclogfilepowerbi.txt""",
+                    "LOGMODE=COMMDEBUG,EXALOGFILE=C:\tmp\odbclogfilepowerbi.txt"
+                },
+                //Formatting.IsMultiLine = true,
+                Formatting.IsCode = true];
+
+optionsRecordType = type [ optional extraOdbcArgs = optionsRecordType.ExtraOdbcArgumentsType] meta [Documentation.FieldCaption = "Advanced options"];
 
 //UI ( https://docs.microsoft.com/en-us/power-query/handlingdocumentation )
 ExasolType =
@@ -75,23 +94,7 @@ ExasolType =
                 Formatting.IsMultiLine = true,
                 Formatting.IsCode = true
             ]
-        ),
-        optional extraOdbcArgs as
-        (
-            type text
-            meta
-            [
-                Documentation.FieldCaption = "ODBC Driver Additional Parameters (Advanced)",
-                //Extension.LoadString("Parameter.Query.Caption"),
-                Documentation.FieldDescription = "You can enter additional ODBC driver parameters here, e.g. for debugging or advanced features.",
-                Documentation.SampleValues = {
-                    "LOGMODE = ""DEFAULT"",EXALOGFILE = ""C:\tmp\odbclogfilepowerbi.txt""",
-                    "LOGMODE = COMMDEBUG,EXALOGFILE = C:\tmp\odbclogfilepowerbi.txt"
-                },
-                //Formatting.IsMultiLine = true,
-                Formatting.IsCode = true
-            ]
-        )
+        ), optional options as optionsRecordType
         ) as table
     meta
     [
@@ -100,11 +103,13 @@ ExasolType =
         Documentation.Icon = Extension.Contents("Exasol32.png")
     ];
 
-//Implementation
-ExasolImpl =
-    (server as text, encrypted as text, optional query as text, optional extraOdbcArgs as text) =>
-        //as table =>
-        let
+ ExasolImpl =
+    (server as text, encrypted as text, optional query as text, 
+    optional options as record) =>
+    let
+            // These fields come from the options record, so they might be null.
+            extraOdbcArgs = options[extraOdbcArgs]?,
+
             currentCredentials = Extension.CurrentCredential(),
             authenticationKind = currentCredentials[AuthenticationKind],
             OpenIDKey =
@@ -172,8 +177,8 @@ ExasolImpl =
                 else
                     OdbcQueryResult
         in
-            //result;
-            OdbcConnectionStringAppended;
+            result;
+
 //END OF IMPLEMENTATION
 AppendOdbcConnectionString =
     (OdbcConnectionString as record, extraOdbcArgs) as record =>

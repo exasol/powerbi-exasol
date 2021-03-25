@@ -35,6 +35,24 @@
     <None Update="QueryPqFiles\CustomQuery.query.pq">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+    <None Update="QueryPqFiles\ExasolOdbcParamsParentheses.query.pq">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="QueryPqFiles\ExasolOdbcParamsQuery.query.pq">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="QueryPqFiles\ExasolOdbcParamsOdbcParamsNull.query.pq">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="QueryPqFiles\ExasolOdbcParamsOptionsNull.query.pq">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="QueryPqFiles\ExasolOdbcParams.query.pq">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="QueryPqFiles\ExasolTestQuery.query.pq">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Update="QueryPqFiles\Exasol.query.pq">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>

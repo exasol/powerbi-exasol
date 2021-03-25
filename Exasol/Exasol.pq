@@ -292,6 +292,7 @@ GetOptions =
 // Data Source Kind description
 Exasol = [
     Description = "Exasol",
+    //Test connection needed for gateway support: https://docs.microsoft.com/en-us/power-query/handlinggatewaysupport
     TestConnection =
         (dataSourcePath) =>
             let

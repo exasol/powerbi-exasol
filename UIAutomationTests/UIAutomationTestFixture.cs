@@ -14,7 +14,7 @@ using System.Threading.Tasks;
 
 namespace UIAutomationTests
 {
-    public class TestFixture : IDisposable
+    public class UIAutomationTestFixture : IDisposable
     {
 
 
@@ -62,7 +62,7 @@ namespace UIAutomationTests
         }
         //https://stackoverflow.com/questions/12976319/xunit-net-global-setup-teardown
         //Do "global" initialization here; Only called once.
-        public TestFixture()
+        public UIAutomationTestFixture()
         {
             Config();
             MakeBackup();
@@ -246,7 +246,7 @@ namespace UIAutomationTests
             File.WriteAllText($@"c:\temp\pq.backup", originalQueryPqStr);
         }
 
-        public (string Error, Grid Grid) Test(string MQueryExpression, TestFixture.AuthenticationMethod authenticationMethod = TestFixture.AuthenticationMethod.UsernamePassword)
+        public (string Error, Grid Grid) Test(string MQueryExpression, UIAutomationTestFixture.AuthenticationMethod authenticationMethod = UIAutomationTestFixture.AuthenticationMethod.UsernamePassword)
         {
             SetPqFileBeforeCredentials();
             BringOutMQueryWindow();

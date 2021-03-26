@@ -6,14 +6,13 @@ using Xunit;
 
 namespace UIAutomationTests
 {
-    [Collection("NotParallel")]
-    public class TestsKeyOIDC : IClassFixture<TestFixture>
+    [Collection("VisualStudioUIAutomationTestCollection")]
+    public class TestsKeyOIDC //: IClassFixture<TestFixture>
     {
         TestFixture testFixture;
         public TestsKeyOIDC(TestFixture tf)
         {
             testFixture = tf;
-            tf.Authenticate(TestFixture.AuthenticationMethod.KeyOIDCToken);
         }
         //2 tests here will be sufficient for now since we just want to see if we can authenticate and fetch data with odbc.datasource and odbc.query
         [Fact]
@@ -21,7 +20,7 @@ namespace UIAutomationTests
         {
             string MQueryExpression = File.ReadAllText("QueryPqFiles/CustomQuery.query.pq");
 
-            var (error, grid) = testFixture.Test(MQueryExpression);
+            var (error, grid) = testFixture.Test(MQueryExpression, TestFixture.AuthenticationMethod.KeyOIDCToken);
 
             Assert.True(String.IsNullOrWhiteSpace(error), $@"Errormessage: {error}");
             Assert.True(grid.RowCount == 5 + 1, $@"actual rowCount is {grid.RowCount}");
@@ -31,7 +30,7 @@ namespace UIAutomationTests
         {
             string MQueryExpression = File.ReadAllText("QueryPqFiles/ExasolAW.query.pq");
 
-            var (error, grid) = testFixture.Test(MQueryExpression);
+            var (error, grid) = testFixture.Test(MQueryExpression, TestFixture.AuthenticationMethod.KeyOIDCToken);
 
 
             Assert.True(String.IsNullOrWhiteSpace(error), $@"Errormessage: {error}");

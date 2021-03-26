@@ -81,15 +81,11 @@ namespace UIAutomationTests
             UsernamePassword,
             KeyOIDCToken
         }
-        bool bAuthenticated = false;
 
         //the errors tab will pop up and ask for credentials
         //entering the credentials seems to be more reliable than loading them (credential loading seems buggy!)
-        public void Authenticate(AuthenticationMethod authenticationMethod)
+        private void Authenticate(AuthenticationMethod authenticationMethod)
         {
-            if (!bAuthenticated)
-            {
-
                 switch (authenticationMethod)
                 {
                     case AuthenticationMethod.UsernamePassword:
@@ -100,10 +96,24 @@ namespace UIAutomationTests
                         break;
 
                 }
-                bAuthenticated = true;
-            }
+            ClickSetCredentialsMessageBoxOK();
 
         }
+
+        private void ClickSetCredentialsMessageBoxOK()
+        {
+            //AcquireMQueryWindowAndAcquireTabsWhenFullyLoaded();
+
+             var SetCredentialsPopupOKButtonAE = WaitUntilFirstFound( MQueryOutput,FlaUI.Core.Definitions.TreeScope.Descendants, cf.ByName("OK"));
+            SetCredentialsPopupOKButtonAE.AsButton().Invoke();
+        }
+        private void ClickRemoveCredentialsMessageBoxYes()
+        {
+
+            var RemoveCredentialsPopupYesButtonAE = WaitUntilFirstFound(MQueryOutput, FlaUI.Core.Definitions.TreeScope.Descendants, cf.ByName("Yes"));
+            RemoveCredentialsPopupYesButtonAE.AsButton().Invoke();
+        }
+
         private void SetPqFileBeforeCredentials()
         {
             string MQueryExpression = File.ReadAllText("QueryPqFiles/Exasol.query.pq");
@@ -148,8 +158,22 @@ namespace UIAutomationTests
 
             var buttons = errorsTabAE.FindAll(FlaUI.Core.Definitions.TreeScope.Descendants, cf.ByControlType(FlaUI.Core.Definitions.ControlType.Button));
             buttons[0].AsButton().Invoke();
-        }
 
+        }
+        private void RemoveCredentials()
+        {
+            
+            var credentialsTabAE = tabItemAEs[3];
+            credentialsTabAE.AsTabItem().Select();
+            //select the list item
+            var credentialsListItemAE = WaitUntilFirstFound(credentialsTabAE, FlaUI.Core.Definitions.TreeScope.Descendants, cf.ByControlType(FlaUI.Core.Definitions.ControlType.ListItem));
+            credentialsListItemAE.AsListBoxItem().Select();
+            //press delete
+            var deleteCredentialButtonAE = credentialsTabAE.FindFirst( FlaUI.Core.Definitions.TreeScope.Descendants, cf.ByName("Delete Credential"));
+            deleteCredentialButtonAE.AsButton().Invoke();
+            //Confirm removing the credentials
+            ClickRemoveCredentialsMessageBoxYes();
+                }
         private string FetchToken()
         {
             return GenerateToken();
@@ -160,7 +184,6 @@ namespace UIAutomationTests
             string token;
             string generateTokenPath = "C:\\auth\\tokens.py";
             string cmd = generateTokenPath;
-            string arguments = "";
             ProcessStartInfo start = new ProcessStartInfo();
             start.FileName = "python";
             start.Arguments = cmd;//, arguments);
@@ -223,10 +246,17 @@ namespace UIAutomationTests
             File.WriteAllText($@"c:\temp\pq.backup", originalQueryPqStr);
         }
 
-        public (string Error, Grid Grid) Test(string MQueryExpression)
+        public (string Error, Grid Grid) Test(string MQueryExpression, TestFixture.AuthenticationMethod authenticationMethod = TestFixture.AuthenticationMethod.UsernamePassword)
         {
+            SetPqFileBeforeCredentials();
+            BringOutMQueryWindow();
+            Authenticate(authenticationMethod);
+
             FormatAndSetPqFile(MQueryExpression);
             RunTest();
+
+            RemoveCredentials();
+
             return GetResults();
         }
 
@@ -258,7 +288,10 @@ namespace UIAutomationTests
             var errorReportTextLabel = errorReportText.AsLabel();
             return errorReportTextLabel.Text;
         }
-
+        private void BringOutMQueryWindow()
+        {
+            RunTest();
+        }
         private void RunTest()
         {
             PressDebugTargetButton();

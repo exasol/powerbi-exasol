@@ -34,9 +34,11 @@ namespace UIAutomationTests
             foreach ( var process in processes) {
                 process.Kill();
             }
-            
+
+            Task.Delay(TimeSpan.FromSeconds(2)).Wait();
+
             var logFilePath = Utilities.GetConfigurationValue("odbcLogFilePath");
-            if (!File.Exists(logFilePath))
+            if (File.Exists(logFilePath))
                 File.Delete(logFilePath);
         }
 

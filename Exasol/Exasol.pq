@@ -40,17 +40,13 @@ shared Exasol.Database =
 //the implementation part itself is documented in the data connectors odbc sample (sqlODBC:
 //but for some reason no-one includes their UI definition.
 //recOptions = type [ Name = text, Age = number ]
-optionsRecordType.ExtraOdbcArgumentsType = type text meta [                
-Documentation.FieldCaption = "ODBC Driver Additional Parameters",
-                Documentation.FieldDescription = "You can enter additional ODBC driver parameters here, e.g. for debugging purposes.",
+OdbcLogfileType = type text meta [                
+Documentation.FieldCaption = "ODBC Driver Logs",
+                Documentation.FieldDescription = "Path where the ODBC driver logs to. Does not log when the path is left empty.",
                 Documentation.SampleValues = {
-                    "LOGMODE=""COMMDEBUG"",EXALOGFILE=""C:\tmp\odbclogfilepowerbi.txt""",
-                    "LOGMODE=COMMDEBUG,EXALOGFILE=C:\tmp\odbclogfilepowerbi.txt"
+                    "C:\tmp\odbclogfilepowerbi.txt"
                 },
-                //Formatting.IsMultiLine = true,
                 Formatting.IsCode = true];
-
-optionsRecordType = type [ optional extraOdbcArgs = optionsRecordType.ExtraOdbcArgumentsType] meta [Documentation.FieldCaption = "Advanced options"];
 
 //UI ( https://docs.microsoft.com/en-us/power-query/handlingdocumentation )
 ExasolType =
@@ -94,7 +90,7 @@ ExasolType =
                 Formatting.IsMultiLine = true,
                 Formatting.IsCode = true
             ]
-        ), optional options as optionsRecordType
+        ), optional odbcLogFile as OdbcLogfileType
         ) as table
     meta
     [
@@ -104,12 +100,9 @@ ExasolType =
     ];
 
  ExasolImpl =
-    (server as text, encrypted as text, optional query as text, 
-    optional options as record) =>
+    (server as text, encrypted as text, optional query as text, optional odbcLogFile as text) =>
     let
             // These fields come from the options record, so they might be null.
-            extraOdbcArgs = options[extraOdbcArgs]?,
-
             currentCredentials = Extension.CurrentCredential(),
             authenticationKind = currentCredentials[AuthenticationKind],
             OpenIDKey =
@@ -138,7 +131,7 @@ ExasolType =
             OdbcConnectionStringAppended =
                 AppendOdbcConnectionString(
                     OdbcConnectionString,
-                    extraOdbcArgs
+                    odbcLogFile
                 ),
             bOpenId =
                 if authenticationKind = "Key" then
@@ -178,61 +171,32 @@ ExasolType =
                     OdbcQueryResult
         in
             result;
+            //OdbcConnectionStringAppended;
 
 //END OF IMPLEMENTATION
 AppendOdbcConnectionString =
-    (OdbcConnectionString as record, extraOdbcArgs) as record =>
+    (OdbcConnectionString as record, odbcLogFile as nullable text) as record =>
         let
-            _extraOdbcArgsStr =
-                if (extraOdbcArgs <> null) then
-                    extraOdbcArgs
+            _odbcLogFile =
+                if (odbcLogFile <> null) then
+                    odbcLogFile
                 else
                     "",
-            bExtraOdbcArgs =
-                if Text.Length(_extraOdbcArgsStr) > 0 then
+            bEnableLogs =
+                if Text.Length(_odbcLogFile ) > 0 then
                     true
                 else
                     false,
-            //CLEAN UP USER INPUT
-            charsToBeRemoved = """",
-            strArgumentsCleaned =
-                Text.Remove(
-                    _extraOdbcArgsStr,
-                    charsToBeRemoved
-                ),
-            //SPLIT (on , and =)
-            separators = ",=",
-            strArgumentsSplitList =
-                Text.SplitAny(
-                    strArgumentsCleaned,
-                    separators
-                ),
-            //https://docs.microsoft.com/en-us/powerquery-m/list-alternate
-            strKeysSplitList =
-                List.Alternate(
-                    strArgumentsSplitList,
-                    1,
-                    1,
-                    1
-                ),
-            strValuesSplitList =
-                List.Alternate(
-                    strArgumentsSplitList,
-                    1,
-                    1
-                ),
-            //https://docs.microsoft.com/en-us/powerquery-m/record-fromlist
-            newRecord =
-                Record.FromList(
-                    strValuesSplitList,
-                    strKeysSplitList
-                ),
+            odbcLogsRecord = [
+           LOGMODE = "DEBUGCOMM",
+            EXALOGFILE = odbcLogFile
+            ],
             toBeCombinedRecordsList = {
                 OdbcConnectionString,
-                newRecord
+                odbcLogsRecord
             },
             combinedRecord =
-                if bExtraOdbcArgs then
+                if bEnableLogs then
                     Record.Combine(toBeCombinedRecordsList)
                 else
                     OdbcConnectionString

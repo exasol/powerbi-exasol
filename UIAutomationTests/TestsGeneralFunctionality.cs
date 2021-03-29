@@ -7,10 +7,10 @@ using Xunit;
 namespace UIAutomationTests
 {
     [Collection("VisualStudioUIAutomationTestCollection")]
-    public class TestsFunctionality
+    public class TestsGeneralFunctionality
     {
         UIAutomationTestFixture testFixture;
-        public TestsFunctionality(UIAutomationTestFixture tf)
+        public TestsGeneralFunctionality(UIAutomationTestFixture tf)
         {
             testFixture = tf;
         }
@@ -337,58 +337,7 @@ namespace UIAutomationTests
             Assert.True(String.IsNullOrWhiteSpace(error), $@"Errormessage: {error}");
 
         }
-        //odbc parameters
-        [Fact]
-        public void ExasolOdbcParams()
-        {
-            string MQueryExpression = File.ReadAllText("QueryPqFiles/ExasolOdbcParams.query.pq");
-
-            var (error, grid) = testFixture.Test(MQueryExpression);
-
-            Assert.True(String.IsNullOrWhiteSpace(error), $@"Errormessage: {error}");
-
-        }
-        [Fact]
-        public void ExasolOdbcParamsParentheses()
-        {
-            string MQueryExpression = File.ReadAllText("QueryPqFiles/ExasolOdbcParamsParentheses.query.pq");
-
-            var (error, grid) = testFixture.Test(MQueryExpression);
-
-            Assert.True(String.IsNullOrWhiteSpace(error), $@"Errormessage: {error}");
-
-        }
-
-        [Fact]
-        public void ExasolOdbcParamsQuery()
-        {
-            string MQueryExpression = File.ReadAllText("QueryPqFiles/ExasolOdbcParamsQuery.query.pq");
-
-            var (error, grid) = testFixture.Test(MQueryExpression);
-
-            Assert.True(String.IsNullOrWhiteSpace(error), $@"Errormessage: {error}");
-
-        }
-        [Fact]
-        public void ExasolOdbcParamsOptionsNull()
-        {
-            string MQueryExpression = File.ReadAllText("QueryPqFiles/ExasolOdbcParamsOptionsNull.query.pq");
-
-            var (error, grid) = testFixture.Test(MQueryExpression);
-
-            Assert.True(String.IsNullOrWhiteSpace(error), $@"Errormessage: {error}");
-
-        }
-        [Fact]
-        public void ExasolOdbcParamsOdbcParamsNull()
-        {
-            string MQueryExpression = File.ReadAllText("QueryPqFiles/ExasolOdbcParamsOdbcParamsNull.query.pq");
-
-            var (error, grid) = testFixture.Test(MQueryExpression);
-
-            Assert.True(String.IsNullOrWhiteSpace(error), $@"Errormessage: {error}");
-
-        }
+   
     
 }
 }

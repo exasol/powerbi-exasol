@@ -35,19 +35,16 @@
     <None Update="QueryPqFiles\CustomQuery.query.pq">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="QueryPqFiles\ExasolOdbcParamsParentheses.query.pq">
+    <None Update="QueryPqFiles\LogPathArgumentQuery.query.pq">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="QueryPqFiles\ExasolOdbcParamsQuery.query.pq">
+    <None Update="QueryPqFiles\LogPathArgumentEmpty.query.pq">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="QueryPqFiles\ExasolOdbcParamsOdbcParamsNull.query.pq">
+    <None Update="QueryPqFiles\LogPathArgumentNull.query.pq">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="QueryPqFiles\ExasolOdbcParamsOptionsNull.query.pq">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Update="QueryPqFiles\ExasolOdbcParams.query.pq">
+    <None Update="QueryPqFiles\LogPathArgument.query.pq">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Update="QueryPqFiles\ExasolTestQuery.query.pq">

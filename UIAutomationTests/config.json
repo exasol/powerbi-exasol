@@ -1,11 +1,12 @@
 ﻿{
-	"server": "192.168.1.37:8563",
-	"username": "sys",
-	"password": "exasol",
-	"vsExecutablePath": "C:\\Program Files (x86)\\Microsoft Visual Studio\\2019\\Community\\Common7\\IDE\\devenv.exe",
-	"slnPath": "C:\\repos\\powerbi-exasol\\Exasol\\Exasol.mproj",
-	"queryPqPath": "C:\\repos\\powerbi-exasol\\Exasol\\Exasol.query.pq",
-	"generateTokenPath": "C:\\auth\\tokens.py",
-	"tokenFilePath": "C:\\auth\\token"
+  "server": "192.168.1.37:8563",
+  "username": "sys",
+  "password": "exasol",
+  "vsExecutablePath": "C:\\Program Files (x86)\\Microsoft Visual Studio\\2019\\Community\\Common7\\IDE\\devenv.exe",
+  "slnPath": "C:\\repos\\powerbi-exasol\\Exasol\\Exasol.mproj",
+  "queryPqPath": "C:\\repos\\powerbi-exasol\\Exasol\\Exasol.query.pq",
+  "generateTokenPath": "C:\\auth\\tokens.py",
+  "tokenFilePath": "C:\\auth\\token",
+  "odbcLogFilePath": "C:\\logs\\logs.txt"
 
 }

@@ -1,4 +1,5 @@
 ﻿using FlaUI.Core.AutomationElements;
+using Microsoft.Extensions.Configuration;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -25,6 +26,15 @@ namespace UIAutomationTests
                     return i;
             }
             return null;
+        }
+        static Utilities()
+        {
+            config = new ConfigurationBuilder().AddJsonFile("config.json").Build();
+        }
+        private static IConfigurationRoot config;
+        public static string GetConfigurationValue(string configurationKey)
+        {
+            return config[configurationKey];
         }
 
         public class Queries

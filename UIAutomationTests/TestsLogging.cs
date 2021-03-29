@@ -12,14 +12,13 @@ namespace UIAutomationTests
     [Collection("VisualStudioUIAutomationTestCollection")]
     public class TestsLogging
     {
-        private int timeToWaitForOdbcDriverToStartLoggingInSeconds = 15;
+        private int timeToWaitForOdbcDriverToStartLoggingInSeconds = 0;
         UIAutomationTestFixture testFixture;
         ITestOutputHelper output;
         public TestsLogging(UIAutomationTestFixture tf, ITestOutputHelper output)
         {
             testFixture = tf;
             this.output = output;
-            //CreateLogFile();
             DeleteLogFile();
         }
 
@@ -41,35 +40,6 @@ namespace UIAutomationTests
                 File.Delete(logFilePath);
         }
 
-        private void WaitWhileFileInUse(string logFilePath)
-        {
-            bool fileLocked = true;
-            while (fileLocked == true)
-            {
-                try
-                {
-                    using (Stream stream = new FileStream(logFilePath, FileMode.Open))
-                    {
-                        // File/Stream manipulating code here
-                        fileLocked = false;
-                    }
-                }
-                catch
-                {
-                    //check here why it failed and ask user to retry if the file is in use.
-                    //In this case: wait a bit
-                    Task.Delay(TimeSpan.FromSeconds(5));
-                }
-            }
-        }
-        private void CreateLogFile()
-        {
-            var logFilePath = Utilities.GetConfigurationValue("odbcLogFilePath");
-            if (!File.Exists(logFilePath))
-                File.Create(logFilePath);
-
-        }
-
         private string FillInLogFilePath(string MQueryExpression)
         {
             var logFilePath = Utilities.GetConfigurationValue("odbcLogFilePath");
@@ -80,7 +50,6 @@ namespace UIAutomationTests
         {
             var logFilePath = Utilities.GetConfigurationValue("odbcLogFilePath");
             Task.Delay(TimeSpan.FromSeconds(timeToWaitForOdbcDriverToStartLoggingInSeconds)).Wait();
-            //WaitWhileFileInUse(logFilePath);
 
             var lastWrittenToLogFileDt = File.GetLastWriteTime(logFilePath);
             var testCheckTime = DateTime.Now;
@@ -94,7 +63,6 @@ namespace UIAutomationTests
 
             var logFilePath = Utilities.GetConfigurationValue("odbcLogFilePath");
             Task.Delay(TimeSpan.FromSeconds(timeToWaitForOdbcDriverToStartLoggingInSeconds)).Wait();
-            //WaitWhileFileInUse(logFilePath);
 
             var lastWrittenToLogFileDt = File.GetLastWriteTime(logFilePath);
             var testCheckTime = DateTime.Now;

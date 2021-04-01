@@ -1,19 +1,18 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
+using System.Text;
 using Xunit;
 
 namespace UIAutomationTests
 {
-    //https://xunit.net/docs/running-tests-in-parallel
-    //We don't want to run them in parallel (since we're doing automation UI testing) so we add the tests to the same test collection
-    [Collection("NotParallel")]
-    public class TestsUsernamePassword : IClassFixture<TestFixture>
+    [Collection("VisualStudioUIAutomationTestCollection")]
+    public class TestsGeneralFunctionality
     {
-        TestFixture testFixture;
-        public TestsUsernamePassword(TestFixture tf)
+        UIAutomationTestFixture testFixture;
+        public TestsGeneralFunctionality(UIAutomationTestFixture tf)
         {
             testFixture = tf;
-            tf.Authenticate(TestFixture.AuthenticationMethod.UsernamePassword);
         }
         //metadata test - exasol odbc.datasource metadata overview
         //should show all custom populated schemas within EXA_DB
@@ -39,21 +38,21 @@ namespace UIAutomationTests
 
             var (error, grid) = testFixture.Test(MQueryExpression);
 
-            
-            Assert.True(String.IsNullOrWhiteSpace(error),$@"Errormessage: {error}");
+
+            Assert.True(String.IsNullOrWhiteSpace(error), $@"Errormessage: {error}");
             Assert.True(grid.RowCount > 1, $@"actual rowCount is {grid.RowCount}");
             //TODO: add test to check if they're all tables or views
         }
         //metadata test - test (empty schema)
         [Fact]
-        public void  OdbcDatasourceEmptySchemaRows()
+        public void OdbcDatasourceEmptySchemaRows()
         {
             string MQueryExpression = File.ReadAllText("QueryPqFiles/Exasol.query.pq");
 
             var (error, grid) = testFixture.Test(MQueryExpression);
 
             Assert.True(String.IsNullOrWhiteSpace(error), $@"Errormessage: {error}");
-            Assert.True(grid.RowCount == 1,$@"actual rowCount is {grid.RowCount}");
+            Assert.True(grid.RowCount == 1, $@"actual rowCount is {grid.RowCount}");
         }
         [Fact]
         public void OdbcDatasourceAWTableMD()
@@ -73,7 +72,7 @@ namespace UIAutomationTests
             int? datarowIndex = Utilities.FindRow(grid, nameIndex.Value, "Kind");
             Assert.True(datarowIndex.HasValue);
             var kindValue = grid.Rows[datarowIndex.Value].Cells[valueIndex.Value].Value;
-            Assert.True(kindValue == "Table","Kind should be Table");
+            Assert.True(kindValue == "Table", "Kind should be Table");
 
         }
 
@@ -95,7 +94,7 @@ namespace UIAutomationTests
             int? datarowIndex = Utilities.FindRow(grid, nameIndex.Value, "Kind");
             Assert.True(datarowIndex.HasValue);
             var kindValue = grid.Rows[datarowIndex.Value].Cells[valueIndex.Value].Value;
-            Assert.True(kindValue == "View","Kind should be View");
+            Assert.True(kindValue == "View", "Kind should be View");
         }
         [Fact]
         public void OdbcDatasourceAWTable()
@@ -202,12 +201,12 @@ namespace UIAutomationTests
             int? columnRowIndex = Utilities.FindRow(grid, columnNameIndex.Value, columnName);
             Assert.True(columnRowIndex.HasValue, $@"column {columnName} not found");
 
-            AssertColumnValue(grid, columnRowIndex.Value,columnName, "TypeName", columnType);
-            AssertColumnValue(grid, columnRowIndex.Value,columnName, "Kind", columnKind);
-            AssertColumnValue(grid, columnRowIndex.Value,columnName, "NativeTypeName", columnNativeTypeName);
+            AssertColumnValue(grid, columnRowIndex.Value, columnName, "TypeName", columnType);
+            AssertColumnValue(grid, columnRowIndex.Value, columnName, "Kind", columnKind);
+            AssertColumnValue(grid, columnRowIndex.Value, columnName, "NativeTypeName", columnNativeTypeName);
         }
 
-        private void AssertColumnValue(FlaUI.Core.AutomationElements.Grid grid, int rowIndex,string columnName, string columnPropertyName, string expectedValue)
+        private void AssertColumnValue(FlaUI.Core.AutomationElements.Grid grid, int rowIndex, string columnName, string columnPropertyName, string expectedValue)
         {
             int? columnPropertyIndex = Utilities.FindColumnNameIndex(grid, columnPropertyName);
 
@@ -279,7 +278,7 @@ namespace UIAutomationTests
 
             Assert.True(grid.Rows[umlautsRowIndex.Value].Cells[varcharIndex.Value].Value == "ÖÜÄ");
             Assert.True(grid.Rows[umlautsRowIndex.Value].Cells[longvarcharIndex.Value].Value == "ÖÜÄ");
-            Assert.Contains("ÖÜÄ", grid.Rows[umlautsRowIndex.Value].Cells[charIndex.Value].Value );
+            Assert.Contains("ÖÜÄ", grid.Rows[umlautsRowIndex.Value].Cells[charIndex.Value].Value);
 
 
         }
@@ -327,5 +326,18 @@ namespace UIAutomationTests
 
         }
 
-    }
+        //test for the test connection to make sure it keeps working with 2 parameters for the 'test query' documented in the pq file.
+        [Fact]
+        public void ExasolTestQuery()
+        {
+            string MQueryExpression = File.ReadAllText("QueryPqFiles/ExasolTestQuery.query.pq");
+
+            var (error, grid) = testFixture.Test(MQueryExpression);
+
+            Assert.True(String.IsNullOrWhiteSpace(error), $@"Errormessage: {error}");
+
+        }
+   
+    
+}
 }

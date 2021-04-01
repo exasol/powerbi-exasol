@@ -35,6 +35,21 @@
     <None Update="QueryPqFiles\CustomQuery.query.pq">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+    <None Update="QueryPqFiles\LogPathArgumentQuery.query.pq">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="QueryPqFiles\LogPathArgumentEmpty.query.pq">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="QueryPqFiles\LogPathArgumentNull.query.pq">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="QueryPqFiles\LogPathArgument.query.pq">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="QueryPqFiles\ExasolTestQuery.query.pq">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Update="QueryPqFiles\Exasol.query.pq">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>

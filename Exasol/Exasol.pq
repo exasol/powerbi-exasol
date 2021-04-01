@@ -27,11 +27,26 @@ section Exasol;
     DataSource.Kind = "Exasol",
     Publish = "Exasol.Publish"
 ]
+
 shared Exasol.Database =
     Value.ReplaceType(
         ExasolImpl,
         ExasolType
     );
+//handling the UI part of the connector requires using (custom) types and metadata, see the links below for more information:
+//https://docs.microsoft.com/en-us/powerquery-m/m-spec-types
+//https://bengribaudo.com/blog/2021/03/17/5523/power-query-m-primer-part20-metadata
+//https://docs.microsoft.com/en-us/power-query/handlingdocumentation
+//the implementation part itself is documented in the data connectors odbc sample (sqlODBC:
+//but for some reason no-one includes their UI definition.
+//recOptions = type [ Name = text, Age = number ]
+OdbcLogfileType = type text meta [                
+Documentation.FieldCaption = "ODBC Driver Logs",
+                Documentation.FieldDescription = "Path where the ODBC driver logs to. Does not log when the path is left empty.",
+                Documentation.SampleValues = {
+                    "C:\tmp\odbclogfilepowerbi.txt"
+                },
+                Formatting.IsCode = true];
 
 //UI ( https://docs.microsoft.com/en-us/power-query/handlingdocumentation )
 ExasolType =
@@ -75,7 +90,8 @@ ExasolType =
                 Formatting.IsMultiLine = true,
                 Formatting.IsCode = true
             ]
-        )) as table
+        ), optional odbcLogFile as OdbcLogfileType
+        ) as table
     meta
     [
         Documentation.Name = "Exasol",
@@ -83,11 +99,10 @@ ExasolType =
         Documentation.Icon = Extension.Contents("Exasol32.png")
     ];
 
-//Implementation
-ExasolImpl =
-    (server as text, encrypted as text, optional query as text) =>
-        //as table =>
-        let
+ ExasolImpl =
+    (server as text, encrypted as text, optional query as text, optional odbcLogFile as text) =>
+    let
+            // These fields come from the options record, so they might be null.
             currentCredentials = Extension.CurrentCredential(),
             authenticationKind = currentCredentials[AuthenticationKind],
             OpenIDKey =
@@ -113,6 +128,11 @@ ExasolImpl =
             //,LOGMODE = "DEFAULT"
             //,EXALOGFILE = "C:\tmp\odbclogfilepowerbi.txt"
             ],
+            OdbcConnectionStringAppended =
+                AppendOdbcConnectionString(
+                    OdbcConnectionString,
+                    odbcLogFile
+                ),
             bOpenId =
                 if authenticationKind = "Key" then
                     true
@@ -127,20 +147,20 @@ ExasolImpl =
             //https://docs.microsoft.com/en-us/powerquery-m/odbc-datasource
             OdbcDataSource =
                 Odbc.DataSource(
-                    OdbcConnectionString,
+                    OdbcConnectionStringAppended,
                     OdbcOptions
                 ),
             Database = OdbcDataSource{[Name = "EXA_DB"]}[Data],
             OdbcQueryResult =
                 if OdbcOptions <> null then
                     Odbc.Query(
-                        OdbcConnectionString,
+                        OdbcConnectionStringAppended,
                         _queryStr,
                         OdbcOptions
                     )
                 else
                     Odbc.Query(
-                        OdbcConnectionString,
+                        OdbcConnectionStringAppended,
                         _queryStr
                     ),
             //since mashup has 'lazy evaluation' we should be able to simplify it to this
@@ -151,7 +171,38 @@ ExasolImpl =
                     OdbcQueryResult
         in
             result;
+            //OdbcConnectionStringAppended;
+
 //END OF IMPLEMENTATION
+AppendOdbcConnectionString =
+    (OdbcConnectionString as record, odbcLogFile as nullable text) as record =>
+        let
+            _odbcLogFile =
+                if (odbcLogFile <> null) then
+                    odbcLogFile
+                else
+                    "",
+            bEnableLogs =
+                if Text.Length(_odbcLogFile ) > 0 then
+                    true
+                else
+                    false,
+            odbcLogsRecord = [
+           LOGMODE = "DEBUGCOMM",
+            EXALOGFILE = odbcLogFile
+            ],
+            toBeCombinedRecordsList = {
+                OdbcConnectionString,
+                odbcLogsRecord
+            },
+            combinedRecord =
+                if bEnableLogs then
+                    Record.Combine(toBeCombinedRecordsList)
+                else
+                    OdbcConnectionString
+        in
+            combinedRecord;
+
 GetOptions =
     (openId as logical, query as logical, openIDKey as text) =>
         let
@@ -177,7 +228,7 @@ GetOptions =
                 SQLColumns = Odbc.DataSource.Options.SQLColumns,
                 SQLGetTypeInfo = Odbc.DataSource.Options.SQLGetTypeInfo,
                 HierarchicalNavigation = true,
-                HideNativeQuery = false,
+                //HideNativeQuery = false,
                 ClientConnectionPooling = true,
                 SqlCapabilities = Odbc.Datasource.Options.SqlCapabilities,
                 SQLGetFunctions = Odbc.Datasource.Options.SQLGetFunctions,
@@ -205,6 +256,7 @@ GetOptions =
 // Data Source Kind description
 Exasol = [
     Description = "Exasol",
+    //Test connection needed for gateway support: https://docs.microsoft.com/en-us/power-query/handlinggatewaysupport
     TestConnection =
         (dataSourcePath) =>
             let
@@ -300,7 +352,6 @@ Odbc.DataSource.Options.SQLColumns =
             OdbcSqlType.SQL_WCHAR = -8,
             OdbcSqlType.DECIMAL = 3,
             OdbcSqlType.BIGINT = -5,
-
             FixDataType =
                 (dataType) =>
                     if dataType = OdbcSqlType.VARCHAR then
@@ -309,7 +360,6 @@ Odbc.DataSource.Options.SQLColumns =
                         OdbcSqlType.SQL_WVARCHAR
                     else
                         dataType,
-
             FixDataTypeName =
                 (dataTypeName) =>
                     if dataTypeName = "VARCHAR" then
@@ -320,7 +370,6 @@ Odbc.DataSource.Options.SQLColumns =
                         "SQL_WVARCHAR"
                     else
                         dataTypeName,
-
             Transform1 =
                 Table.TransformColumns(
                     source,
@@ -335,7 +384,6 @@ Odbc.DataSource.Options.SQLColumns =
                         }
                     }
                 ),
-
             Transform2 =
                 Table.FromRecords(
                     Table.TransformRows(
@@ -460,7 +508,7 @@ Odbc.DataSource.Options.SQLGetTypeInfo =
                         }
                     }
                 ),
-                //the new types get added to the exising ones and the merged table gets returned
+            //the new types get added to the exising ones and the merged table gets returned
             append =
                 Table.Combine(
                     {

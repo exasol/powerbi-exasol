@@ -1,13 +1,11 @@
 //Use this file to write queries to test your data connector
 //local exasol VM TEST SCHEMA
 let
-    Server = "192.168.56.101:8563",
-    Source = Exasol.Database(Server,"Yes")//,
-    //myDb = Source,
-    //mySchema =  Source{[Name = "ADVENTUREWORKSDW2014",Kind="Schema"]}[Data]
-in
-    Source
+    Source = Exasol.Database("exasoldb.example.com", "Yes"),
+    ADVENTUREWORKSDW2014_Schema = Source{[Name="MORETESTS",Kind="Schema"]}[Data]
 
+in
+    ADVENTUREWORKSDW2014_Schema
 //
 
 

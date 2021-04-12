@@ -16,7 +16,7 @@ namespace UIAutomationTests
         }
         //2 tests here will be sufficient for now since we just want to see if we can authenticate and fetch data with odbc.datasource and odbc.query
         [Fact]
-        public void testOdbcQueryAuthenticationOIDC()
+        public void TestOdbcQueryAuthenticationOIDC()
         {
             string MQueryExpression = File.ReadAllText("QueryPqFiles/CustomQuery.query.pq");
 

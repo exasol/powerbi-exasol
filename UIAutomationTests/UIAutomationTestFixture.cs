@@ -78,6 +78,7 @@ namespace UIAutomationTests
         }
         public enum AuthenticationMethod
         {
+            None,
             UsernamePassword,
             KeyOIDCToken
         }
@@ -160,20 +161,19 @@ namespace UIAutomationTests
             buttons[0].AsButton().Invoke();
 
         }
-        private void RemoveCredentials()
+        private void RemoveCredentials(UIAutomationTestFixture.AuthenticationMethod authenticationMethod)
         {
-            
-            var credentialsTabAE = tabItemAEs[3];
-            credentialsTabAE.AsTabItem().Select();
-            //select the list item
-            var credentialsListItemAE = WaitUntilFirstFound(credentialsTabAE, FlaUI.Core.Definitions.TreeScope.Descendants, cf.ByControlType(FlaUI.Core.Definitions.ControlType.ListItem));
-            credentialsListItemAE.AsListBoxItem().Select();
-            //press delete
-            var deleteCredentialButtonAE = credentialsTabAE.FindFirst( FlaUI.Core.Definitions.TreeScope.Descendants, cf.ByName("Delete Credential"));
-            deleteCredentialButtonAE.AsButton().Invoke();
-            //Confirm removing the credentials
-            ClickRemoveCredentialsMessageBoxYes();
-                }
+                var credentialsTabAE = tabItemAEs[3];
+                credentialsTabAE.AsTabItem().Select();
+                //select the list item
+                var credentialsListItemAE = WaitUntilFirstFound(credentialsTabAE, FlaUI.Core.Definitions.TreeScope.Descendants, cf.ByControlType(FlaUI.Core.Definitions.ControlType.ListItem));
+                credentialsListItemAE.AsListBoxItem().Select();
+                //press delete
+                var deleteCredentialButtonAE = credentialsTabAE.FindFirst(FlaUI.Core.Definitions.TreeScope.Descendants, cf.ByName("Delete Credential"));
+                deleteCredentialButtonAE.AsButton().Invoke();
+                //Confirm removing the credentials
+                ClickRemoveCredentialsMessageBoxYes();
+        }
         private string FetchToken()
         {
             return GenerateToken();
@@ -248,15 +248,19 @@ namespace UIAutomationTests
 
         public (string Error, Grid Grid) Test(string MQueryExpression, UIAutomationTestFixture.AuthenticationMethod authenticationMethod = UIAutomationTestFixture.AuthenticationMethod.UsernamePassword)
         {
-            SetPqFileBeforeCredentials();
-            BringOutMQueryWindow();
-            Authenticate(authenticationMethod);
 
+            if (authenticationMethod != AuthenticationMethod.None)
+            {
+                SetPqFileBeforeCredentials();
+                BringOutMQueryWindow();
+                Authenticate(authenticationMethod);
+            }
             FormatAndSetPqFile(MQueryExpression);
             RunTest();
-
-            RemoveCredentials();
-
+            if (authenticationMethod != AuthenticationMethod.None)
+            {
+                RemoveCredentials(authenticationMethod);
+            }
             return GetResults();
         }
 

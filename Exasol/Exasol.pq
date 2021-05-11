@@ -301,10 +301,6 @@ Exasol = [
                 },
     Authentication = [
         UsernamePassword = [],
-        Key = [
-            KeyLabel = "Personal access token",
-            Label = "OpenID"
-        ],
         Windows = [Label="Windows / Kerberos"]
     ],
     Label = Extension.LoadString("DataSourceLabel")

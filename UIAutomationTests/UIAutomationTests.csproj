@@ -29,6 +29,12 @@
     <None Update="config.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+    <None Update="etc\mashupBlockRegex.txt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="etc\mashupFunctionOutputRegex.txt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Update="QueryPqFiles\CustomQueryView.query.pq">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>

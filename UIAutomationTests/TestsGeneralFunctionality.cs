@@ -32,7 +32,7 @@ namespace UIAutomationTests
         }
         //metadata test - adventure works (populated schema)
         [Fact]
-        public void OdbcDatasourcePopulatedSchemaAdventureWorksRows()
+        public void OdbcDatasourcePopulatedSchemaRows()
         {
             string MQueryExpression = File.ReadAllText("QueryPqFiles/ExasolAW.query.pq");
 
@@ -55,7 +55,7 @@ namespace UIAutomationTests
             Assert.True(grid.RowCount == 1, $@"actual rowCount is {grid.RowCount}");
         }
         [Fact]
-        public void OdbcDatasourceAWTableMD()
+        public void OdbcDatasourceTableMetadata()
         {
             string MQueryExpression = File.ReadAllText("QueryPqFiles/ExasolAW.DimAccountTableMD.query.pq");
 
@@ -77,7 +77,7 @@ namespace UIAutomationTests
         }
 
         [Fact]
-        public void OdbcDatasourceAWViewMD()
+        public void OdbcDatasourceViewMetadata()
         {
             string MQueryExpression = File.ReadAllText("QueryPqFiles/ExasolAW.vDMPrepViewMD.query.pq");
 
@@ -97,7 +97,7 @@ namespace UIAutomationTests
             Assert.True(kindValue == "View", "Kind should be View");
         }
         [Fact]
-        public void OdbcDatasourceAWTable()
+        public void OdbcDatasourceGetTable()
         {
             string MQueryExpression = File.ReadAllText("QueryPqFiles/ExasolAW.DimAccountTable.query.pq");
 
@@ -111,7 +111,7 @@ namespace UIAutomationTests
         }
 
         [Fact]
-        public void OdbcDatasourceAWView()
+        public void OdbcDatasourceGetView()
         {
             string MQueryExpression = File.ReadAllText("QueryPqFiles/ExasolAW.vDMPrepView.query.pq");
 
@@ -125,7 +125,7 @@ namespace UIAutomationTests
         }
 
         [Fact]
-        public void OdbcDatasourceDatatypeConversion()
+        public void OdbcDatasourceDatamappings()
         {
             string MQueryExpression = Utilities.Queries.OdbcDatasourceGetTableSchema("MORETESTS", "DATATYPES");
 
@@ -160,7 +160,7 @@ namespace UIAutomationTests
 
         }
         [Fact]
-        public void OdbcQueryDatatypeConversion()
+        public void OdbcQueryDatamappings()
         {
             string MQueryExpression = Utilities.Queries.OdbcQueryGetTableSchema("MORETESTS", "DATATYPES");
 
@@ -218,7 +218,7 @@ namespace UIAutomationTests
 
         [Fact]
         //text conversion tests for datasource and query
-        private void OdbcDatasourceGetText()
+        private void OdbcDatasourceTextConversions()
         {
             string MQueryExpression = Utilities.Queries.OdbcDatasourceGetTable("MORETESTS", "TEXTCONVERSION");
 
@@ -250,7 +250,7 @@ namespace UIAutomationTests
             Assert.Contains("ÖÜÄ", grid.Rows[umlautsRowIndex.Value].Cells[charIndex.Value].Value);
         }
         [Fact]
-        private void OdbcQueryGetText()
+        private void OdbcQueryTextConversions()
         {
             string MQueryExpression = Utilities.Queries.OdbcQueryGetTable("MORETESTS", "TEXTCONVERSION");
 
@@ -284,7 +284,7 @@ namespace UIAutomationTests
         }
 
         [Fact]
-        public void OdbcQueryLimit5()
+        public void OdbcQueryLimit5Example()
         {
             string MQueryExpression = File.ReadAllText("QueryPqFiles/CustomQuery.query.pq");
 
@@ -295,7 +295,7 @@ namespace UIAutomationTests
             Assert.True(grid.ColumnCount > 1);
         }
         [Fact]
-        public void OdbcQueryViewLimit5()
+        public void OdbcQueryViewLimit5Example()
         {
             string MQueryExpression = File.ReadAllText("QueryPqFiles/CustomQueryView.query.pq");
 

@@ -40,13 +40,6 @@ shared Exasol.Database =
 //the implementation part itself is documented in the data connectors odbc sample (sqlODBC:
 //but for some reason no-one includes their UI definition.
 //recOptions = type [ Name = text, Age = number ]
-OdbcLogfileType = type text meta [                
-Documentation.FieldCaption = "ODBC Driver Logs",
-                Documentation.FieldDescription = "Path where the ODBC driver logs to. Does not log when the path is left empty.",
-                Documentation.SampleValues = {
-                    "C:\tmp\odbclogfilepowerbi.txt"
-                },
-                Formatting.IsCode = true];
 
 //UI ( https://docs.microsoft.com/en-us/power-query/handlingdocumentation )
 ExasolType =
@@ -91,7 +84,7 @@ ExasolType =
                 Formatting.IsMultiLine = true,
                 Formatting.IsCode = true
             ]
-        ), optional odbcLogFile as OdbcLogfileType
+        )
         ) as table
     meta
     [

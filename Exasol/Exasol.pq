@@ -131,89 +131,71 @@ ExasolType =
                     true
                 else
                     false,
-            OdbcConnectionString = [
-                DRIVER = "EXASolution Driver",
-                EXAHOST = server,
-                ENCRYPTION = _encrypt
-            //,LOGMODE = "DEFAULT"
-            //,EXALOGFILE = "C:\tmp\odbclogfilepowerbi.txt"
-            ],
-            OdbcConnectionStringAppendedForLogging =
-                AppendOdbcConnectionStringForLogging(
-                    OdbcConnectionString,
-                    odbcLogFile
-                ),
-            AppendedOdbcConnectionString = 
+            odbcConnectionString = CreateOdbcConnectionStringRecord(server,encrypted),
+
+            appendedOdbcConnectionString = 
                 AppendOdbcConnectionStringForKerberosAuthentication(
-                    OdbcConnectionStringAppendedForLogging,
+                    odbcConnectionString,
                     bWindowsKerberos,
                     server
                 ),
-            OdbcOptions = GetOptions(bOpenId, bQuery, OpenIDKey),
+            odbcOptions = GetOptions(bOpenId, bQuery, OpenIDKey),
             _encrypt =
                 if encrypted = "Yes" then
                     "Y"
                 else
                     "N",
             //https://docs.microsoft.com/en-us/powerquery-m/odbc-datasource
-            OdbcDataSource =
+            odbcDataSource =
                 Odbc.DataSource(
-                    AppendedOdbcConnectionString,
-                    OdbcOptions
+                    appendedOdbcConnectionString,
+                    odbcOptions
                 ),
-            Database = OdbcDataSource{[Name = "EXA_DB"]}[Data],
-            OdbcQueryResult =
-                if OdbcOptions <> null then
+            database = odbcDataSource{[Name = "EXA_DB"]}[Data],
+            odbcQueryResult =
+                if odbcOptions <> null then
                     Odbc.Query(
-                        AppendedOdbcConnectionString,
+                        appendedOdbcConnectionString,
                         _queryStr,
-                        OdbcOptions
+                        odbcOptions
                     )
                 else
                     Odbc.Query(
-                        AppendedOdbcConnectionString,
+                        appendedOdbcConnectionString,
                         _queryStr
                     ),
             //mashup has 'lazy evaluation'so we can simplify logic/move the if to the later steps since if we don't use something it won't get evaluated.
             result =
                 if bQuery = false then
-                    Database
+                    database
                 else
-                    OdbcQueryResult,
-           check = Record.ToTable(AppendedOdbcConnectionString)
+                    odbcQueryResult
+           //check = Record.ToTable(appendedOdbcConnectionString)
 
         in
             result;
+CreateOdbcConnectionStringRecord =
+    (server as text,encrypt as text) as record =>
+    let
+    splitServerList = Text.Split(server, "="),
+    dsnNamePart = splitServerList{1},
+    dsnName =Text.Remove(dsnNamePart,{"'",""""}),
+    odbcConnectionString = 
+    if Text.Contains(server,"DSN=",Comparer.OrdinalIgnoreCase) then
 
-//END OF IMPLEMENTATION
-AppendOdbcConnectionStringForLogging =
-    (OdbcConnectionString as record, odbcLogFile as nullable text) as record =>
-        let
-            _odbcLogFile =
-                if (odbcLogFile <> null) then
-                    odbcLogFile
-                else
-                    "",
-            bEnableLogs =
-                if Text.Length(_odbcLogFile ) > 0 then
-                    true
-                else
-                    false,
-            odbcLogsRecord = [
-           LOGMODE = "DEBUGCOMM",
-            EXALOGFILE = odbcLogFile
-            ],
-            toBeCombinedRecordsList = {
-                OdbcConnectionString,
-                odbcLogsRecord
-            },
-            combinedRecord =
-                if bEnableLogs then
-                    Record.Combine(toBeCombinedRecordsList)
-                else
-                    OdbcConnectionString
-        in
-            combinedRecord;
+    [
+                DSN=dsnName
+            ]
+    else
+    [
+                DRIVER = "EXASolution Driver",
+                EXAHOST = server,
+                ENCRYPTION = encrypt
+            //,LOGMODE = "DEFAULT"
+            //,EXALOGFILE = "C:\tmp\odbclogfilepowerbi.txt"
+            ]
+            in 
+            odbcConnectionString;
 AppendOdbcConnectionStringForKerberosAuthentication =
     (OdbcConnectionString as record, bKerberos as logical,server as text ) as record =>
         let

@@ -6,8 +6,6 @@
   "slnPath": "C:\\repos\\powerbi-exasol\\Exasol\\Exasol.mproj",
   "queryPqPath": "C:\\repos\\powerbi-exasol\\Exasol\\Exasol.query.pq",
   "pqPath": "C:\\repos\\powerbi-exasol\\Exasol\\Exasol.pq",
-  "generateTokenPath": "C:\\auth\\tokens.py",
-  "tokenFilePath": "C:\\auth\\token",
-  "odbcLogFilePath": "C:\\logs\\logs.txt"
+  "dsn-name": "exa-test"
 
 }

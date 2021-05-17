@@ -56,9 +56,10 @@ ExasolType =
             meta
             [
                 Documentation.FieldCaption = "Connection String",
-                Documentation.FieldDescription = "Exasol Connection String, e.g. 192.168.80.11..15:8563",
+                Documentation.FieldDescription = "Exasol Connection String, e.g. 192.168.80.11..15:8563 or a DSN: DSN=exa-one",
                 Documentation.SampleValues = {
-                    "192.168.80.11..15:8563"
+                    "192.168.80.11..15:8563",
+                    "DSN=exa-one"
                 }
             ]
         ), encrypted as
@@ -100,7 +101,7 @@ ExasolType =
     ];
 
  ExasolImpl =
-    (server as text, encrypted as text, optional query as text, optional odbcLogFile as text) =>
+    (server as text, encrypted as text, optional query as text) =>
     let
             // These fields come from the options record, so they might be null.
             currentCredentials = Extension.CurrentCredential(),

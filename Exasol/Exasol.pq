@@ -116,16 +116,6 @@ ExasolType =
                     true
                 else
                     false,
-            bOpenId =
-                if authenticationKind = "Key" then
-                    true
-                else
-                    false,
-            OpenIDKey =
-                if (currentCredentials[Password] <> null) then
-                    currentCredentials[Password]
-                else
-                    "",
             bWindowsKerberos = 
             if authenticationKind = "Windows" then
                     true
@@ -139,7 +129,7 @@ ExasolType =
                     bWindowsKerberos,
                     server
                 ),
-            odbcOptions = GetOptions(bOpenId, bQuery, OpenIDKey),
+            odbcOptions = GetOptions(bQuery),
             _encrypt =
                 if encrypted = "Yes" then
                     "Y"
@@ -215,12 +205,8 @@ AppendOdbcConnectionStringForKerberosAuthentication =
         in
             combinedRecord;
 GetOptions =
-    (openId as logical, query as logical, openIDKey as text) =>
+    (query as logical) =>
         let
-            OpenIdConnectionStringRecord = [
-                AUTHMETHOD = "refreshtoken",
-                EXAPWD = openIDKey
-            ],
             DatasourceUsernamePassword = [
                 AstVisitor = Odbc.DataSource.Options.AstVisitor,
                 SQLColumns = Odbc.DataSource.Options.SQLColumns,
@@ -233,31 +219,13 @@ GetOptions =
                 SQLGetFunctions = Odbc.Datasource.Options.SQLGetFunctions,
                 SQLGetInfo = Odbc.Datasource.Options.SQLGetInfo
             ],
-            DatasourceOpenId = [
-                CredentialConnectionString = OpenIdConnectionStringRecord,
-                AstVisitor = Odbc.DataSource.Options.AstVisitor,
-                SQLColumns = Odbc.DataSource.Options.SQLColumns,
-                SQLGetTypeInfo = Odbc.DataSource.Options.SQLGetTypeInfo,
-                HierarchicalNavigation = true,
-                //HideNativeQuery = false,
-                ClientConnectionPooling = true,
-                SqlCapabilities = Odbc.Datasource.Options.SqlCapabilities,
-                SQLGetFunctions = Odbc.Datasource.Options.SQLGetFunctions,
-                SQLGetInfo = Odbc.Datasource.Options.SQLGetInfo
-            ],
-            QueryOpenId = [
-                CredentialConnectionString = OpenIdConnectionStringRecord
-            ],
+
             QueryUsernamePassword = null,
             options =
-                if query = false and openId = false then
+                if query = false then
                     DatasourceUsernamePassword
-                else if query = false and openId = true then
-                    DatasourceOpenId
-                else if query = true and openId = false then
+                else if query = true then
                     QueryUsernamePassword
-                else if query = true and openId = true then
-                    QueryOpenId
                 else
                     ...
         //not implemented error

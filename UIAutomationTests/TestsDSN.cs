@@ -22,7 +22,7 @@ namespace UIAutomationTests
         public void TestDsn1()
         {
             string MQueryExpression = File.ReadAllText("QueryPqFiles/DSN/DSN1.query.pq");
-            string changedDSNStr = MQueryExpression.Replace("{server}", dsnName);
+            string changedDSNStr = MQueryExpression.Replace("{DSN}", dsnName);
             var (error, grid) = testFixture.Test(changedDSNStr);
 
             Assert.True(String.IsNullOrWhiteSpace(error), $@"Errormessage: {error}");
@@ -32,7 +32,7 @@ namespace UIAutomationTests
         {
             string MQueryExpression = File.ReadAllText("QueryPqFiles/DSN/DSN2.query.pq");
 
-            string changedDSNStr = MQueryExpression.Replace("{server}", dsnName);
+            string changedDSNStr = MQueryExpression.Replace("{DSN}", dsnName);
             var (error, grid) = testFixture.Test(changedDSNStr);
 
             Assert.True(String.IsNullOrWhiteSpace(error), $@"Errormessage: {error}");
@@ -42,7 +42,7 @@ namespace UIAutomationTests
         {
             string MQueryExpression = File.ReadAllText("QueryPqFiles/DSN/DSN3.query.pq");
 
-            string changedDSNStr = MQueryExpression.Replace("{server}", dsnName);
+            string changedDSNStr = MQueryExpression.Replace("{DSN}", dsnName);
             var (error, grid) = testFixture.Test(changedDSNStr);
 
             Assert.True(String.IsNullOrWhiteSpace(error), $@"Errormessage: {error}");
@@ -52,7 +52,7 @@ namespace UIAutomationTests
         {
             string MQueryExpression = File.ReadAllText("QueryPqFiles/DSN/DSN4.query.pq");
 
-            string changedDSNStr = MQueryExpression.Replace("{server}", dsnName);
+            string changedDSNStr = MQueryExpression.Replace("{DSN}", dsnName);
             var (error, grid) = testFixture.Test(changedDSNStr);
 
             Assert.True(String.IsNullOrWhiteSpace(error), $@"Errormessage: {error}");
@@ -62,7 +62,7 @@ namespace UIAutomationTests
         {
             string MQueryExpression = File.ReadAllText("QueryPqFiles/DSN/DSN5.query.pq");
 
-            string changedDSNStr = MQueryExpression.Replace("{server}", dsnName);
+            string changedDSNStr = MQueryExpression.Replace("{DSN}", dsnName);
             var (error, grid) = testFixture.Test(changedDSNStr);
 
             Assert.True(String.IsNullOrWhiteSpace(error), $@"Errormessage: {error}");
@@ -72,7 +72,7 @@ namespace UIAutomationTests
         {
             string MQueryExpression = File.ReadAllText("QueryPqFiles/DSN/DSN6.query.pq");
 
-            string changedDSNStr = MQueryExpression.Replace("{server}", dsnName);
+            string changedDSNStr = MQueryExpression.Replace("{DSN}", dsnName);
             var (error, grid) = testFixture.Test(changedDSNStr);
 
             Assert.True(String.IsNullOrWhiteSpace(error), $@"Errormessage: {error}");

@@ -40,7 +40,7 @@ namespace UIAutomationTests
             var pqFileContentsStr = File.ReadAllText(pqFilePath);
 
             queryPqFileSB.Append(Utilities.ComposeMashupFiles.LetStatement);
-            queryPqFileSB.Append(Utilities.ComposeMashupFiles.GetMashupCodeBlock("AppendOdbcConnectionStringForLogging", pqFileContentsStr));
+            queryPqFileSB.Append(Utilities.ComposeMashupFiles.GetMashupCodeBlock("CreateOdbcConnectionStringRecord", pqFileContentsStr));
             queryPqFileSB.Append(Utilities.ComposeMashupFiles.CommaAndNewLine);
             queryPqFileSB.Append(Utilities.ComposeMashupFiles.GetMashupCodeBlock("AppendOdbcConnectionStringForKerberosAuthentication", pqFileContentsStr));
             queryPqFileSB.Append(Utilities.ComposeMashupFiles.CommaAndNewLine);
@@ -49,7 +49,7 @@ namespace UIAutomationTests
             //we spoof the current credentials record
             mainFunction = Utilities.ComposeMashupFiles.SpoofCurrentCredentialsRecord(mainFunction, Utilities.ComposeMashupFiles.SpoofCredentials.Windows);
             //we change the returned object to the connection string object we usually pass along to the datasource or query function to see how it looks
-            mainFunction = Utilities.ComposeMashupFiles.ReplaceMashupFunctionOutput(mainFunction, "AppendedOdbcConnectionString");
+            mainFunction = Utilities.ComposeMashupFiles.ReplaceMashupFunctionOutput(mainFunction, "appendedOdbcConnectionString");
             queryPqFileSB.Append(mainFunction);
             queryPqFileSB.Append(Utilities.ComposeMashupFiles.CommaAndNewLine);
             string dnsRecord = "exasoldb.example.com";

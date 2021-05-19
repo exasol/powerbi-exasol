@@ -191,8 +191,13 @@ AppendOdbcConnectionStringForKerberosAuthentication =
                 OdbcConnectionString,
                 odbcKerberosRecord
             },
+            bDsn = if Text.Contains(server,"DSN=",Comparer.OrdinalIgnoreCase) then
+            true
+            else
+            false,
+
             combinedRecord =
-                if bKerberos then
+                if bKerberos and bDsn = false then
                     Record.Combine(toBeCombinedRecordsList)
                 else
                     OdbcConnectionString
@@ -245,7 +250,8 @@ Exasol = [
                 },
     Authentication = [
         UsernamePassword = [],
-        Windows = [Label="Windows / Kerberos"]
+        Windows = [Label="Windows / Kerberos"],
+        Implicit =[]
     ],
     Label = Extension.LoadString("DataSourceLabel")
 ];

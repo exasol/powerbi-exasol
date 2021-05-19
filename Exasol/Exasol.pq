@@ -27,12 +27,12 @@ section Exasol;
     DataSource.Kind = "Exasol",
     Publish = "Exasol.Publish"
 ]
-
 shared Exasol.Database =
     Value.ReplaceType(
         ExasolImpl,
         ExasolType
     );
+
 //handling the UI part of the connector requires using (custom) types and metadata, see the links below for more information:
 //https://docs.microsoft.com/en-us/powerquery-m/m-spec-types
 //https://bengribaudo.com/blog/2021/03/17/5523/power-query-m-primer-part20-metadata
@@ -40,7 +40,6 @@ shared Exasol.Database =
 //the implementation part itself is documented in the data connectors odbc sample (sqlODBC:
 //but for some reason no-one includes their UI definition.
 //recOptions = type [ Name = text, Age = number ]
-
 //UI ( https://docs.microsoft.com/en-us/power-query/handlingdocumentation )
 ExasolType =
     type function (server as
@@ -84,8 +83,7 @@ ExasolType =
                 Formatting.IsMultiLine = true,
                 Formatting.IsCode = true
             ]
-        )
-        ) as table
+        )) as table
     meta
     [
         Documentation.Name = "Exasol",
@@ -93,9 +91,9 @@ ExasolType =
         Documentation.Icon = Extension.Contents("Exasol32.png")
     ];
 
- ExasolImpl =
+ExasolImpl =
     (server as text, encrypted as text, optional query as text) =>
-    let
+        let
             // These fields come from the options record, so they might be null.
             currentCredentials = Extension.CurrentCredential(),
             authenticationKind = currentCredentials[AuthenticationKind],
@@ -110,14 +108,17 @@ ExasolType =
                     true
                 else
                     false,
-            bWindowsKerberos = 
-            if authenticationKind = "Windows" then
+            bWindowsKerberos =
+                if authenticationKind = "Windows" then
                     true
                 else
                     false,
-            odbcConnectionString = CreateOdbcConnectionStringRecord(server,encrypted),
-
-            appendedOdbcConnectionString = 
+            odbcConnectionString =
+                CreateOdbcConnectionStringRecord(
+                    server,
+                    encrypted
+                ),
+            appendedOdbcConnectionString =
                 AppendOdbcConnectionStringForKerberosAuthentication(
                     odbcConnectionString,
                     bWindowsKerberos,
@@ -154,48 +155,66 @@ ExasolType =
                     database
                 else
                     odbcQueryResult
-           //check = Record.ToTable(appendedOdbcConnectionString)
-
+        //check = Record.ToTable(appendedOdbcConnectionString)
         in
             result;
+
 CreateOdbcConnectionStringRecord =
-    (server as text,encrypt as text) as record =>
-    let
-    splitServerList = Text.Split(server, "="),
-    dsnNamePart = splitServerList{1},
-    dsnName =Text.Remove(dsnNamePart,{"'",""""}),
-    odbcConnectionString = 
-    if Text.Contains(server,"DSN=",Comparer.OrdinalIgnoreCase) then
-
-    [
-                DSN=dsnName
-            ]
-    else
-    [
-                DRIVER = "EXASolution Driver",
-                EXAHOST = server,
-                ENCRYPTION = encrypt
-            //,LOGMODE = "DEFAULT"
-            //,EXALOGFILE = "C:\tmp\odbclogfilepowerbi.txt"
-            ]
-            in 
-            odbcConnectionString;
-AppendOdbcConnectionStringForKerberosAuthentication =
-    (OdbcConnectionString as record, bKerberos as logical,server as text ) as record =>
+    (server as text, encrypt as text) as record =>
         let
+            splitServerList = Text.Split(server, "="),
+            dsnNamePart = splitServerList{1},
+            dsnName =
+                Text.Remove(
+                    dsnNamePart,
+                    {
+                        "'",
+                        """"
+                    }
+                ),
+            odbcConnectionString =
+                if
+                    Text.Contains(
+                        server,
+                        "DSN=",
+                        Comparer.OrdinalIgnoreCase
+                    )
+                then
+                    [
+                        DSN = dsnName
+                    ]
+                else
+                    [
+                        DRIVER = "EXASolution Driver",
+                        EXAHOST = server,
+                        ENCRYPTION = encrypt
+                    //,LOGMODE = "DEFAULT"
+                    //,EXALOGFILE = "C:\tmp\odbclogfilepowerbi.txt"
+                    ]
+        in
+            odbcConnectionString;
 
+AppendOdbcConnectionStringForKerberosAuthentication =
+    (OdbcConnectionString as record, bKerberos as logical, server as text) as record =>
+        let
             odbcKerberosRecord = [
-            KERBEROSSERVICENAME = "exasol/" & server
+                KERBEROSSERVICENAME = "exasol/" & server
             ],
             toBeCombinedRecordsList = {
                 OdbcConnectionString,
                 odbcKerberosRecord
             },
-            bDsn = if Text.Contains(server,"DSN=",Comparer.OrdinalIgnoreCase) then
-            true
-            else
-            false,
-
+            bDsn =
+                if
+                    Text.Contains(
+                        server,
+                        "DSN=",
+                        Comparer.OrdinalIgnoreCase
+                    )
+                then
+                    true
+                else
+                    false,
             combinedRecord =
                 if bKerberos and bDsn = false then
                     Record.Combine(toBeCombinedRecordsList)
@@ -203,6 +222,7 @@ AppendOdbcConnectionStringForKerberosAuthentication =
                     OdbcConnectionString
         in
             combinedRecord;
+
 GetOptions =
     (query as logical) =>
         let
@@ -218,7 +238,6 @@ GetOptions =
                 SQLGetFunctions = Odbc.Datasource.Options.SQLGetFunctions,
                 SQLGetInfo = Odbc.Datasource.Options.SQLGetInfo
             ],
-
             QueryUsernamePassword = null,
             options =
                 if query = false then
@@ -250,8 +269,10 @@ Exasol = [
                 },
     Authentication = [
         UsernamePassword = [],
-        Windows = [Label="Windows / Kerberos"],
-        Implicit =[]
+        Windows = [
+            Label = "Windows / Kerberos"
+        ],
+        Implicit = []
     ],
     Label = Extension.LoadString("DataSourceLabel")
 ];

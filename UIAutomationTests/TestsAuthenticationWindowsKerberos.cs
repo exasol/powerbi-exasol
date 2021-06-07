@@ -30,8 +30,23 @@ namespace UIAutomationTests
             Assert.True(kerberosServiceNameRecordRow.HasValue, "KERBEROSSERVICENAME is missing from the Connection String Record.");
             Assert.True(grid.Rows[kerberosServiceNameRecordRow.Value].Cells[1].Value == "exasol/" + dnsRecord);
         }
+        //another test with different authentication mode spoof here to make sure KERBEROSSERVICENAME is not included in the Connection String Record 
+        [Fact]
+        public void TestWindowsKerberosAuthenticationConnectionStringRecordWithKeyCredentialsSpoof()
+        {
+            var (sbPqFileStr, dnsRecord) = CreateKerberosConnectionStringPqTestFile(Utilities.ComposeMashupFiles.SpoofCredentials.Key);
 
-        private (string, string) CreateKerberosConnectionStringPqTestFile()
+            var (error, grid) = testFixture.Test(sbPqFileStr, UIAutomationTestFixture.AuthenticationMethod.None);
+
+            Assert.True(String.IsNullOrWhiteSpace(error), $@"Errormessage: {error}");
+
+            string connectionStrKerberosServicenameField = "KERBEROSSERVICENAME";
+
+            int? kerberosServiceNameRecordRow = Utilities.FindRow(grid, 0, connectionStrKerberosServicenameField);
+            Assert.True(!kerberosServiceNameRecordRow.HasValue, "KERBEROSSERVICENAME shouldn't be a part of this record.");
+        }
+
+        private (string, string) CreateKerberosConnectionStringPqTestFile(Utilities.ComposeMashupFiles.SpoofCredentials spoofCredentials = Utilities.ComposeMashupFiles.SpoofCredentials.Windows)
         {
             int pqFileNumberOfCharacters = 20000;
             StringBuilder queryPqFileSB = new StringBuilder(pqFileNumberOfCharacters);
@@ -47,7 +62,7 @@ namespace UIAutomationTests
 
             var mainFunction = Utilities.ComposeMashupFiles.GetMashupCodeBlock("ExasolImpl", pqFileContentsStr);
             //we spoof the current credentials record
-            mainFunction = Utilities.ComposeMashupFiles.SpoofCurrentCredentialsRecord(mainFunction, Utilities.ComposeMashupFiles.SpoofCredentials.Windows);
+            mainFunction = Utilities.ComposeMashupFiles.SpoofCurrentCredentialsRecord(mainFunction, spoofCredentials);
             //we change the returned object to the connection string object we usually pass along to the datasource or query function to see how it looks
             mainFunction = Utilities.ComposeMashupFiles.ReplaceMashupFunctionOutput(mainFunction, "appendedOdbcConnectionString");
             queryPqFileSB.Append(mainFunction);
@@ -59,6 +74,5 @@ namespace UIAutomationTests
 
             return (queryPqFileSB.ToString(), dnsRecord);
         }
-        //TODO: write another test with different authentication mode spoof here
     }
 }

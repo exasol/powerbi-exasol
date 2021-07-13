@@ -67,7 +67,7 @@ namespace UIAutomationTests
             Config();
             MakeBackup();
             PrepVisualStudio();
-            SetPqFileBeforeCredentials();
+            //SetPqFileBeforeCredentials();
             SetupConditionFactory();
             AcquireDebugTargetButton();
             PressDebugTargetButton();
@@ -115,10 +115,9 @@ namespace UIAutomationTests
             RemoveCredentialsPopupYesButtonAE.AsButton().Invoke();
         }
 
-        private void SetPqFileBeforeCredentials()
+        private void SetPqFileBeforeCredentials(string pqFileStr)
         {
-            string MQueryExpression = File.ReadAllText("QueryPqFiles/Exasol.query.pq");
-            FormatAndSetPqFile(MQueryExpression);
+            FormatAndSetPqFile(pqFileStr);
         }
 
         private void SetupConditionFactory()
@@ -251,7 +250,7 @@ namespace UIAutomationTests
 
             if (authenticationMethod != AuthenticationMethod.None)
             {
-                SetPqFileBeforeCredentials();
+                SetPqFileBeforeCredentials(MQueryExpression);
                 BringOutMQueryWindow();
                 Authenticate(authenticationMethod);
             }
@@ -266,7 +265,7 @@ namespace UIAutomationTests
 
         private void FormatAndSetPqFile(string MQueryExpression)
         {
-            String plusServerStr = MQueryExpression.Replace("{server}", server);
+            string plusServerStr = MQueryExpression.Replace("{server}", server);
             File.WriteAllText(queryPqPath, plusServerStr);
         }
 

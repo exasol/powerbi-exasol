@@ -74,6 +74,9 @@ namespace UIAutomationTests
                 if (credentialsRecordType == SpoofCredentials.Windows)
                 {
                     return functionStr.Replace("Extension.CurrentCredential()", "[AuthenticationKind = \"Windows\",Password=\"\"]");
+                } else if (credentialsRecordType == SpoofCredentials.Key)
+                {
+                    return functionStr.Replace("Extension.CurrentCredential()", "[AuthenticationKind = \"Key\",Password=\"\"]");
                 }
                 else
                 {

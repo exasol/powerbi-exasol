@@ -1,0 +1,5 @@
+changelog for 1.0.6
+-Custom queries are now supported
+-Kerberos authentication support
+-ODBC driver logging -> after feedback we removed this and added DSN support instead
+-implicit authentication is now also possible

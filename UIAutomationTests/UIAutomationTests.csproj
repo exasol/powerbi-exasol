@@ -41,6 +41,24 @@
     <None Update="QueryPqFiles\CustomQuery.query.pq">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+    <None Update="QueryPqFiles\DSN\DSN5.query.pq">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="QueryPqFiles\DSN\DSN6.query.pq">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="QueryPqFiles\DSN\DSN4.query.pq">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="QueryPqFiles\DSN\DSN3.query.pq">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="QueryPqFiles\DSN\DSN2.query.pq">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="QueryPqFiles\DSN\DSN1.query.pq">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Update="QueryPqFiles\LogPathArgumentQuery.query.pq">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>

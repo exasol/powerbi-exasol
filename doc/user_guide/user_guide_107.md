@@ -14,7 +14,7 @@
 
 ### Download the .mez
 
-Copy the ''Exasol.mez' file available on : [Releases · exasol/powerbi-exasol · GitHub](https://github.com/exasol/powerbi-exasol/releases)
+Download the 'Exasol.mez' file available on : [Releases · exasol/powerbi-exasol · GitHub](https://github.com/exasol/powerbi-exasol/releases)
 
 You can find it separately under the assets dropdown.
 
@@ -42,7 +42,7 @@ Change the data extensions setting to allow the custom connector to load.
 
 ![](./img/2021-07-16-13-28-43-image.png)
 
-### Shut down and restart Power BI Desktop
+### Restart Power BI Desktop
 
 You'll need to reload PowerBI for these changes to have an effect (and the new connector version to load in).
 
@@ -106,7 +106,7 @@ You can easily turn logging on and off as well as select a desired log mode usin
 
 Another option to do this is to manually add the relevant connection string keys to the connection string or to add them to Additional Connection string parameters under 'Advanced'.
 
-In this case that would be: LOGMODE=DEBUGCOMM;EXALOGFILE=C:\tmp\pbiblog.txt;
+In this case that would be: `LOGMODE=DEBUGCOMM;EXALOGFILE=C:\tmp\pbiblog.txt`;
 
 
 
@@ -138,6 +138,6 @@ Important note: You can only use a custom query in "import" mode. You can also u
 
 # Limited Kerberos support
 
-We also support an 'easy' kerberos authentication mode where the KERBEROSSERVICENAME will be exasol/<dnsrecord> if you choose the kerberos authentication option.
+We also support an 'easy' kerberos authentication mode where the `KERBEROSSERVICENAME` will be `exasol/<dnsrecord>` if you choose the kerberos authentication option.
 
 If you need more control over this you can set the right values in the data source connection string instead (see data sources section above) and then opt for kerberos (if you use a DSN this will add no additional authentication connection string keys) or 'implicit' authentication.

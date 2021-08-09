@@ -69,20 +69,6 @@ ExasolType =
                     "No"
                 }
             ]
-        ), optional query as
-        (
-            type text
-            meta
-            [
-                Documentation.FieldCaption = "Query",
-                //Extension.LoadString("Parameter.Query.Caption"),
-                Documentation.FieldDescription = "You can enter a custom query here.",
-                Documentation.SampleValues = {
-                    "SELECT * FROM [SCHEMA].[TABLE] LIMIT 5 ;"
-                },
-                Formatting.IsMultiLine = true,
-                Formatting.IsCode = true
-            ]
         )) as table
     meta
     [
@@ -92,22 +78,13 @@ ExasolType =
     ];
 
 ExasolImpl =
-    (server as text, encrypted as text, optional query as text) =>
+    (server as text, encrypted as text) =>
         let
             // These fields come from the options record, so they might be null.
             currentCredentials = Extension.CurrentCredential(),
             authenticationKind = currentCredentials[AuthenticationKind],
             //null guard (so older reports created with a previous version won't get reference errors
-            _queryStr =
-                if (query <> null) then
-                    query
-                else
-                    "",
-            bQuery =
-                if Text.Length(_queryStr) > 0 then
-                    true
-                else
-                    false,
+
             bWindowsKerberos =
                 if authenticationKind = "Windows" then
                     true
@@ -124,7 +101,7 @@ ExasolImpl =
                     bWindowsKerberos,
                     server
                 ),
-            odbcOptions = GetOptions(bQuery),
+            odbcOptions = GetOptions(),
             _encrypt =
                 if encrypted = "Yes" then
                     "Y"
@@ -137,25 +114,9 @@ ExasolImpl =
                     odbcOptions
                 ),
             database = odbcDataSource{[Name = "EXA_DB"]}[Data],
-            odbcQueryResult =
-                if odbcOptions <> null then
-                    Odbc.Query(
-                        appendedOdbcConnectionString,
-                        _queryStr,
-                        odbcOptions
-                    )
-                else
-                    Odbc.Query(
-                        appendedOdbcConnectionString,
-                        _queryStr
-                    ),
+
             //mashup has 'lazy evaluation'so we can simplify logic/move the if to the later steps since if we don't use something it won't get evaluated.
-            result =
-                if bQuery = false then
-                    database
-                else
-                    odbcQueryResult
-        //check = Record.ToTable(appendedOdbcConnectionString)
+            result = database
         in
             result;
 
@@ -224,7 +185,7 @@ AppendOdbcConnectionStringForKerberosAuthentication =
             combinedRecord;
 
 GetOptions =
-    (query as logical) =>
+    () =>
         let
             DatasourceUsernamePassword = [
                 AstVisitor = Odbc.DataSource.Options.AstVisitor,
@@ -238,14 +199,8 @@ GetOptions =
                 SQLGetFunctions = Odbc.Datasource.Options.SQLGetFunctions,
                 SQLGetInfo = Odbc.Datasource.Options.SQLGetInfo
             ],
-            QueryUsernamePassword = null,
-            options =
-                if query = false then
-                    DatasourceUsernamePassword
-                else if query = true then
-                    QueryUsernamePassword
-                else
-                    ...
+            options =  DatasourceUsernamePassword
+
         //not implemented error
         in
             options;

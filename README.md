@@ -5,25 +5,16 @@ The Exasol Microsoft Power BI Connector enables you to connect from Power BI Des
 
 ## Prerequisites
 
-* Install the [Exasol ODBC driver (EXASOL_ODBC_*.msi)](https://www.exasol.com/portal/display/DOWNLOAD/6.0) (if you are not sure if you shall install the 32 Bit or 64 Bit version install both versions)
+* Install the [Exasol ODBC driver (EXASOL_ODBC_*.msi)](https://www.exasol.com/portal/display/DOWNLOAD/6.0) (if you aren't sure on whether you need the 32 Bit or 64 Bit version install both versions)
 * Install the current version of Power BI desktop
 
 ## Use the Custom Connector from this Repository instead of the official shipped connector in Power BI Desktop
 
 :exclamation: The Power BI Release 2.66.5376.1681 64-bit (February 2019) contains all recent fixes of the EXASOL connector regarding unicode.
+:exclamation: A new version of the Exasol connector is scheduled for bundled release with PowerBI. 
+This new version of the connector comes bundled with the September 2021 release of Power BI Desktop scheduled the week of 9/13.
+For a brief overview of the new features, see the [user guide](doc/user_guide/user_guide.md)
 
-If you want to use the most current connector provided in this repository to be able to use the newest connector available, before the
-next official release of Power BI, please us the following instructions:
-
-* Download [Exasol.mez](https://github.com/EXASOL/powerbi-exasol/blob/master/Exasol/bin/Release/Exasol.mez) 
-* Create A directory like  [Documents]\Power BI Desktop\Custom Connectors
-* Copy Exasol.mez into the [Documents]\Power BI Desktop\Custom Connectors directory
-* Open Power BI Desktop and  lower the security level for extensions in Power BI Desktop to enable loading unsigned/uncertified connectors.
-* Go to File | Options and settings | Options
-* Go the Security tab
-* Under Data Extensions, select Allow any extension to load without warning or validation
-* Restart Power BI Desktop
-* Now Power BI uses the Custom Connector for Exasol instead of the official included connector
 
 ## Usage
 

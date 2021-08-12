@@ -1,62 +1,14 @@
-# Exasol Power BI Connector 1.0.7 Release - User Guide
+# Exasol Power BI Connector 1.0.6 Release - User Guide
 
 ## New features
-
-- Custom Query support
-
-- ODBC Driver Logging
 
 - DSN (Data Source Name) Support
 
 - Limited Kerberos support
 
-## Installing the connector
+## Installing the connector:
 
-### Download the .mez
-
-Download the 'Exasol.mez' file available on : [Releases · exasol/powerbi-exasol · GitHub](https://github.com/exasol/powerbi-exasol/releases)
-
-You can find it separately under the assets dropdown.
-
-This is the direct link:
-
-https://github.com/exasol/powerbi-exasol/releases/download/1.0.7/Exasol.mez
-
-### Copy the .mez to the following directory
-
-Copy the mez file to `C:\Users\\<YourAccount>\Documents\Microsoft Power BI Desktop\Custom Connectors` Directory. 
-
-Create the directory path if it doesn't exist.
-
-### Change the PowerBI Desktop settings
-
-Go to options in PowerBI:
-
-File > Options and settings > Options
-
-![](./img/2021-07-16-13-42-57-image.png)
-
-Navigate to the security tab.
-
-Change the data extensions setting to allow the custom connector to load.
-
-![](./img/2021-07-16-13-28-43-image.png)
-
-### Restart Power BI Desktop
-
-You'll need to reload PowerBI for these changes to have an effect (and the new connector version to load in).
-
-## Using the connector and its new features
-
-After installing the connector following the steps above you'll automatically use this connector when you go to Get Datasource > Get Exasol.
-
-The connector should be backwards compatible in that it shouldn't break your existing reports.
-
-As you will see the connector now looks slightly different:
-
-(Brief instructions on these new features follow below)
-
-![](./img/2021-07-16-13-51-38-image.png)
+This new version of the connector comes bundled with the September 2021 release of Power BI Desktop scheduled the week of 9/13.
 
 ## DSN (Data Source Name) Support
 
@@ -121,20 +73,6 @@ There is also more documentation on exasol ODBC datasources configuration availa
 For an overview of the other available connection string keys, see this article:
 
 [Using the ODBC Driver | Exasol Documentation](https://docs.exasol.com/connect_exasol/drivers/odbc/using_odbc.htm)
-
-# Custom Query support
-
-![](./img/2021-07-16-15-30-48-image.png)
-
-It is now possible to write a custom query to fetch results.
-
-You can alter this query afterwards in the Power Query editor as well.
-
-
-
-Important note: You can only use a custom query in "import" mode. You can also use DirectQuery but won't be able to use the results in any visuals. 
-
-(You can alter the mode afterwards in the model screen in case you accidentally picked the unsupported option.)
 
 # Limited Kerberos support
 

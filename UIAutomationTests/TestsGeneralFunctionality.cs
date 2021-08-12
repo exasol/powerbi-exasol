@@ -159,38 +159,6 @@ namespace UIAutomationTests
             CheckColumnTypeInformation(grid, "hashtype", "Text.Type", "text", "SQL_WVARCHAR"); //regression test
 
         }
-        [Fact]
-        public void OdbcQueryDatamappings()
-        {
-            string MQueryExpression = Utilities.Queries.OdbcQueryGetTableSchema("MORETESTS", "DATATYPES");
-
-            var (error, grid) = testFixture.Test(MQueryExpression);
-
-            Assert.True(String.IsNullOrWhiteSpace(error), $@"Errormessage: {error}");
-            Assert.True(grid.RowCount > 1, $@"actual rowCount is {grid.RowCount}");
-
-
-            CheckColumnTypeInformation(grid, "varchar", "Text.Type", "text", "VARCHAR"); //TBD
-            CheckColumnTypeInformation(grid, "longvarchar", "Text.Type", "text", "VARCHAR"); //TBD
-            CheckColumnTypeInformation(grid, "geometry", "Text.Type", "text", "GEOMETRY"); //!!! discuss this case, deviates from Odbc.Datasource by default
-            CheckColumnTypeInformation(grid, "boolean", "Logical.Type", "logical", "BOOLEAN");
-            CheckColumnTypeInformation(grid, "char", "Text.Type", "text", "CHAR"); //!!! TBD
-            CheckColumnTypeInformation(grid, "date", "Date.Type", "date", "DATE");
-            CheckColumnTypeInformation(grid, "decimal", "Decimal.Type", "number", "DECIMAL");//this is a regression test (decimal to BIGINT with precision 0)
-            //CheckColumnTypeInformation(grid, "decimalwith0precision", "Int64.Type", "number", "BIGINT");//this is a regression test (decimal to BIGINT with precision 0) -> discuss this case for odbc.query
-            CheckColumnTypeInformation(grid, "doubleprecision", "Double.Type", "number", "DOUBLE");
-            CheckColumnTypeInformation(grid, "float", "Double.Type", "number", "DOUBLE");
-            CheckColumnTypeInformation(grid, "integer", "Decimal.Type", "number", "DECIMAL");
-            CheckColumnTypeInformation(grid, "tinyint", "Decimal.Type", "number", "DECIMAL");
-            CheckColumnTypeInformation(grid, "smallint", "Decimal.Type", "number", "DECIMAL");
-            CheckColumnTypeInformation(grid, "bigint", "Decimal.Type", "number", "DECIMAL");
-            CheckColumnTypeInformation(grid, "intervaldaytosecond", "Text.Type", "text", "INTERVAL DAY TO SECOND");
-            CheckColumnTypeInformation(grid, "intervalyeartomonth", "Text.Type", "text", "INTERVAL YEAR TO MONTH");
-            CheckColumnTypeInformation(grid, "timestamp", "DateTime.Type", "datetime", "TIMESTAMP");
-            CheckColumnTypeInformation(grid, "timestampwithlocaltimezone", "DateTime.Type", "datetime", "TIMESTAMP"); //!!!discuss this case, deviates by default
-            CheckColumnTypeInformation(grid, "hashtype", "Text.Type", "text", "HASHTYPE"); //regression test
-
-        }
 
         private void CheckColumnTypeInformation(FlaUI.Core.AutomationElements.Grid grid, string columnName, string columnType, string columnKind, string columnNativeTypeName)
         {
@@ -249,62 +217,8 @@ namespace UIAutomationTests
             Assert.True(grid.Rows[umlautsRowIndex.Value].Cells[longvarcharIndex.Value].Value == "ÖÜÄ");
             Assert.Contains("ÖÜÄ", grid.Rows[umlautsRowIndex.Value].Cells[charIndex.Value].Value);
         }
-        [Fact]
-        private void OdbcQueryTextConversions()
-        {
-            string MQueryExpression = Utilities.Queries.OdbcQueryGetTable("MORETESTS", "TEXTCONVERSION");
-
-            var (error, grid) = testFixture.Test(MQueryExpression);
-
-            Assert.True(String.IsNullOrWhiteSpace(error), $@"Errormessage: {error}");
-            Assert.True(grid.RowCount > 1, $@"actual rowCount is {grid.RowCount}");
-
-            int? rowNameIndex = Utilities.FindColumnNameIndex(grid, "rowname");
-            int? varcharIndex = Utilities.FindColumnNameIndex(grid, "varchar");
-            int? longvarcharIndex = Utilities.FindColumnNameIndex(grid, "longvarchar");
-            int? charIndex = Utilities.FindColumnNameIndex(grid, "char");
-
-            int? veroRowIndex = Utilities.FindRow(grid, rowNameIndex.Value, "vero");
-            int? umlautsRowIndex = Utilities.FindRow(grid, rowNameIndex.Value, "umlauts");
-            int? eightballRowIndex = Utilities.FindRow(grid, rowNameIndex.Value, "8balls");
-
-            Assert.True(grid.Rows[veroRowIndex.Value].Cells[varcharIndex.Value].Value == "Véroniquë ç'est unne fémme uniquë");
-            Assert.True(grid.Rows[veroRowIndex.Value].Cells[longvarcharIndex.Value].Value == "Véroniquë ç'est unne fémme uniquë");
-            Assert.Contains("Véroniquë ç'est unne fémme uniquë", grid.Rows[veroRowIndex.Value].Cells[charIndex.Value].Value); //
-
-            Assert.True(grid.Rows[eightballRowIndex.Value].Cells[varcharIndex.Value].Value == "❽❽❽❽❽");
-            Assert.True(grid.Rows[eightballRowIndex.Value].Cells[longvarcharIndex.Value].Value == "❽❽❽❽❽");
-            Assert.Contains("❽❽❽❽❽", grid.Rows[eightballRowIndex.Value].Cells[charIndex.Value].Value);
-
-            Assert.True(grid.Rows[umlautsRowIndex.Value].Cells[varcharIndex.Value].Value == "ÖÜÄ");
-            Assert.True(grid.Rows[umlautsRowIndex.Value].Cells[longvarcharIndex.Value].Value == "ÖÜÄ");
-            Assert.Contains("ÖÜÄ", grid.Rows[umlautsRowIndex.Value].Cells[charIndex.Value].Value);
 
 
-        }
-
-        [Fact]
-        public void OdbcQueryLimit5Example()
-        {
-            string MQueryExpression = File.ReadAllText("QueryPqFiles/CustomQuery.query.pq");
-
-            var (error, grid) = testFixture.Test(MQueryExpression);
-
-            Assert.True(String.IsNullOrWhiteSpace(error), $@"Errormessage: {error}");
-            Assert.True(grid.RowCount == 5 + 1, $@"actual rowCount is {grid.RowCount}");
-            Assert.True(grid.ColumnCount > 1);
-        }
-        [Fact]
-        public void OdbcQueryViewLimit5Example()
-        {
-            string MQueryExpression = File.ReadAllText("QueryPqFiles/CustomQueryView.query.pq");
-
-            var (error, grid) = testFixture.Test(MQueryExpression);
-
-            Assert.True(String.IsNullOrWhiteSpace(error), $@"Errormessage: {error}");
-            Assert.True(grid.RowCount == 5 + 1, $@"actual rowCount is {grid.RowCount}");
-            Assert.True(grid.ColumnCount > 1);
-        }
         [Fact]
         public void OdbcDatasourceViewSchema()
         {
@@ -315,16 +229,7 @@ namespace UIAutomationTests
             Assert.True(String.IsNullOrWhiteSpace(error), $@"Errormessage: {error}");
 
         }
-        [Fact]
-        public void OdbcQueryViewSchema()
-        {
-            string MQueryExpression = Utilities.Queries.OdbcQueryGetTableSchema("ADVENTUREWORKSDW2014", "vDMPrep");
 
-            var (error, grid) = testFixture.Test(MQueryExpression);
-
-            Assert.True(String.IsNullOrWhiteSpace(error), $@"Errormessage: {error}");
-
-        }
 
         //test for the test connection to make sure it keeps working with 2 parameters for the 'test query' documented in the pq file.
         [Fact]

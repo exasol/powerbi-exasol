@@ -1,5 +1,5 @@
 ﻿{
-  "server": "192.168.1.40:8563",
+  "server": "192.168.1.47:8563",
   "username": "sys",
   "password": "exasol",
   "vsExecutablePath": "C:\\Program Files (x86)\\Microsoft Visual Studio\\2019\\Community\\Common7\\IDE\\devenv.exe",

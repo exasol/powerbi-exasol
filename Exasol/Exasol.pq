@@ -69,20 +69,6 @@ ExasolType =
                     "No"
                 }
             ]
-        ), optional query as
-        (
-            type text
-            meta
-            [
-                Documentation.FieldCaption = "Query",
-                //Extension.LoadString("Parameter.Query.Caption"),
-                Documentation.FieldDescription = "You can enter a custom query here.",
-                Documentation.SampleValues = {
-                    "SELECT * FROM [SCHEMA].[TABLE] LIMIT 5 ;"
-                },
-                Formatting.IsMultiLine = true,
-                Formatting.IsCode = true
-            ]
         )) as table
     meta
     [
@@ -92,22 +78,13 @@ ExasolType =
     ];
 
 ExasolImpl =
-    (server as text, encrypted as text, optional query as text) =>
+    (server as text, encrypted as text) =>
         let
             // These fields come from the options record, so they might be null.
             currentCredentials = Extension.CurrentCredential(),
             authenticationKind = currentCredentials[AuthenticationKind],
             //null guard (so older reports created with a previous version won't get reference errors
-            _queryStr =
-                if (query <> null) then
-                    query
-                else
-                    "",
-            bQuery =
-                if Text.Length(_queryStr) > 0 then
-                    true
-                else
-                    false,
+
             bWindowsKerberos =
                 if authenticationKind = "Windows" then
                     true
@@ -124,7 +101,7 @@ ExasolImpl =
                     bWindowsKerberos,
                     server
                 ),
-            odbcOptions = GetOptions(bQuery),
+            odbcOptions = GetOptions(),
             _encrypt =
                 if encrypted = "Yes" then
                     "Y"
@@ -137,25 +114,9 @@ ExasolImpl =
                     odbcOptions
                 ),
             database = odbcDataSource{[Name = "EXA_DB"]}[Data],
-            odbcQueryResult =
-                if odbcOptions <> null then
-                    Odbc.Query(
-                        appendedOdbcConnectionString,
-                        _queryStr,
-                        odbcOptions
-                    )
-                else
-                    Odbc.Query(
-                        appendedOdbcConnectionString,
-                        _queryStr
-                    ),
+
             //mashup has 'lazy evaluation'so we can simplify logic/move the if to the later steps since if we don't use something it won't get evaluated.
-            result =
-                if bQuery = false then
-                    database
-                else
-                    odbcQueryResult
-        //check = Record.ToTable(appendedOdbcConnectionString)
+            result = database
         in
             result;
 
@@ -224,29 +185,20 @@ AppendOdbcConnectionStringForKerberosAuthentication =
             combinedRecord;
 
 GetOptions =
-    (query as logical) =>
+    () =>
         let
             DatasourceUsernamePassword = [
-                AstVisitor = Odbc.DataSource.Options.AstVisitor,
                 SQLColumns = Odbc.DataSource.Options.SQLColumns,
                 SQLGetTypeInfo = Odbc.DataSource.Options.SQLGetTypeInfo,
                 //HierarchicalNavigation : Turning this off will make datasource navigation work in a different way and would thus break all the existing reports
                 HierarchicalNavigation = true,
-                //HideNativeQuery = false,
+                HideNativeQuery = true,
                 ClientConnectionPooling = true,
                 SqlCapabilities = Odbc.Datasource.Options.SqlCapabilities,
                 SQLGetFunctions = Odbc.Datasource.Options.SQLGetFunctions,
                 SQLGetInfo = Odbc.Datasource.Options.SQLGetInfo
             ],
-            QueryUsernamePassword = null,
-            options =
-                if query = false then
-                    DatasourceUsernamePassword
-                else if query = true then
-                    QueryUsernamePassword
-                else
-                    ...
-        //not implemented error
+            options =  DatasourceUsernamePassword
         in
             options;
 
@@ -305,38 +257,7 @@ Exasol.Icons = [
 
 // General information on all the Odbc Datasource options:
 // https://docs.microsoft.com/en-us/power-query/odbc
-// AstVisitor
-// A record containing one or more overrides to control SQL query generation. 
-// The most common usage of this field is to provide logic to generate a LIMIT/OFFSET clause for drivers that don't support TOP.
-Odbc.DataSource.Options.AstVisitor = [
-    LimitClause =
-        (skip, take) =>
-            if skip = 0 and take = null then
-                ...
-            else if skip = 0 then
-                let
-                    b = ""
-                in
-                    [
-                        Text = Text.Format("LIMIT #{0}", {take}),
-                        Location = "AfterQuerySpecification"
-                    ]
-            else
-                let
-                    b = ""
-                in
-                    [
-                        Text =
-                            Text.Format(
-                                "LIMIT #{0} OFFSET #{1}",
-                                {
-                                    take,
-                                    skip
-                                }
-                            ),
-                        Location = "AfterQuerySpecification"
-                    ]
-];
+
 // A function that allows you to modify column metadata returned by the SQLColumns function.
 // Fixing Unicode issue by mapping the Exasol VARCHAR and CHAR Datatypes to SQL_WVARCHAR and SQL_WCHAR
 Odbc.DataSource.Options.SQLColumns =
@@ -523,7 +444,8 @@ Odbc.Datasource.Options.SqlCapabilities = [
     SupportsNumericLiterals = true,
     SupportsStringLiterals = true,
     SupportsOdbcDateLiterals = true,
-    SupportsOdbcTimestampLiterals = true
+    SupportsOdbcTimestampLiterals = true,
+    LimitClauseKind = LimitClauseKind.Limit
 ];
 // A record that allows you to override values returned by calls to SQLGetFunctions.
 // A common use of this field is to disable the use of parameter binding, or to specify that generated queries should use CAST rather than CONVERT.

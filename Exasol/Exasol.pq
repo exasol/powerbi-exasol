@@ -1,6 +1,6 @@
 ﻿// This file contains the Exasol Connector logic
 [
-    Version = "1.0.6"
+    Version = "1.0.10"
 ]
 section Exasol;
 
@@ -192,7 +192,7 @@ GetOptions =
                 SQLGetTypeInfo = Odbc.DataSource.Options.SQLGetTypeInfo,
                 //HierarchicalNavigation : Turning this off will make datasource navigation work in a different way and would thus break all the existing reports
                 HierarchicalNavigation = true,
-                HideNativeQuery = true,
+                HideNativeQuery = false,
                 ClientConnectionPooling = true,
                 SqlCapabilities = Odbc.Datasource.Options.SqlCapabilities,
                 SQLGetFunctions = Odbc.Datasource.Options.SQLGetFunctions,

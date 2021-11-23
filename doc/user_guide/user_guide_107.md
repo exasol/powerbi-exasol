@@ -46,6 +46,11 @@ Change the data extensions setting to allow the custom connector to load.
 
 You'll need to reload PowerBI for these changes to have an effect (and the new connector version to load in).
 
+## Using the custom connector in the Power BI Service
+
+If you wish to make use of this connector (and reports using this connector) in the Power BI Service you'll also need to install it in the service gateway, please see
+https://docs.microsoft.com/en-us/power-bi/connect-data/service-gateway-custom-connectors for more info
+
 ## Using the connector and its new features
 
 After installing the connector following the steps above you'll automatically use this connector when you go to Get Datasource > Get Exasol.

@@ -44,7 +44,7 @@ For a brief overview of the new features coming in this release, see the [user g
 
 ![alt text](https://github.com/EXASOL/powerbi-exasol/blob/master/screenshots/Example_Dashboard_Billion_Rows.PNG )
 
-##Using DSNs and Kerberos authentication
+## Using DSNs and Kerberos authentication
 Please see the [user guide](doc/user_guide/user_guide.md)
 
 ## How To use the Exasol Power BI Connector with the On-premises data gateway

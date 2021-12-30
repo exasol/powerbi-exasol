@@ -13,8 +13,7 @@ The Exasol Microsoft Power BI Connector enables you to connect from Power BI Des
 :exclamation: The Power BI Release 2.66.5376.1681 64-bit (February 2019) contains all recent fixes of the EXASOL connector regarding unicode.
 
 :exclamation: A new version of the Exasol connector is scheduled for bundled release with PowerBI. 
-This new version of the connector comes bundled with the September 2021 release of Power BI Desktop scheduled the week of 9/13.
-
+This new version of the connector comes bundled with the September 2021 release of Power BI Desktop scheduled the week of 9/13. It offers DSN support.
 For a brief overview of the new features coming in this release, see the [user guide](doc/user_guide/user_guide.md)
 
 

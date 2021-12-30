@@ -53,6 +53,9 @@ The Exasol connector was tested successfully with the On-premises data gateway v
 
 :exclamation: As the Exasol Connector is now shipped with the On-premises data gateway it is not necessary to install the Exasol.mez from this repository in the Custom Connectors folder of the Gateway. Actually the data gateway only works with the shipped connector from Microsoft. If you upgrade from older version versions of the On-Premises data gateway please delete the Exasol.mez from the custom connectors folder and restart the gateway service.
 
+## Custom queries
+Although we could not get this functionality certified and bundled in our connector because of possible security risks it might pose (warning!) we also provide a custom connector that allows you to use custom queries (import mode only), please see the [user_guide](doc/user_guide/user_guide_107.md).
+
 
 
 

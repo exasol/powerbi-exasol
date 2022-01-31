@@ -1,5 +1,11 @@
 # Exasol Power BI Connector 1.0.7 Release - User Guide
 
+## Warnings
+
+- Keep in mind that reports made with this connector are not backwards compatible with the bundled connector. You'll need to do some manual porting on your datasources and you'll be unable to keep using your custom query datasources in the reports when you decide to return to the bundled connector.
+
+- Being able to write custom queries also comes with a security risk. Make sure you've sufficiently secured the database accounts and the data you use for your reports.
+
 ## New features
 
 - Custom Query support

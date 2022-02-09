@@ -1,4 +1,4 @@
-# Exasol PowerBI Connector 0.1.10 (bundled), Submitted 2021-10-29
+# Exasol PowerBI Connector 1.0.10 (bundled), Submitted 2021-10-29
 
 Code name: Show Native Query
 

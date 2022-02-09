@@ -1,4 +1,4 @@
-# Exasol PowerBI Connector 0.1.7 (not bundled)
+# Exasol PowerBI Connector 1.0.7 (not bundled)
 
 Code name: Custom query version
 

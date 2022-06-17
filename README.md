@@ -5,7 +5,7 @@ The Exasol Microsoft Power BI Connector enables you to connect from Power BI Des
 
 ## Prerequisites
 
-* Install the [Exasol ODBC driver (EXASOL_ODBC_*.msi)](https://www.exasol.com/portal/display/DOWNLOAD/) (if you aren't sure on whether you need the 32 Bit or 64 Bit version install both versions)
+* Install the latest [Exasol ODBC driver (EXASOL_ODBC_*.msi)](https://www.exasol.com/portal/display/DOWNLOAD/) (if you aren't sure on whether you need the 32 Bit or 64 Bit version install both versions)
 * Install the current version of Power BI desktop
 
 ## Official Updates

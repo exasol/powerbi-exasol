@@ -5,7 +5,8 @@ The Exasol Microsoft Power BI Connector enables you to connect from Power BI Des
 
 ## Prerequisites
 
-* Install the latest [Exasol ODBC driver (EXASOL_ODBC_*.msi)](https://www.exasol.com/portal/display/DOWNLOAD/) (if you aren't sure on whether you need the 32 Bit or 64 Bit version install both versions)
+* Install the latest [Exasol ODBC driver (EXASOL_ODBC_*.msi)](https://downloads.exasol.com/clients-and-drivers/odbc/) (if you aren't sure on whether you need the 32 Bit or 64 Bit version install both versions)
+* Install the [Visual C++ Redistributable](https://learn.microsoft.com/en-us/cpp/windows/latest-supported-vc-redist?view=msvc-170)
 * Install the current version of Power BI desktop
 
 ## Official Updates
@@ -51,6 +52,8 @@ Please see the [user guide](doc/user_guide/user_guide.md)
 The Exasol connector was tested successfully with the On-premises data gateway version 3000.8.452 (August 2019) and also supports Direct Query. 
 
 :exclamation: As the Exasol Connector is now shipped with the On-premises data gateway it is not necessary to install the Exasol.mez from this repository in the Custom Connectors folder of the Gateway. Actually the data gateway only works with the shipped connector from Microsoft. If you upgrade from older version versions of the On-Premises data gateway please delete the Exasol.mez from the custom connectors folder and restart the gateway service.
+
+Also make sure you install the ODBC driver and Visual C++ Redistributable on the machine/VM where you install the data gateway, just as you would when you intend to use the connector for Power BI Desktop.(More information above under the 'Prerequisites' section)
 
 ## Custom queries
 Although we could not get this functionality certified and bundled in our connector because of possible security risks it might pose (warning!) we also provide a custom connector that allows you to use custom queries (import mode only), please see the [user guide](doc/user_guide/user_guide_107.md).

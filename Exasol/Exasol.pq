@@ -439,6 +439,7 @@ Odbc.DataSource.Options.SQLGetTypeInfo =
 // A record providing various overrides of driver capabilities, and a way to specify capabilities that aren't expressed through ODBC 3.8.
 Odbc.Datasource.Options.SqlCapabilities = [
     Sql92Conformance = 8/* SQL_SC_SQL92_FULL */ ,
+    Sql92Translation = "PassThrough",
     //GroupByCapabilities = 2 /*SQL_GB_GROUP_BY_CONTAINS_SELECT = 0x0002*/,
     FractionalSecondsScale = 3,
     SupportsNumericLiterals = true,

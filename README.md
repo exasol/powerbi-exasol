@@ -11,7 +11,7 @@ The Exasol Microsoft Power BI Connector enables you to connect from Power BI Des
 
 ## Official Updates
 
-:exclamation: A new version of the Exasol connector is scheduled for a release during the week of November 9th 2024. 
+:exclamation: A new version of the Exasol connector is scheduled for release during the week of November 9th 2024. 
 The new connector will also begin to appear in Power BI Dataflows starting the week of October 28th 2024.
 The main new feature is native query support. For a brief overview see the [custom queries ](#custom-queries) section.
 

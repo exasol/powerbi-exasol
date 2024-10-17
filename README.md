@@ -11,11 +11,9 @@ The Exasol Microsoft Power BI Connector enables you to connect from Power BI Des
 
 ## Official Updates
 
-:exclamation: The Power BI Release 2.66.5376.1681 64-bit (February 2019) contains all recent fixes of the EXASOL connector regarding unicode.
-
-:exclamation: A new version of the Exasol connector is scheduled for bundled release with PowerBI. 
-This new version of the connector comes bundled with the September 2021 release of Power BI Desktop scheduled the week of 9/13. 
-The main new feature is DSN support. For a brief overview on how to use DSNs see the [user guide](doc/user_guide/user_guide.md).
+:exclamation: A new version of the Exasol connector is scheduled for a release during the week of November 9th 2024. 
+The new connector will also begin to appear in Power BI Dataflows starting the week of October 28th 2024.
+The main new feature is native query support. For a brief overview see the [custom queries ](#custom-queries) section.
 
 
 ## Usage
@@ -45,7 +43,21 @@ The main new feature is DSN support. For a brief overview on how to use DSNs see
 ![alt text](https://github.com/EXASOL/powerbi-exasol/blob/master/screenshots/Example_Dashboard_Billion_Rows.PNG )
 
 ## Using DSNs and Kerberos authentication
+
 Please see the [user guide](doc/user_guide/user_guide.md)
+
+## Custom queries
+
+Custom queries using `Value.NativeQuery` are supported starting from connector version 1.1.0.
+
+An example (using the Advanced Editor):
+```
+let
+    Source = Exasol.Database("<hostname,ip address or dsn>", "Yes"),
+    CustomQuery = Value.NativeQuery( Source, "SELECT * FROM SCHEMANAME.TABLENAME")
+in
+    CustomQuery
+```
 
 ## How To use the Exasol Power BI Connector with the On-premises data gateway
 
@@ -54,9 +66,6 @@ The Exasol connector was tested successfully with the On-premises data gateway v
 :exclamation: As the Exasol Connector is now shipped with the On-premises data gateway it is not necessary to install the Exasol.mez from this repository in the Custom Connectors folder of the Gateway. Actually the data gateway only works with the shipped connector from Microsoft. If you upgrade from older version versions of the On-Premises data gateway please delete the Exasol.mez from the custom connectors folder and restart the gateway service.
 
 Also make sure you install the latest Exasol ODBC driver and Visual C++ Redistributable on the machine/VM where you install the data gateway, just as you would when you intend to use the connector for Power BI Desktop, for more information see section [Prerequisites](#prerequisites).
-
-## Custom queries
-Although we could not get this functionality certified and bundled in our connector because of possible security risks it might pose (warning!) we also provide a custom connector that allows you to use custom queries (import mode only), please see the [user guide](doc/user_guide/user_guide_107.md).
 
 
 ## Additional information

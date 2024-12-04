@@ -284,6 +284,7 @@ Exasol.Icons = [
 Odbc.DataSource.Options.SQLColumns =
     (catalogName, schemaName, tableName, columnName, source) =>
         let
+            // List of enums: https://learn.microsoft.com/en-us/dotnet/api/system.data.odbc.odbctype?view=net-8.0-pp
             //DECLARE type values
             OdbcSqlType.VARCHAR = 12,
             OdbcSqlType.CHAR = 1,
@@ -291,6 +292,9 @@ Odbc.DataSource.Options.SQLColumns =
             OdbcSqlType.SQL_WCHAR = -8,
             OdbcSqlType.DECIMAL = 3,
             OdbcSqlType.BIGINT = -5,
+            //Step 1: 
+            //a Convert datatypes VARCHAR, CHAR to SQL_WVARCHAR 
+            //b Convert datatypenames VARCHAR, CHAR, HASHTYPE to SQL_WVARCHAR
             NewDataType =
                 (dataType) =>
                     if dataType = OdbcSqlType.VARCHAR then
@@ -323,6 +327,7 @@ Odbc.DataSource.Options.SQLColumns =
                         }
                     }
                 ),
+            //Step 2: convert to BIGINT if precision of decimal type is 0
             TableWithTransformedColumnDataTypeAndTypeNameAndTransformedFields =
                 Table.FromRecords(
                     Table.TransformRows(
@@ -368,7 +373,7 @@ Odbc.DataSource.Options.SQLColumns =
                     )
                 ),
             TransformedTableWithOriginalTypeSet =
-            //give the table exactly the same type as the source table type
+            //Step 3: give the table exactly the same type as the source table type
                 Value.ReplaceType(
                     TableWithTransformedColumnDataTypeAndTypeNameAndTransformedFields,
                     Value.Type(source)

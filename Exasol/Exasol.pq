@@ -228,6 +228,26 @@ Exasol = [
     ],
     Label = Extension.LoadString("DataSourceLabel")
 ];
+// Exasol.NativeQueryProperties = [
+//     // NavigationSteps = {
+//     //     [
+//     //         Indices = {
+//     //             [
+//     //                 FieldDisplayName = "database",
+//     //                 IndexName = "Name"
+//     //             ],
+//     //             [
+//     //                 ConstantValue = "Database",
+//     //                 IndexName = "Kind"
+//     //             ]
+//     //         },
+//     //         FieldAccess = "Data"
+//     //     ]
+//     // },
+//     DefaultOptions = [
+//         EnableFolding = true
+//     ]
+// ];
 // Data Source UI publishing description
 Exasol.Publish = [
     Category = "Database",
@@ -238,7 +258,8 @@ Exasol.Publish = [
     },
     LearnMoreUrl = "http://www.exasol.com/",
     SourceImage = Exasol.Icons,
-    SourceTypeImage = Exasol.Icons
+    SourceTypeImage = Exasol.Icons//,
+    //NativeQueryProperties = Exasol.NativeQueryProperties
 ];
 Exasol.Icons = [
     Icon16 = {
@@ -270,7 +291,7 @@ Odbc.DataSource.Options.SQLColumns =
             OdbcSqlType.SQL_WCHAR = -8,
             OdbcSqlType.DECIMAL = 3,
             OdbcSqlType.BIGINT = -5,
-            FixDataType =
+            NewDataType =
                 (dataType) =>
                     if dataType = OdbcSqlType.VARCHAR then
                         OdbcSqlType.SQL_WVARCHAR
@@ -278,7 +299,7 @@ Odbc.DataSource.Options.SQLColumns =
                         OdbcSqlType.SQL_WVARCHAR
                     else
                         dataType,
-            FixDataTypeName =
+            NewDataTypeName =
                 (dataTypeName) =>
                     if dataTypeName = "VARCHAR" then
                         "SQL_WVARCHAR"
@@ -288,24 +309,25 @@ Odbc.DataSource.Options.SQLColumns =
                         "SQL_WVARCHAR"
                     else
                         dataTypeName,
-            Transform1 =
+            TableWithTransformedColumnDataTypeAndTypeName =
                 Table.TransformColumns(
                     source,
                     {
                         {
                             "DATA_TYPE",
-                            FixDataType
+                            NewDataType
                         },
                         {
                             "TYPE_NAME",
-                            FixDataTypeName
+                            NewDataTypeName
                         }
                     }
                 ),
-            Transform2 =
+            TableWithTransformedColumnDataTypeAndTypeNameAndTransformedFields =
                 Table.FromRecords(
                     Table.TransformRows(
-                        Transform1,
+                        TableWithTransformedColumnDataTypeAndTypeName,
+                        //begin of transformation function
                         (r) =>
                             Record.TransformFields(
                                 r,
@@ -342,15 +364,17 @@ Odbc.DataSource.Options.SQLColumns =
                                     }
                                 }
                             )
+                            //end of transformation function
                     )
                 ),
-            Transform3 =
+            TransformedTableWithOriginalTypeSet =
+            //give the table exactly the same type as the source table type
                 Value.ReplaceType(
-                    Transform2,
+                    TableWithTransformedColumnDataTypeAndTypeNameAndTransformedFields,
                     Value.Type(source)
                 )
         in
-            Transform3;
+            TransformedTableWithOriginalTypeSet;
 // A table, or function that returns a table, that overrides the type information returned by SQLGetTypeInfo.
 // ...
 // When the value is set to a function, your function will receive the result of the original call to SQLGetTypeInfo, allowing you to modify the table.
@@ -426,7 +450,7 @@ Odbc.DataSource.Options.SQLGetTypeInfo =
                         }
                     }
                 ),
-            //the new types get added to the exising ones and the merged table gets returned
+            //the new types get added to the existing ones and the merged table gets returned
             append =
                 Table.Combine(
                     {

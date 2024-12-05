@@ -189,7 +189,7 @@ GetOptions =
         let
             DatasourceUsernamePassword = [
                 SQLColumns = Odbc.DataSource.Options.SQLColumns,
-                SQLGetTypeInfo = Odbc.DataSource.Options.SQLGetTypeInfo,
+                //SQLGetTypeInfo = Odbc.DataSource.Options.SQLGetTypeInfo,
                 //HierarchicalNavigation : Turning this off will make datasource navigation work in a different way and would thus break all the existing reports
                 HierarchicalNavigation = true,
                 HideNativeQuery = false,
@@ -295,43 +295,46 @@ Odbc.DataSource.Options.SQLColumns =
             //Step 1: 
             //a Convert datatypes VARCHAR, CHAR to SQL_WVARCHAR 
             //b Convert datatypenames VARCHAR, CHAR, HASHTYPE to SQL_WVARCHAR
-            NewDataType =
-                (dataType) =>
-                    if dataType = OdbcSqlType.VARCHAR then
-                        OdbcSqlType.SQL_WVARCHAR
-                    else if dataType = OdbcSqlType.CHAR then
-                        OdbcSqlType.SQL_WVARCHAR
-                    else
-                        dataType,
-            NewDataTypeName =
-                (dataTypeName) =>
-                    if dataTypeName = "VARCHAR" then
-                        "SQL_WVARCHAR"
-                    else if dataTypeName = "CHAR" then
-                        "SQL_WVARCHAR"
-                    else if dataTypeName = "HASHTYPE" then
-                        "SQL_WVARCHAR"
-                    else
-                        dataTypeName,
-            TableWithTransformedColumnDataTypeAndTypeName =
-                Table.TransformColumns(
-                    source,
-                    {
-                        {
-                            "DATA_TYPE",
-                            NewDataType
-                        },
-                        {
-                            "TYPE_NAME",
-                            NewDataTypeName
-                        }
-                    }
-                ),
+            // SQL_WVARCHAR (and SQL_WCHAR: currently unused) are 2 newly declared types to handle unicode issues
+
+            // NewDataType =
+            //     (dataType) =>
+            //         if dataType = OdbcSqlType.VARCHAR then
+            //             OdbcSqlType.SQL_WVARCHAR
+            //         else if dataType = OdbcSqlType.CHAR then
+            //             OdbcSqlType.SQL_WVARCHAR
+            //         else
+            //             dataType,
+            // NewDataTypeName =
+            //     (dataTypeName) =>
+            //         if dataTypeName = "VARCHAR" then
+            //             "SQL_WVARCHAR"
+            //         else if dataTypeName = "CHAR" then
+            //             "SQL_WVARCHAR"
+            //         else if dataTypeName = "HASHTYPE" then
+            //             "SQL_WVARCHAR"
+            //         else
+            //             dataTypeName,
+            // TableWithTransformedColumnDataTypeAndTypeName =
+            //     Table.TransformColumns(
+            //         source,
+            //         {
+            //             {
+            //                 "DATA_TYPE",
+            //                 NewDataType
+            //             },
+            //             {
+            //                 "TYPE_NAME",
+            //                 NewDataTypeName
+            //             }
+            //         }
+            //     ),
+
             //Step 2: convert to BIGINT if precision of decimal type is 0
             TableWithTransformedColumnDataTypeAndTypeNameAndTransformedFields =
                 Table.FromRecords(
                     Table.TransformRows(
-                        TableWithTransformedColumnDataTypeAndTypeName,
+                        source,
                         //begin of transformation function
                         (r) =>
                             Record.TransformFields(
@@ -380,9 +383,11 @@ Odbc.DataSource.Options.SQLColumns =
                 )
         in
             TransformedTableWithOriginalTypeSet;
+
 // A table, or function that returns a table, that overrides the type information returned by SQLGetTypeInfo.
 // ...
 // When the value is set to a function, your function will receive the result of the original call to SQLGetTypeInfo, allowing you to modify the table.
+
 Odbc.DataSource.Options.SQLGetTypeInfo =
     (types as table) as table =>
         let
@@ -465,6 +470,7 @@ Odbc.DataSource.Options.SQLGetTypeInfo =
                 )
         in
             append;
+
 // A record providing various overrides of driver capabilities, and a way to specify capabilities that aren't expressed through ODBC 3.8.
 Odbc.Datasource.Options.SqlCapabilities = [
     Sql92Conformance = 8/* SQL_SC_SQL92_FULL */ ,

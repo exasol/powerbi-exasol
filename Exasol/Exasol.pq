@@ -149,8 +149,6 @@ CreateOdbcConnectionStringRecord =
                         DRIVER = "EXASolution Driver",
                         EXAHOST = server,
                         ENCRYPTION = encrypt
-                    //,LOGMODE = "DEFAULT"
-                    //,EXALOGFILE = "C:\tmp\odbclogfilepowerbi.txt"
                     ]
         in
             odbcConnectionString;
@@ -228,26 +226,7 @@ Exasol = [
     ],
     Label = Extension.LoadString("DataSourceLabel")
 ];
-// Exasol.NativeQueryProperties = [
-//     // NavigationSteps = {
-//     //     [
-//     //         Indices = {
-//     //             [
-//     //                 FieldDisplayName = "database",
-//     //                 IndexName = "Name"
-//     //             ],
-//     //             [
-//     //                 ConstantValue = "Database",
-//     //                 IndexName = "Kind"
-//     //             ]
-//     //         },
-//     //         FieldAccess = "Data"
-//     //     ]
-//     // },
-//     DefaultOptions = [
-//         EnableFolding = true
-//     ]
-// ];
+
 // Data Source UI publishing description
 Exasol.Publish = [
     Category = "Database",
@@ -258,8 +237,7 @@ Exasol.Publish = [
     },
     LearnMoreUrl = "http://www.exasol.com/",
     SourceImage = Exasol.Icons,
-    SourceTypeImage = Exasol.Icons//,
-    //NativeQueryProperties = Exasol.NativeQueryProperties
+    SourceTypeImage = Exasol.Icons
 ];
 Exasol.Icons = [
     Icon16 = {

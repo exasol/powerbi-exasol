@@ -259,6 +259,7 @@ Exasol.Icons = [
 
 // A function that allows you to modify column metadata returned by the SQLColumns function.
 // Fixing Unicode issue by mapping the Exasol VARCHAR and CHAR Datatypes to SQL_WVARCHAR and SQL_WCHAR
+WvarcharDatatypeName = "LONG VARCHAR",
 Odbc.DataSource.Options.SQLColumns =
     (catalogName, schemaName, tableName, columnName, source) =>
         let
@@ -284,11 +285,11 @@ Odbc.DataSource.Options.SQLColumns =
             NewDataTypeName =
                 (dataTypeName) =>
                     if dataTypeName = "VARCHAR" then
-                        "LONG VARCHAR"
+                        WvarcharDatatypeName
                     else if dataTypeName = "CHAR" then
-                        "LONG VARCHAR"
+                        WvarcharDatatypeName
                     else if dataTypeName = "HASHTYPE" then
-                        "LONG VARCHAR"
+                        WvarcharDatatypeName
                     else
                         dataTypeName,
             TableWithTransformedColumnDataTypeAndTypeName =
@@ -411,7 +412,7 @@ Odbc.DataSource.Options.SQLGetTypeInfo =
                             null
                         },
                         {
-                            "LONG VARCHAR",
+                            WvarcharDatatypeName,
                             -9,
                             2000000,
                             "'",
@@ -423,7 +424,7 @@ Odbc.DataSource.Options.SQLGetTypeInfo =
                             null,
                             0,
                             null,
-                            "LONG VARCHAR",
+                            WvarcharDatatypeName,
                             null,
                             null,
                             -9,

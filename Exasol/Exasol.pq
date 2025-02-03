@@ -1,6 +1,6 @@
 ﻿// This file contains the Exasol Connector logic
 [
-    Version = "1.1.0"
+    Version = "1.1.1"
 ]
 section Exasol;
 
@@ -149,8 +149,6 @@ CreateOdbcConnectionStringRecord =
                         DRIVER = "EXASolution Driver",
                         EXAHOST = server,
                         ENCRYPTION = encrypt
-                    //,LOGMODE = "DEFAULT"
-                    //,EXALOGFILE = "C:\tmp\odbclogfilepowerbi.txt"
                     ]
         in
             odbcConnectionString;
@@ -228,6 +226,7 @@ Exasol = [
     ],
     Label = Extension.LoadString("DataSourceLabel")
 ];
+
 // Data Source UI publishing description
 Exasol.Publish = [
     Category = "Database",
@@ -263,6 +262,7 @@ Exasol.Icons = [
 Odbc.DataSource.Options.SQLColumns =
     (catalogName, schemaName, tableName, columnName, source) =>
         let
+            // List of enums: https://learn.microsoft.com/en-us/dotnet/api/system.data.odbc.odbctype?view=net-8.0-pp
             //DECLARE type values
             OdbcSqlType.VARCHAR = 12,
             OdbcSqlType.CHAR = 1,
@@ -270,7 +270,10 @@ Odbc.DataSource.Options.SQLColumns =
             OdbcSqlType.SQL_WCHAR = -8,
             OdbcSqlType.DECIMAL = 3,
             OdbcSqlType.BIGINT = -5,
-            FixDataType =
+            //Step 1: 
+            //a Convert datatypes VARCHAR, CHAR to SQL_WVARCHAR 
+            //b Convert datatypenames VARCHAR, CHAR, HASHTYPE to SQL_WVARCHAR
+            NewDataType =
                 (dataType) =>
                     if dataType = OdbcSqlType.VARCHAR then
                         OdbcSqlType.SQL_WVARCHAR
@@ -278,34 +281,36 @@ Odbc.DataSource.Options.SQLColumns =
                         OdbcSqlType.SQL_WVARCHAR
                     else
                         dataType,
-            FixDataTypeName =
+            NewDataTypeName =
                 (dataTypeName) =>
                     if dataTypeName = "VARCHAR" then
-                        "SQL_WVARCHAR"
+                        "LONG VARCHAR"
                     else if dataTypeName = "CHAR" then
-                        "SQL_WVARCHAR"
+                        "LONG VARCHAR"
                     else if dataTypeName = "HASHTYPE" then
-                        "SQL_WVARCHAR"
+                        "LONG VARCHAR"
                     else
                         dataTypeName,
-            Transform1 =
+            TableWithTransformedColumnDataTypeAndTypeName =
                 Table.TransformColumns(
                     source,
                     {
                         {
                             "DATA_TYPE",
-                            FixDataType
+                            NewDataType
                         },
                         {
                             "TYPE_NAME",
-                            FixDataTypeName
+                            NewDataTypeName
                         }
                     }
                 ),
-            Transform2 =
+            //Step 2: convert to BIGINT if precision of decimal type is 0
+            TableWithTransformedColumnDataTypeAndTypeNameAndTransformedFields =
                 Table.FromRecords(
                     Table.TransformRows(
-                        Transform1,
+                        TableWithTransformedColumnDataTypeAndTypeName,
+                        //begin of transformation function
                         (r) =>
                             Record.TransformFields(
                                 r,
@@ -342,15 +347,17 @@ Odbc.DataSource.Options.SQLColumns =
                                     }
                                 }
                             )
+                            //end of transformation function
                     )
                 ),
-            Transform3 =
+            TransformedTableWithOriginalTypeSet =
+            //Step 3: give the table exactly the same type as the source table type
                 Value.ReplaceType(
-                    Transform2,
+                    TableWithTransformedColumnDataTypeAndTypeNameAndTransformedFields,
                     Value.Type(source)
                 )
         in
-            Transform3;
+            TransformedTableWithOriginalTypeSet;
 // A table, or function that returns a table, that overrides the type information returned by SQLGetTypeInfo.
 // ...
 // When the value is set to a function, your function will receive the result of the original call to SQLGetTypeInfo, allowing you to modify the table.
@@ -404,7 +411,7 @@ Odbc.DataSource.Options.SQLGetTypeInfo =
                             null
                         },
                         {
-                            "SQL_WVARCHAR",
+                            "LONG VARCHAR",
                             -9,
                             2000000,
                             "'",
@@ -416,7 +423,7 @@ Odbc.DataSource.Options.SQLGetTypeInfo =
                             null,
                             0,
                             null,
-                            "SQL_WVARCHAR",
+                            "LONG VARCHAR",
                             null,
                             null,
                             -9,
@@ -426,7 +433,7 @@ Odbc.DataSource.Options.SQLGetTypeInfo =
                         }
                     }
                 ),
-            //the new types get added to the exising ones and the merged table gets returned
+            //the new types get added to the existing ones and the merged table gets returned
             append =
                 Table.Combine(
                     {

@@ -19,11 +19,24 @@ https://github.com/microsoft/vscode-powerquery-sdk
 
 The current connector overwrites the following ODBC Functions:
 
+#### SQLColumns
+
+#### SQLGetTypeInfo
+
+#### SQLGetInfo
+
+#### SqlCapabilities
+
 
 
 ### Develop a connector using the PowerQuery SDK for Visual Studio Code
 
 https://learn.microsoft.com/en-us/power-query/install-sdk
+
+#### "Power Query / M Language" extension
+
+Dependency of PowerQuery SDK for Visual Studio Code
+Provides M Language support.
 
 
 

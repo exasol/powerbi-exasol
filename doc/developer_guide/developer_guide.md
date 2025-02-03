@@ -27,8 +27,6 @@ The current connector overwrites the following ODBC Functions:
 
 #### SqlCapabilities
 
-
-
 ### Develop a connector using the PowerQuery SDK for Visual Studio Code
 
 https://learn.microsoft.com/en-us/power-query/install-sdk
@@ -37,8 +35,6 @@ https://learn.microsoft.com/en-us/power-query/install-sdk
 
 Dependency of PowerQuery SDK for Visual Studio Code
 Provides M Language support.
-
-
 
 #### Building 
 
@@ -100,11 +96,9 @@ The each keyword is used to easily create simple functions. “each …” is sy
 - source Microsoft
  https://henrikmassow.medium.com/the-strange-each-and-in-power-query-f230afc4b341
 
-
-
-
 ### On ODBC
 
+#### SQLColumns
 The SQLColumns function in ODBC is used to retrieve metadata about columns in a database table. When this function is called, it returns a result set with detailed information about the columns in the specified table.
 
 Columns of SQLColumns Result Set:
@@ -129,8 +123,7 @@ Columns of SQLColumns Result Set:
 | ORDINAL_POSITION  | INTEGER   | The 1-based position of the column in the table. |
 | IS_NULLABLE       | VARCHAR   | Indicates nullability as a string: 'YES', 'NO', or null (unknown). |
 
-
-
+#### SQLGetTypeInfo
 The SQLGetTypeInfo function in ODBC retrieves metadata about the data types supported by the data source (database and driver). It returns a result set with detailed information about each supported data type.
 
 Columns of SQLGetTypeInfo Result Set
@@ -165,9 +158,11 @@ Below is a table listing the columns returned by the SQLGetTypeInfo result set, 
 |- 2: Searchable except with LIKE   |
 |- 3: Fully searchable              |
 
+
+#### driver-independent SQL datatype identifiers
 Here’s a comprehensive list of all driver-independent SQL datatype identifiers defined by ODBC. These identifiers are constants used in ODBC functions (e.g., SQLBindCol, SQLGetTypeInfo) to represent standard data types in a database-independent manner.
 
-### Numeric Data Types
+##### Numeric Data Types
 | Identifier      | Value | Description |
 |----------------|-------|-------------|
 | SQL_BIT        | -7    | Boolean (0 or 1). |
@@ -181,7 +176,7 @@ Here’s a comprehensive list of all driver-independent SQL datatype identifiers
 | SQL_FLOAT      | 6     | Approximate numeric value (single or double precision). |
 | SQL_DOUBLE     | 8     | Double-precision floating-point value. |
 
-### Character/String Data Types
+##### Character/String Data Types
 | Identifier       | Value | Description |
 |-----------------|-------|-------------|
 | SQL_CHAR        | 1     | Fixed-length character string. |
@@ -191,21 +186,21 @@ Here’s a comprehensive list of all driver-independent SQL datatype identifiers
 | SQL_WVARCHAR    | -9    | Variable-length wide character (Unicode) string. |
 | SQL_WLONGVARCHAR | -10  | Large variable-length wide character (Unicode) string. |
 
-### Binary Data Types
+##### Binary Data Types
 | Identifier        | Value | Description |
 |------------------|-------|-------------|
 | SQL_BINARY       | -2    | Fixed-length binary data. |
 | SQL_VARBINARY    | -3    | Variable-length binary data. |
 | SQL_LONGVARBINARY | -4   | Large variable-length binary data. |
 
-### Date and Time Data Types
+##### Date and Time Data Types
 | Identifier     | Value | Description |
 |---------------|-------|-------------|
 | SQL_DATE      | 9     | Date value (year, month, day). |
 | SQL_TIME      | 10    | Time value (hour, minute, second). |
 | SQL_TIMESTAMP | 11    | Timestamp value (date and time). |
 
-### Special Data Types
+##### Special Data Types
 | Identifier                        | Value | Description |
 |------------------------------------|-------|-------------|
 | SQL_INTERVAL_YEAR                 | 101   | Interval type for years. |
@@ -224,8 +219,8 @@ Here’s a comprehensive list of all driver-independent SQL datatype identifiers
 | SQL_GUID                          | -11   | Globally unique identifier (UUID). |
 
 
-
-Results of running SQLGetTypeInfo using the Windows Data Access Components SDK' ODBC tool.
+#### Exasol SQLGetTypeInfo results
+Results of running SQLGetTypeInfo using the Windows Data Access Components SDK' ODBC test tool.
 
 Get Data All:
 | TYPE_NAME                              | DATA_TYPE | COLUMN_SIZE | LITERAL_PREFIX | LITERAL_SUFFIX | CREATE_PARAMS       | NULLABLE | CASE_SENSITIVE | SEARCHABLE | UNSIGNED_ATTRIBUTE | FIXED_PREC_SCALE | AUTO_UNIQUE_VALUE | LOCAL_TYPE_NAME                         | MINIMUM_SCALE | MAXIMUM_SCALE | SQL_DATA_TYPE | SQL_DATETIME_SUB | NUM_PREC_RADIX | INTERVAL_PRECISION |

@@ -21,11 +21,27 @@ The current connector overwrites the following ODBC Functions:
 
 #### SQLColumns
 
+- Map VARCHAR, CHAR to WVARCHAR type declared in SQLGetTypeInfo.  
+Done as a fix for using slicers/filters with unicode characters.
+- Map HASHTYPE to WVARCHAR type declared in SQLGetTypeInfo.  
+Done as a fix because hashtype used to beseen as a Byte type instead of a text type. Might be obsolete now.
+- Map from DECIMAL to BIGINT in the case of a 0 decimal digits.
+
+
 #### SQLGetTypeInfo
 
+- Add WCHAR and WVARCHAR types.  
+PowerBI asks for these types explicitly when opening a report using the datasource.  
+Also used as part of the workaround for slicers using and filtering on unicode characters.
+- WVARCHAR type is the only type being mapped to currently.
+- WVARCHAR type uses a VARCHAR type alias ("LONG VARCHAR") as its type name and local type name to fix an issue in some reports where it sometimes does a cast when pushing down a query.
 #### SQLGetInfo
 
+- Custom rules on casts via bytemasks, disables conversions since not supported in Exasol DB.
+
 #### SqlCapabilities
+
+- Sql92Translation = "PassThrough" : enables NativeQuery
 
 ### Develop a connector using the PowerQuery SDK for Visual Studio Code
 

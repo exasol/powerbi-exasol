@@ -1,4 +1,4 @@
-﻿// This file contains the Exasol Connector logic
+// This file contains the Exasol Connector logic
 [
     Version = "1.1.1"
 ]
@@ -259,7 +259,7 @@ Exasol.Icons = [
 
 // A function that allows you to modify column metadata returned by the SQLColumns function.
 // Fixing Unicode issue by mapping the Exasol VARCHAR and CHAR Datatypes to SQL_WVARCHAR and SQL_WCHAR
-WvarcharDatatypeName = "LONG VARCHAR",
+WvarcharDatatypeName = "LONG VARCHAR";
 Odbc.DataSource.Options.SQLColumns =
     (catalogName, schemaName, tableName, columnName, source) =>
         let

@@ -27,6 +27,11 @@ Done as a fix for using slicers/filters with unicode characters.
 Done as a fix because hashtype used to beseen as a Byte type instead of a text type. Might be obsolete now.
 - Map from DECIMAL to BIGINT in the case of a 0 decimal digits.
 
+##### Triggering SQLColumns
+
+- Sometimes SQLColumns is not being triggered:
+This could be due to a number of reasons: Empty dataset, an earlier error (such as a folding error), cached.
+You can force this function to be run by going to the Data transformation window, picking the query and selecting "Refresh all"
 
 #### SQLGetTypeInfo
 

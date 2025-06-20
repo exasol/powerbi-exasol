@@ -15,7 +15,12 @@ Install extension via VS code
 Repo of SDK + issues section: 
 https://github.com/microsoft/vscode-powerquery-sdk 
 
-### Connector "architecture" and fixes
+### Issues we've encountered developing and using this connector, fixes and workarounds
+#### Unicode character filtering
+#### Hashtype not automatlcally being recognized as text
+#### Issue with DECIMAL datatype breaking visuals/ data type lookup matchup miss
+
+### Connector "architecture"
 
 The current connector overwrites the following ODBC Functions:
 
@@ -30,16 +35,17 @@ Done as a fix because hashtype used to beseen as a Byte type instead of a text t
 ##### Triggering SQLColumns
 
 - Sometimes SQLColumns is not being triggered:
-This could be due to a number of reasons: Empty dataset, an earlier error (such as a folding error), cached.
+This could be due to a number of reasons: Empty dataset, an earlier error (such as a folding error), caching, data import mode.
 You can force this function to be run by going to the Data transformation window, picking the query and selecting "Refresh all"
 
 #### SQLGetTypeInfo
 
 - Add WCHAR and WVARCHAR types.  
 PowerBI asks for these types explicitly when opening a report using the datasource.  
-Also used as part of the workaround for slicers using and filtering on unicode characters.
+**Also used as part of the workaround/fix for slicers using and filtering on unicode characters.**
 - WVARCHAR type is the only type being mapped to currently.
 - WVARCHAR type uses a VARCHAR type alias ("LONG VARCHAR") as its type name and local type name to fix an issue in some reports where it sometimes does a cast when pushing down a query.
+
 #### SQLGetInfo
 
 - Custom rules on casts via bytemasks, disables conversions since not supported in Exasol DB.
@@ -93,6 +99,9 @@ https://github.com/microsoft/vscode-powerquery-sdk
 
 ### Tools 
 
+#### Creating a trace/doing diagnostics within PowerBI + additional diagnostics added in the connector (for investigation)
+
+
 #### ODBC QueryTool :  
 Analyses an active ODBC data source connection  (needs a DSN)
 Brought to you by: edohuisman  
@@ -102,7 +111,11 @@ Found here: https://sourceforge.net/projects/odbcquerytool/
 Microsoft ODBC Test is an ODBC-enabled application that you can use to test ODBC drivers and the ODBC Driver Manager. ODBC Test is included as part of the Microsoft Data Access Components (MDAC) 2.8 Software Development Kit.  
 Found here: https://www.microsoft.com/en-us/download/details.aspx?id=21995
 
+#### DAX Studio
+
 ### Helpful queries
+
+#### Check last generated query
 
 select * 
 from 
@@ -118,6 +131,9 @@ The each keyword is used to easily create simple functions. “each …” is sy
  https://henrikmassow.medium.com/the-strange-each-and-in-power-query-f230afc4b341
 
 ### On ODBC
+
+#### Datasource vs Native query 
+AKA When is SQLColumns being called vs when is SQLGetAttributeW used:
 
 #### SQLColumns
 The SQLColumns function in ODBC is used to retrieve metadata about columns in a database table. When this function is called, it returns a result set with detailed information about the columns in the specified table.

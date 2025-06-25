@@ -37,14 +37,14 @@ jobs:
       # Set environment variables
       - name: Set environment variables
         run: |
-          $env:PowerQuerySDKPath = "$(System.DefaultWorkingDirectory)\_temp\powerquery_sdk\Microsoft.PowerQuery.SdkTools.2.144.1\tools"
+          $env:PowerQuerySDKPath = "$env:GITHUB_WORKSPACE\_temp\powerquery_sdk\Microsoft.PowerQuery.SdkTools.2.144.1\tools"
           Write-Host "PowerQuery SDK Path: $env:PowerQuerySDKPath"
 
       # Navigate to Exasol folder and create .mez file using MakePqx
       - name: Create .mez file using MakePqx
         run: |
           # Navigate to the Exasol directory
-          cd "$(System.DefaultWorkingDirectory)\tests\powerbi-exasol\Exasol\bin\AnyCPU\Debug"
+          cd "$env:GITHUB_WORKSPACE\tests\powerbi-exasol\Exasol\bin\AnyCPU\Debug"
 
           # Run MakePqx to create the .mez file
           & "$env:PowerQuerySDKPath\MakePqx.exe" -ProjectFile "Exasol.pqproj"
@@ -52,14 +52,14 @@ jobs:
       # Modify RunPQSDKTestSuitesSettings.json file
       - name: Modify RunPQSDKTestSuitesSettings.json file
         run: |
-          $filePath = "./tests/RunPQSDKTestSuitesSettings.json"
+          $filePath = "$env:GITHUB_WORKSPACE\tests\RunPQSDKTestSuitesSettings.json"
           $jsonContent = Get-Content $filePath | ConvertFrom-Json
 
           # Modify the JSON content
           $jsonContent.PQTestExePath = "$env:PowerQuerySDKPath\PQTest.exe"
           
           # Correct the path to the .mez file (one level back from /tests/)
-          $jsonContent.ExtensionPath = "$(System.DefaultWorkingDirectory)\powerbi-exasol\Exasol\bin\AnyCPU\Debug\Exasol.mez"
+          $jsonContent.ExtensionPath = "$env:GITHUB_WORKSPACE\powerbi-exasol\Exasol\bin\AnyCPU\Debug\Exasol.mez"
 
           # Write the modified content back to the file
           $jsonContent | ConvertTo-Json -Compress | Set-Content $filePath
@@ -67,7 +67,7 @@ jobs:
       # Replace placeholders in credentials.json with GitHub secrets
       - name: Replace placeholders in credentials.json
         run: |
-          $filePath = "./tests/credentials.json"
+          $filePath = "$env:GITHUB_WORKSPACE\tests\credentials.json"
           $jsonContent = Get-Content $filePath | ConvertFrom-Json
 
           # Replace placeholders with GitHub secrets
@@ -81,7 +81,7 @@ jobs:
       - name: Run PowerShell Test Suite
         run: |
           # Navigate to the tests folder
-          cd "$(System.DefaultWorkingDirectory)\tests"
+          cd "$env:GITHUB_WORKSPACE\tests"
 
           # Run the PowerShell script with the -DetailedResults flag
           .\RunPQSDKTestSuites.ps1 -DetailedResults

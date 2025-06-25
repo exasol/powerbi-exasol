@@ -2,17 +2,10 @@ name: CI Workflow
 
 on:
   push:
-    branches: [
-      main
-    ]
+    branches: [main]
     
   pull_request:
-    types: [
-      opened,
-      synchronize,
-      reopened,
-      ready_for_review
-    ]
+    types: [opened, synchronize, reopened, ready_for_review]
 
 jobs:
   build:
@@ -43,8 +36,8 @@ jobs:
       # Navigate to Exasol folder and create .mez file using MakePqx
       - name: Create .mez file using MakePqx
         run: |
-          # Navigate to the Exasol directory
-          cd "$env:GITHUB_WORKSPACE\tests\powerbi-exasol\Exasol\bin\AnyCPU\Debug"
+          # Navigate one level back to the root of the repo and then into the Exasol directory
+          cd "$env:GITHUB_WORKSPACE\powerbi-exasol\Exasol\bin\AnyCPU\Debug"
 
           # Run MakePqx to create the .mez file
           & "$env:PowerQuerySDKPath\MakePqx.exe" -ProjectFile "Exasol.pqproj"

@@ -30,8 +30,11 @@ jobs:
       # Set environment variables
       - name: Set environment variables
         run: |
+          # Ensure correct path to PowerQuery SDK
           $env:PowerQuerySDKPath = "$env:GITHUB_WORKSPACE\_temp\powerquery_sdk\Microsoft.PowerQuery.SdkTools.2.144.1\tools"
-          Write-Host "PowerQuery SDK Path: $env:PowerQuerySDKPath"
+          
+          # Debug the environment variable
+          Write-Host "PowerQuerySDKPath is set to: $env:PowerQuerySDKPath"
 
       # Check if the Exasol.mproj file exists before running MakePqx
       - name: Check for Exasol.mproj file and create .mez file if exists
@@ -43,6 +46,9 @@ jobs:
             
             # Ensure correct path to MakePqx
             $makePqxPath = Join-Path $env:PowerQuerySDKPath "MakePqx.exe"
+            
+            # Debug the path to MakePqx.exe
+            Write-Host "MakePqx.exe path is: $makePqxPath"
             
             if (Test-Path $makePqxPath) {
               # Navigate to the Exasol directory

@@ -32,6 +32,12 @@ jobs:
           # Install PowerQuery SDK (NuGet install) in the PowerQuerySDKPath
           nuget install Microsoft.PowerQuery.SdkTools -Version 2.144.1 -OutputDirectory $env:PowerQuerySDKPath
 
+      - name: List contents of PowerQuerySDKPath
+        shell: pwsh
+        run: |
+          Write-Host "Listing contents of: $env:PowerQuerySDKPath"
+          Get-ChildItem -Path $env:PowerQuerySDKPath
+          
       # Check if the Exasol.mproj file exists before running MakePqx
       - name: Check for Exasol.mproj file and create .mez file if exists
         run: |

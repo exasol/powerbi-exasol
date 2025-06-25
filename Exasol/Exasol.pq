@@ -4,7 +4,7 @@
 ]
 section Exasol;
 
-EnableTraceOutput = true;
+EnableTraceOutput = false;
 
 //
 // Load common library functions

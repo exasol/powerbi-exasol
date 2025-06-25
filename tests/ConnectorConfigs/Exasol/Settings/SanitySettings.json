@@ -1,0 +1,5 @@
+{
+    "FailOnMissingOutputFile":  false,
+    "QueryFilePath":  "TestSuites/Sanity",
+    "ParameterQueryFilePath":  "connectorconfigs/Exasol/parameterqueries/Exasol.parameterquery.pq"
+}

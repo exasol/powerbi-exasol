@@ -25,11 +25,11 @@ jobs:
         run: |
           choco install nuget.commandline
 
-      # Install PowerQuery SDK
+      # Install PowerQuery SDK in the specified PowerQuerySDKPath
       - name: Install PowerQuery SDK
         run: |
-          # Install PowerQuery SDK (NuGet install)
-          nuget install Microsoft.PowerQuery.SdkTools -Version 2.144.1 -OutputDirectory $env:TEMP\powerquery_sdk
+          # Install PowerQuery SDK (NuGet install) in the PowerQuerySDKPath
+          nuget install Microsoft.PowerQuery.SdkTools -Version 2.144.1 -OutputDirectory $env:PowerQuerySDKPath
 
       # Check if the Exasol.mproj file exists before running MakePqx
       - name: Check for Exasol.mproj file and create .mez file if exists

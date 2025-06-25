@@ -11,6 +11,10 @@ jobs:
   build:
     runs-on: windows-latest
 
+    env:
+      # Set environment variables globally for the job
+      PowerQuerySDKPath: "$GITHUB_WORKSPACE/_temp/powerquery_sdk/Microsoft.PowerQuery.SdkTools.2.144.1/tools"
+
     steps:
       # Checkout the repository
       - name: Checkout code
@@ -27,15 +31,6 @@ jobs:
           # Install PowerQuery SDK (NuGet install)
           nuget install Microsoft.PowerQuery.SdkTools -Version 2.144.1 -OutputDirectory $env:TEMP\powerquery_sdk
 
-      # Set environment variables and debug the PowerQuerySDKPath
-      - name: Set environment variables and debug PowerQuerySDKPath
-        run: |
-          # Ensure correct path to PowerQuery SDK tools
-          $env:PowerQuerySDKPath = "$env:GITHUB_WORKSPACE\_temp\powerquery_sdk\Microsoft.PowerQuery.SdkTools.2.144.1\tools"
-          
-          # Debug the PowerQuery SDK Path
-          Write-Host "PowerQuerySDKPath is: $env:PowerQuerySDKPath"
-
       # Check if the Exasol.mproj file exists before running MakePqx
       - name: Check for Exasol.mproj file and create .mez file if exists
         run: |
@@ -46,9 +41,6 @@ jobs:
             
             # Ensure correct path to MakePqx
             $makePqxPath = Join-Path $env:PowerQuerySDKPath "MakePqx.exe"
-            
-            # Debug the path to MakePqx.exe
-            Write-Host "MakePqx.exe path is: $makePqxPath"
             
             if (Test-Path $makePqxPath) {
               # Navigate to the Exasol directory

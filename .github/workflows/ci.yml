@@ -13,7 +13,7 @@ jobs:
 
     env:
       # Set environment variables globally for the job
-      PowerQuerySDKPath: "$GITHUB_WORKSPACE/_temp/powerquery_sdk/Microsoft.PowerQuery.SdkTools.2.144.1/tools"
+      PowerQuerySDKPath: "/_temp/powerquery_sdk/Microsoft.PowerQuery.SdkTools.2.144.1/tools"
 
     steps:
       # Checkout the repository

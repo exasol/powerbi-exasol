@@ -1,6 +1,6 @@
 (parameter) =>
 let
-    ColumnNames = { "VendorID", "lpep_pickup_datetime", "store_and_fwd_flag", "trip_distance" },
+    ColumnNames = { "VENDORID", "LPEP_PICKUP_DATETIME", "STORE_AND_FWD_FLAG", "TRIP_DISTANCE" },
     Tests = List.Accumulate(ColumnNames, [], (state, current) => 
         let 
             Result =

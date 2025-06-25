@@ -2,6 +2,6 @@
 let
     Sorted = Table.Sort(parameter[zone_table], {{(t) => t[service_zone], Order.Ascending}}),
     FirstN = Table.FirstN(Sorted,5),
-    SelectColumns = Table.SelectColumns(FirstN, "service_zone")
+    SelectColumns = Table.SelectColumns(FirstN, "SERVICE_ZONE")
 in
     SelectColumns

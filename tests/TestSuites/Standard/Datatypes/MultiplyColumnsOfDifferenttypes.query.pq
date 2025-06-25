@@ -1,8 +1,8 @@
 (parameter) =>
 let
-    AddColumns = Table.AddColumn(parameter[taxi_table], "Custom", each Number.Round(([payment_type] * [fare_amount]), 2)),
-    SelectColumns = Table.SelectColumns(AddColumns, { "lpep_pickup_datetime", "Custom" }),
-    Sort = Table.Sort(SelectColumns, { { "lpep_pickup_datetime", Order.Ascending } }),
+    AddColumns = Table.AddColumn(parameter[taxi_table], "Custom", each Number.Round(([PAYMENT_TYPE] * [FARE_AMOUNT]), 2)),
+    SelectColumns = Table.SelectColumns(AddColumns, { "LPEP_PICKUP_DATETIME", "Custom" }),
+    Sort = Table.Sort(SelectColumns, { { "LPEP_PICKUP_DATETIME", Order.Ascending } }),
     FirstN = Table.FirstN(Sort, 2)
 in
     FirstN

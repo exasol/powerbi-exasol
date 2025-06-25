@@ -1,8 +1,8 @@
 (parameter) =>
 let
-    SelectRows = Table.SelectRows(parameter[taxi_table], each [store_and_fwd_flag] = true),
-    SelectColumns = Table.SelectColumns(SelectRows, { "lpep_dropoff_datetime", "DOLocationID" }),
-    Sort = Table.Sort(SelectColumns, {"DOLocationID"}),
+    SelectRows = Table.SelectRows(parameter[taxi_table], each [STORE_AND_FWD_FLAG] = true),
+    SelectColumns = Table.SelectColumns(SelectRows, { "LPEP_DROPOFF_DATETIME", "DOLOCATIONID" }),
+    Sort = Table.Sort(SelectColumns, {"DOLOCATIONID"}),
     FirstN = Table.FirstN(Sort, 2)
 in
     FirstN

@@ -1,5 +1,5 @@
 ﻿(parameter) =>
 let
-    Sort = Table.Sort(parameter[zone_table], {"LocationID"})
+    Sort = Table.Sort(parameter[zone_table], {"LOCATIONID"})
 in
     Sort

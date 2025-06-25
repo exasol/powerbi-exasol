@@ -1,8 +1,8 @@
 (parameter) => 
 let
-    Sorted = Table.Sort(parameter[zone_table], {"LocationID"}),
-    Grouped = Table.Group(Sorted, {"service_zone"}, {}),
+    Sorted = Table.Sort(parameter[zone_table], {"LOCATIONID"}),
+    Grouped = Table.Group(Sorted, {"SERVICE_ZONE"}, {}),
     FirstN = Table.FirstN(Grouped,3),
-    SelectColumns = Table.SelectColumns(Grouped, "service_zone")
+    SelectColumns = Table.SelectColumns(Grouped, "SERVICE_ZONE")
 in
     SelectColumns

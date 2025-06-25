@@ -1,6 +1,6 @@
 ﻿(parameter) =>
 let
-    Sort = Table.Sort(parameter[taxi_table], {"RecordID"}),
+    Sort = Table.Sort(parameter[taxi_table], {"RECORDID"}),
     RowCount = Table.RowCount(Sort)
 in
    if (RowCount <> 10000) then 

@@ -1,7 +1,7 @@
 (parameter) => 
 let
-    Sorted = Table.Sort(parameter[taxi_table], {"lpep_pickup_datetime", Order.Ascending}),
+    Sorted = Table.Sort(parameter[taxi_table], {"LPEP_PICKUP_DATETIME", Order.Ascending}),
     FirstNRecords = Table.FirstN(Sorted, 10),
-    Grouped = Table.Group(FirstNRecords, {"PULocationID"},  {"total_trip_distance", each List.Sum([trip_distance])})
+    Grouped = Table.Group(FirstNRecords, {"PULOCATIONID"},  {"total_TRIP_DISTANCE", each List.Sum([TRIP_DISTANCE])})
 in
     Grouped

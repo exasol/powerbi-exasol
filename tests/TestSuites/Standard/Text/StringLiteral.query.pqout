@@ -1,1 +1,1 @@
-#table( type table [Zone = text] , {{"Westchester Village/Unionport"} } ) 
+#table( type table [TAXIZONE = text] , {{"Westchester Village/Unionport"} } ) 

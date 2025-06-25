@@ -1,1 +1,1 @@
-#table( type table [Borough = text, LocationID = number] , {{"Queens", 2} , {"Queens", 7} } ) 
+#table( type table [BOROUGH = text, LOCATIONID = number] , {{"Queens", 2} , {"Queens", 7} } ) 

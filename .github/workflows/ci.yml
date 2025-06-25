@@ -34,4 +34,67 @@ jobs:
           $env:PowerQuerySDKPath = "$env:GITHUB_WORKSPACE\_temp\powerquery_sdk\Microsoft.PowerQuery.SdkTools.2.144.1\tools"
           
           # Debug the PowerQuery SDK Path
-          Write
+          Write-Host "PowerQuerySDKPath is: $env:PowerQuerySDKPath"
+
+      # Check if the Exasol.mproj file exists before running MakePqx
+      - name: Check for Exasol.mproj file and create .mez file if exists
+        run: |
+          $mprojPath = "$env:GITHUB_WORKSPACE\Exasol\Exasol.mproj"
+          
+          if (Test-Path $mprojPath) {
+            Write-Host "Exasol.mproj file found. Running MakePqx to create .mez file..."
+            
+            # Ensure correct path to MakePqx
+            $makePqxPath = Join-Path $env:PowerQuerySDKPath "MakePqx.exe"
+            
+            # Debug the path to MakePqx.exe
+            Write-Host "MakePqx.exe path is: $makePqxPath"
+            
+            if (Test-Path $makePqxPath) {
+              # Navigate to the Exasol directory
+              cd "$env:GITHUB_WORKSPACE\Exasol"
+              # Run MakePqx to create the .mez file
+              & $makePqxPath -ProjectFile "Exasol.mproj"
+            } else {
+              Write-Host "MakePqx.exe not found at $makePqxPath"
+            }
+          } else {
+            Write-Host "No Exasol.mproj file found. Skipping .mez file creation."
+          }
+
+      # Modify RunPQSDKTestSuitesSettings.json file
+      - name: Modify RunPQSDKTestSuitesSettings.json file
+        run: |
+          $filePath = "$env:GITHUB_WORKSPACE\tests\RunPQSDKTestSuitesSettings.json"
+          $jsonContent = Get-Content $filePath | ConvertFrom-Json
+
+          # Modify the JSON content
+          $jsonContent.PQTestExePath = "$env:PowerQuerySDKPath\PQTest.exe"
+          
+          # Correct the path to the .mez file (one level back from /tests/)
+          $jsonContent.ExtensionPath = "$env:GITHUB_WORKSPACE\Exasol\bin\AnyCPU\Debug\Exasol.mez"
+
+          # Write the modified content back to the file
+          $jsonContent | ConvertTo-Json -Compress | Set-Content $filePath
+
+      # Replace placeholders in credentials.json with GitHub secrets
+      - name: Replace placeholders in credentials.json
+        run: |
+          $filePath = "$env:GITHUB_WORKSPACE\tests\credentials.json"
+          $jsonContent = Get-Content $filePath | ConvertFrom-Json
+
+          # Replace placeholders with GitHub secrets
+          $jsonContent.AuthenticationProperties.Username = "${{ secrets.pbi_username }}"
+          $jsonContent.AuthenticationProperties.Password = "${{ secrets.pbi_password }}"
+
+          # Write the modified content back to the file
+          $jsonContent | ConvertTo-Json -Compress | Set-Content $filePath
+
+      # Run the PowerShell script with the -DetailedResults flag
+      - name: Run PowerShell Test Suite
+        run: |
+          # Navigate to the tests folder
+          cd "$env:GITHUB_WORKSPACE\tests"
+
+          # Run the PowerShell script with the -DetailedResults flag
+          .\RunPQSDKTestSuites.ps1 -DetailedResults

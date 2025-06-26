@@ -110,5 +110,20 @@ jobs:
           # Navigate to the tests folder
           cd "$env:GITHUB_WORKSPACE\tests"
 
-          # Run the PowerShell script with the -DetailedResults flag
-          .\RunPQSDKTestSuites.ps1 -DetailedResults
+          # Run the test script and capture output
+          $output = .\RunPQSDKTestSuites.ps1 -DetailedResults 2>&1
+          $output | ForEach-Object { Write-Output $_ }
+
+          # Extract the line with test summary
+          $summaryLine = $output | Where-Object { $_ -match '^Total Tests:' }
+
+          if ($summaryLine -match 'Failed:\s*(\d+)') {
+            $failedCount = [int]$matches[1]
+            if ($failedCount -gt 0) {
+              Write-Error "Test suite failed: $failedCount test(s) failed."
+              exit 1
+            }
+          } else {
+            Write-Warning "Could not find test summary line. Assuming failure."
+            exit 1
+          }

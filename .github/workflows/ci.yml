@@ -42,12 +42,12 @@ jobs:
         run: |
           
           # Ensure correct path to MakePqx
-          $makePqxPath = Join-Path $env:PowerQuerySDKPath "Microsoft.PowerQuery.SdkTools\tools\MakePqx.exe compile"
+          $makePqxPath = Join-Path $env:PowerQuerySDKPath "Microsoft.PowerQuery.SdkTools\tools\MakePqx.exe"
           
           # Navigate to the Exasol directory
           cd "$env:GITHUB_WORKSPACE\Exasol"
           # Run MakePqx to create the .mez file
-          & $makePqxPath
+          & $makePqxPath compile
 
       # Modify RunPQSDKTestSuitesSettings.json file
       - name: Modify RunPQSDKTestSuitesSettings.json file

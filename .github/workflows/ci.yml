@@ -17,19 +17,21 @@ jobs:
 
     steps:
 
-      # Install Exasol ODBC Driver (latest version)
+      # Install Exasol ODBC Driver (v25.2.3 MSI)
       - name: Install Exasol ODBC Driver
+        shell: pwsh
         run: |
-          $url = "https://downloads.exasol.com/public/odbc-driver/latest/win64/EXASOL_ODBC_DRIVER.exe"
-          $installer = "$env:TEMP\EXASOL_ODBC_DRIVER.exe"
-          Invoke-WebRequest -Uri $url -OutFile $installer
-          Start-Process -FilePath $installer -ArgumentList "/quiet" -Wait
+          $url = "https://x-up.s3.amazonaws.com/7.x/25.2.3/Exasol_ODBC-25.2.3-x86_64.msi"
+          $msiPath = "$env:TEMP\Exasol_ODBC.msi"
+          Invoke-WebRequest -Uri $url -OutFile $msiPath
+          Start-Process msiexec.exe -ArgumentList "/i `"$msiPath`" /quiet /norestart" -Wait
+
 
       # Install Visual C++ Redistributables (required for ODBC driver)
       - name: Install Visual C++ Redistributables
         run: |
           choco install vcredist-all --no-progress --yes
-          
+
       # Checkout the repository
       - name: Checkout code
         uses: actions/checkout@v2

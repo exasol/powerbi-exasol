@@ -83,5 +83,5 @@ jobs:
           # Navigate to the tests folder
           cd "$env:GITHUB_WORKSPACE\tests"
 
-          # Run the PowerShell script with the -DetailedResults flag
-          .\RunPQSDKTestSuites.ps1 -DetailedResults
+          # Run the PowerShell script with the -DetailedResults flag (+ Pipe in / answer 'y' when prompted)
+          "y" | .\RunPQSDKTestSuites.ps1 -DetailedResults

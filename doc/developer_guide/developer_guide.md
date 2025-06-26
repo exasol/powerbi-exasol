@@ -6,14 +6,22 @@
 
 DEPRECATED ( https://github.com/microsoft/DataConnectors)
 
-Please use PowerQuery SDK for Visual Studio Code instead (next section)
+Please use PowerQuery SDK for Visual Studio Code instead (see next section)
 
 ### PowerQuery SDK for Visual Studio Code
 
-Install extension via VS code 
+#### Instructions
 
-Repo of SDK + issues section: 
+Install extension via VS code 
+Detailed setup instructions found  [here](https://learn.microsoft.com/en-us/power-query/power-query-sdk-vs-code)
+
+Repository of SDK + issues section: 
 https://github.com/microsoft/vscode-powerquery-sdk 
+
+#### Database setup
+
+Exasol-ready SQL scripts for the new test framework [here](./testdata.sql)
+
 
 ### Issues we've encountered developing and using this connector, fixes and workarounds
 #### Unicode character filtering

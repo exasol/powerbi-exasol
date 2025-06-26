@@ -79,14 +79,15 @@ jobs:
 
       # Set credential using PQTest.exe
       - name: Set credential for the test suite
+        shell: pwsh
         run: |
           $pqTestPath = "$env:PowerQuerySDKPath\Microsoft.PowerQuery.SdkTools\tools\PQTest.exe"
           $mezPath = "$env:GITHUB_WORKSPACE\Exasol\bin\AnyCPU\Debug\Exasol.mez"
           $queryPath = "$env:GITHUB_WORKSPACE\Exasol\Exasol.query.pq"
           $credentialsPath = "$env:GITHUB_WORKSPACE\tests\credentials.json"
 
-          & $pqTestPath set-credential -e $mezPath -q $queryPath -p $credentialsPath
-          
+          Get-Content $credentialsPath -Raw | & $pqTestPath set-credential -e $mezPath -q $queryPath -p -
+
       # Run the PowerShell script with the -DetailedResults flag
       - name: Run PowerShell Test Suite
         run: |

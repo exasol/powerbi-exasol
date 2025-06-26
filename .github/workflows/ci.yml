@@ -3,7 +3,7 @@ name: CI Workflow
 on:
   push:
     branches: [main]
-    
+
   pull_request:
     types: [opened, synchronize, reopened, ready_for_review]
 
@@ -14,7 +14,6 @@ jobs:
     env:
       # Set environment variables globally for the job
       PowerQuerySDKPath: ${{ github.workspace }}/_temp/
-
 
     steps:
       # Checkout the repository
@@ -37,29 +36,18 @@ jobs:
         run: |
           Write-Host "Listing contents of: $env:PowerQuerySDKPath"
           Get-ChildItem -Path $env:PowerQuerySDKPath
-          
+
       # Check if the Exasol.mproj file exists before running MakePqx
-      - name: Check for Exasol.mproj file and create .mez file if exists
+      - name: Compile step/ Create .mez file
         run: |
-          $mprojPath = "$env:GITHUB_WORKSPACE\Exasol\Exasol.mproj"
           
-          if (Test-Path $mprojPath) {
-            Write-Host "Exasol.mproj file found. Running MakePqx to create .mez file..."
-            
-            # Ensure correct path to MakePqx
-            $makePqxPath = Join-Path $env:PowerQuerySDKPath "Microsoft.PowerQuery.SdkTools\tools\MakePqx.exe compile"
-            
-            if (Test-Path $makePqxPath) {
-              # Navigate to the Exasol directory
-              cd "$env:GITHUB_WORKSPACE\Exasol"
-              # Run MakePqx to create the .mez file
-              & $makePqxPath
-            } else {
-              Write-Host "MakePqx.exe not found at $makePqxPath"
-            }
-          } else {
-            Write-Host "No Exasol.mproj file found. Skipping .mez file creation."
-          }
+          # Ensure correct path to MakePqx
+          $makePqxPath = Join-Path $env:PowerQuerySDKPath "Microsoft.PowerQuery.SdkTools\tools\MakePqx.exe compile"
+          
+          # Navigate to the Exasol directory
+          cd "$env:GITHUB_WORKSPACE\Exasol"
+          # Run MakePqx to create the .mez file
+          & $makePqxPath
 
       # Modify RunPQSDKTestSuitesSettings.json file
       - name: Modify RunPQSDKTestSuitesSettings.json file
@@ -69,7 +57,7 @@ jobs:
 
           # Modify the JSON content
           $jsonContent.PQTestExePath = "$env:PowerQuerySDKPath\Microsoft.PowerQuery.SdkTools\tools\PQTest.exe"
-          
+
           # Correct the path to the .mez file (one level back from /tests/)
           $jsonContent.ExtensionPath = "$env:GITHUB_WORKSPACE\Exasol\bin\AnyCPU\Debug\Exasol.mez"
 

@@ -47,13 +47,13 @@ jobs:
             Write-Host "Exasol.mproj file found. Running MakePqx to create .mez file..."
             
             # Ensure correct path to MakePqx
-            $makePqxPath = Join-Path $env:PowerQuerySDKPath "Microsoft.PowerQuery.SdkTools\tools\MakePqx.exe"
+            $makePqxPath = Join-Path $env:PowerQuerySDKPath "Microsoft.PowerQuery.SdkTools\tools\MakePqx.exe compile"
             
             if (Test-Path $makePqxPath) {
               # Navigate to the Exasol directory
               cd "$env:GITHUB_WORKSPACE\Exasol"
               # Run MakePqx to create the .mez file
-              & $makePqxPath -ProjectFile "Exasol.mproj"
+              & $makePqxPath
             } else {
               Write-Host "MakePqx.exe not found at $makePqxPath"
             }

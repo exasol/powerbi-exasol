@@ -13,7 +13,7 @@ jobs:
 
     env:
       # Set environment variables globally for the job
-      PowerQuerySDKPath: ${{ github.workspace }}/_temp/powerquery_sdk/Microsoft.PowerQuery.SdkTools.2.144.1/tools
+      PowerQuerySDKPath: ${{ github.workspace }}/_temp/
 
 
     steps:
@@ -30,7 +30,7 @@ jobs:
       - name: Install PowerQuery SDK
         run: |
           # Install PowerQuery SDK (NuGet install) in the PowerQuerySDKPath
-          nuget install Microsoft.PowerQuery.SdkTools -Version 2.144.1 -OutputDirectory $env:PowerQuerySDKPath
+          nuget install Microsoft.PowerQuery.SdkTools -Version 2.144.1 -OutputDirectory $env:PowerQuerySDKPath -ExcludeVersion
 
       - name: List contents of PowerQuerySDKPath
         shell: pwsh
@@ -47,7 +47,7 @@ jobs:
             Write-Host "Exasol.mproj file found. Running MakePqx to create .mez file..."
             
             # Ensure correct path to MakePqx
-            $makePqxPath = Join-Path $env:PowerQuerySDKPath "MakePqx.exe"
+            $makePqxPath = Join-Path $env:PowerQuerySDKPath "Microsoft.PowerQuery.SdkTools\tools\MakePqx.exe"
             
             if (Test-Path $makePqxPath) {
               # Navigate to the Exasol directory
@@ -68,7 +68,7 @@ jobs:
           $jsonContent = Get-Content $filePath | ConvertFrom-Json
 
           # Modify the JSON content
-          $jsonContent.PQTestExePath = "$env:PowerQuerySDKPath\PQTest.exe"
+          $jsonContent.PQTestExePath = "$env:PowerQuerySDKPath\Microsoft.PowerQuery.SdkTools\tools\PQTest.exe"
           
           # Correct the path to the .mez file (one level back from /tests/)
           $jsonContent.ExtensionPath = "$env:GITHUB_WORKSPACE\Exasol\bin\AnyCPU\Debug\Exasol.mez"

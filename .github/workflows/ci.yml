@@ -16,6 +16,20 @@ jobs:
       PowerQuerySDKPath: ${{ github.workspace }}/_temp/
 
     steps:
+
+      # Install Exasol ODBC Driver (latest version)
+      - name: Install Exasol ODBC Driver
+        run: |
+          $url = "https://downloads.exasol.com/public/odbc-driver/latest/win64/EXASOL_ODBC_DRIVER.exe"
+          $installer = "$env:TEMP\EXASOL_ODBC_DRIVER.exe"
+          Invoke-WebRequest -Uri $url -OutFile $installer
+          Start-Process -FilePath $installer -ArgumentList "/quiet" -Wait
+
+      # Install Visual C++ Redistributables (required for ODBC driver)
+      - name: Install Visual C++ Redistributables
+        run: |
+          choco install vcredist-all --no-progress --yes
+          
       # Checkout the repository
       - name: Checkout code
         uses: actions/checkout@v2

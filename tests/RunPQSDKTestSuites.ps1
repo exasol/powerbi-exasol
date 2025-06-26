@@ -189,17 +189,17 @@ $DiagnosticFolderPath")
 }
 $PSStyle.Reset
 
-$confirmation = Read-Host "Do you want to proceed? [y/n]" 
-while($confirmation -ne "y")
-{
-    if ($confirmation -eq 'n') {
-        $PSStyle.Foreground.Yellow
-        Write-Host("Please specify the correct settings in RunPQSDKTestSuitesSettings.json or pass them arguments and re-run the script.")
-        $PSStyle.Reset
-        exit
-    }
-    $confirmation = Read-Host "Do you want to proceed? [y/n]"
-}
+# $confirmation = Read-Host "Do you want to proceed? [y/n]" 
+# while($confirmation -ne "y")
+# {
+#     if ($confirmation -eq 'n') {
+#         $PSStyle.Foreground.Yellow
+#         Write-Host("Please specify the correct settings in RunPQSDKTestSuitesSettings.json or pass them arguments and re-run the script.")
+#         $PSStyle.Reset
+#         exit
+#     }
+#     $confirmation = Read-Host "Do you want to proceed? [y/n]"
+# }
 
 # Creating the DiagnosticFolderPath if ValidateQueryFolding is set to true
 if ($ValidateQueryFolding){ 

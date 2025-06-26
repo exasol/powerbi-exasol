@@ -77,6 +77,16 @@ jobs:
           # Write the modified content back to the file
           $jsonContent | ConvertTo-Json -Compress | Set-Content $filePath
 
+      # Set credential using PQTest.exe
+      - name: Set credential for the test suite
+        run: |
+          $pqTestPath = "$env:PowerQuerySDKPath\Microsoft.PowerQuery.SdkTools\tools\PQTest.exe"
+          $mezPath = "$env:GITHUB_WORKSPACE\Exasol\bin\AnyCPU\Debug\Exasol.mez"
+          $queryPath = "$env:GITHUB_WORKSPACE\Exasol\Exasol.query.pq"
+          $credentialsPath = "$env:GITHUB_WORKSPACE\tests\credentials.json"
+
+          & $pqTestPath set-credential -e $mezPath -q $queryPath -p $credentialsPath
+          
       # Run the PowerShell script with the -DetailedResults flag
       - name: Run PowerShell Test Suite
         run: |

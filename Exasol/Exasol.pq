@@ -1,37 +1,33 @@
 ﻿// This file contains the Exasol Connector logic
 [
-    Version = "1.1.0"
+    Version = "1.1.1"
 ]
 section Exasol;
 
-// EnableTraceOutput = false;
-// // for Development and Troubleshooting
-// // Load common library functions
-// // 
-// // Defines a function capable of loading functions from other files
-// Extension.LoadFunction =
-//     (name as text) =>
-//         let
-//             binary = Extension.Contents(name),
-//             asText = Text.FromBinary(binary)
-//         in
-//             Expression.Evaluate(asText, #shared);
-// // Diagnostics module contains multiple functions. We can take the ones we need.
-// Diagnostics = Extension.LoadFunction("Diagnostics.pqm");
-// Diagnostics.LogValue =
-//     if (EnableTraceOutput) then
-//         Diagnostics[LogValue]
-//     else
-//         (prefix, value) => value;
+EnableTraceOutput = false;
+
+//
+// Load common library functions
+//
+Extension.LoadFunction = (name as text) =>
+    let
+        binary = Extension.Contents(name), asText = Text.FromBinary(binary)
+    in
+        Expression.Evaluate(asText, #shared);
+
+// Diagnostics module contains multiple functions. We can take the ones we need.
+Diagnostics = Extension.LoadFunction("Diagnostics.pqm");
+
+Diagnostics.LogValue = if (EnableTraceOutput) then Diagnostics[LogValue] else (prefix, value) => value;
+
+// OdbcConstants contains numeric constants from the ODBC header files, and a
+// helper function to create bitfield values.
+//ODBC = Extension.LoadFunction("OdbcConstants.pqm");
 [
     DataSource.Kind = "Exasol",
     Publish = "Exasol.Publish"
 ]
-shared Exasol.Database =
-    Value.ReplaceType(
-        ExasolImpl,
-        ExasolType
-    );
+shared Exasol.Database = Value.ReplaceType(ExasolImpl, ExasolType);
 
 //handling the UI part of the connector requires using (custom) types and metadata, see the links below for more information:
 //https://docs.microsoft.com/en-us/powerquery-m/m-spec-types
@@ -41,184 +37,113 @@ shared Exasol.Database =
 //but for some reason no-one includes their UI definition.
 //recOptions = type [ Name = text, Age = number ]
 //UI ( https://docs.microsoft.com/en-us/power-query/handlingdocumentation )
-ExasolType =
-    type function (server as
-        (
-            type text
-            meta
-            [
-                Documentation.FieldCaption = "Connection String",
-                Documentation.FieldDescription = "Exasol Connection String, e.g. 192.168.80.11..15:8563 or a DSN: DSN=exa-one",
-                Documentation.SampleValues = {
-                    "192.168.80.11..15:8563",
-                    "DSN=exa-one"
-                }
-            ]
-        ), encrypted as
-        (
-            type text
-            meta
-            [
-                Documentation.FieldCaption = "Encrypted",
-                Documentation.FieldDescription = "If set to Yes, connection will be encrypted",
-                Documentation.AllowedValues = {
-                    "Yes",
-                    "No"
-                },
-                Documentation.DefaultValue = {
-                    "No"
-                }
-            ]
-        )) as table
-    meta
-    [
-        Documentation.Name = "Exasol",
-        Documentation.LongDescription = "Exasol",
-        Documentation.Icon = Extension.Contents("Exasol32.png")
-    ];
+ExasolType = type function (
+    server as (
+        type text meta [
+            Documentation.FieldCaption = "Connection String",
+            Documentation.FieldDescription = "Exasol Connection String, e.g. 192.168.80.11..15:8563 or a DSN: DSN=exa-one",
+            Documentation.SampleValues = {"192.168.80.11..15:8563", "DSN=exa-one"}
+        ]
+    ),
+    encrypted as (
+        type text meta [
+            Documentation.FieldCaption = "Encrypted",
+            Documentation.FieldDescription = "If set to Yes, connection will be encrypted",
+            Documentation.AllowedValues = {"Yes", "No"},
+            Documentation.DefaultValue = {"No"}
+        ]
+    )
+) as table meta [
+    Documentation.Name = "Exasol",
+    Documentation.LongDescription = "Exasol",
+    Documentation.Icon = Extension.Contents("Exasol32.png")
+];
 
-ExasolImpl =
-    (server as text, encrypted as text) =>
-        let
-            // These fields come from the options record, so they might be null.
-            currentCredentials = Extension.CurrentCredential(),
-            authenticationKind = currentCredentials[AuthenticationKind],
-            //null guard (so older reports created with a previous version won't get reference errors
+ExasolImpl = (server as text, encrypted as text) =>
+    let
+        // These fields come from the options record, so they might be null.
+        currentCredentials = Extension.CurrentCredential(),
+        authenticationKind = currentCredentials[AuthenticationKind],
+        //null guard (so older reports created with a previous version won't get reference errors
+        bWindowsKerberos = if authenticationKind = "Windows" then true else false,
+        odbcConnectionString = CreateOdbcConnectionStringRecord(server, encrypted),
+        appendedOdbcConnectionString = AppendOdbcConnectionStringForKerberosAuthentication(
+            odbcConnectionString, bWindowsKerberos, server
+        ),
+        odbcOptions = GetOptions(),
+        _encrypt = if encrypted = "Yes" then "Y" else "N",
+        //https://docs.microsoft.com/en-us/powerquery-m/odbc-datasource
+        odbcDataSource = Odbc.DataSource(appendedOdbcConnectionString, odbcOptions),
+        database = odbcDataSource{[Name = "EXA_DB"]}[Data],
+        //mashup has 'lazy evaluation'so we can simplify logic/move the if to the later steps since if we don't use something it won't get evaluated.
+        result = database
+    in
+        result;
 
-            bWindowsKerberos =
-                if authenticationKind = "Windows" then
-                    true
-                else
-                    false,
-            odbcConnectionString =
-                CreateOdbcConnectionStringRecord(
-                    server,
-                    encrypted
-                ),
-            appendedOdbcConnectionString =
-                AppendOdbcConnectionStringForKerberosAuthentication(
-                    odbcConnectionString,
-                    bWindowsKerberos,
-                    server
-                ),
-            odbcOptions = GetOptions(),
-            _encrypt =
-                if encrypted = "Yes" then
-                    "Y"
-                else
-                    "N",
-            //https://docs.microsoft.com/en-us/powerquery-m/odbc-datasource
-            odbcDataSource =
-                Odbc.DataSource(
-                    appendedOdbcConnectionString,
-                    odbcOptions
-                ),
-            database = odbcDataSource{[Name = "EXA_DB"]}[Data],
+CreateOdbcConnectionStringRecord = (server as text, encrypt as text) as record =>
+    let
+        splitServerList = Text.Split(server, "="),
+        dsnNamePart = splitServerList{1},
+        dsnName = Text.Remove(dsnNamePart, {"'", """"}),
+        odbcConnectionString =
+            if Text.Contains(server, "DSN=", Comparer.OrdinalIgnoreCase) then
+                [
+                    DSN = dsnName
+                ]
+            else
+                [
+                    DRIVER = "EXASolution Driver",
+                    EXAHOST = server,
+                    ENCRYPTION = encrypt
+                ]
+    in
+        odbcConnectionString;
 
-            //mashup has 'lazy evaluation'so we can simplify logic/move the if to the later steps since if we don't use something it won't get evaluated.
-            result = database
-        in
-            result;
+AppendOdbcConnectionStringForKerberosAuthentication = (
+    OdbcConnectionString as record, bKerberos as logical, server as text
+) as record =>
+    let
+        odbcKerberosRecord = [
+            KERBEROSSERVICENAME = "exasol/" & server
+        ],
+        toBeCombinedRecordsList = {OdbcConnectionString, odbcKerberosRecord},
+        bDsn = if Text.Contains(server, "DSN=", Comparer.OrdinalIgnoreCase) then true else false,
+        combinedRecord =
+            if bKerberos and bDsn = false then
+                Record.Combine(toBeCombinedRecordsList)
+            else
+                OdbcConnectionString
+    in
+        combinedRecord;
 
-CreateOdbcConnectionStringRecord =
-    (server as text, encrypt as text) as record =>
-        let
-            splitServerList = Text.Split(server, "="),
-            dsnNamePart = splitServerList{1},
-            dsnName =
-                Text.Remove(
-                    dsnNamePart,
-                    {
-                        "'",
-                        """"
-                    }
-                ),
-            odbcConnectionString =
-                if
-                    Text.Contains(
-                        server,
-                        "DSN=",
-                        Comparer.OrdinalIgnoreCase
-                    )
-                then
-                    [
-                        DSN = dsnName
-                    ]
-                else
-                    [
-                        DRIVER = "EXASolution Driver",
-                        EXAHOST = server,
-                        ENCRYPTION = encrypt
-                    //,LOGMODE = "DEFAULT"
-                    //,EXALOGFILE = "C:\tmp\odbclogfilepowerbi.txt"
-                    ]
-        in
-            odbcConnectionString;
-
-AppendOdbcConnectionStringForKerberosAuthentication =
-    (OdbcConnectionString as record, bKerberos as logical, server as text) as record =>
-        let
-            odbcKerberosRecord = [
-                KERBEROSSERVICENAME = "exasol/" & server
-            ],
-            toBeCombinedRecordsList = {
-                OdbcConnectionString,
-                odbcKerberosRecord
-            },
-            bDsn =
-                if
-                    Text.Contains(
-                        server,
-                        "DSN=",
-                        Comparer.OrdinalIgnoreCase
-                    )
-                then
-                    true
-                else
-                    false,
-            combinedRecord =
-                if bKerberos and bDsn = false then
-                    Record.Combine(toBeCombinedRecordsList)
-                else
-                    OdbcConnectionString
-        in
-            combinedRecord;
-
-GetOptions =
-    () =>
-        let
-            DatasourceUsernamePassword = [
-                SQLColumns = Odbc.DataSource.Options.SQLColumns,
-                SQLGetTypeInfo = Odbc.DataSource.Options.SQLGetTypeInfo,
-                //HierarchicalNavigation : Turning this off will make datasource navigation work in a different way and would thus break all the existing reports
-                HierarchicalNavigation = true,
-                HideNativeQuery = false,
-                ClientConnectionPooling = true,
-                SqlCapabilities = Odbc.Datasource.Options.SqlCapabilities,
-                SQLGetFunctions = Odbc.Datasource.Options.SQLGetFunctions,
-                SQLGetInfo = Odbc.Datasource.Options.SQLGetInfo
-            ],
-            options =  DatasourceUsernamePassword
-        in
-            options;
+GetOptions = () =>
+    let
+        DatasourceUsernamePassword = [
+            SQLColumns = Odbc.DataSource.Options.SQLColumns,
+            SQLGetTypeInfo = Odbc.DataSource.Options.SQLGetTypeInfo,
+            //HierarchicalNavigation : Turning this off will make datasource navigation work in a different way and would thus break all the existing reports
+            HierarchicalNavigation = true,
+            HideNativeQuery = false,
+            ClientConnectionPooling = true,
+            SqlCapabilities = Odbc.Datasource.Options.SqlCapabilities,
+            SQLGetFunctions = Odbc.Datasource.Options.SQLGetFunctions,
+            SQLGetInfo = Odbc.Datasource.Options.SQLGetInfo
+        ],
+        options = DatasourceUsernamePassword
+    in
+        options;
 
 // Data Source Kind description
 Exasol = [
     Description = "Exasol",
     //Test connection needed for gateway support: https://docs.microsoft.com/en-us/power-query/handlinggatewaysupport
-    TestConnection =
-        (dataSourcePath) =>
-            let
-                json = Json.Document(dataSourcePath),
-                server = json[server],
-                // connection string
-                encrypted = json[encrypted]
-            in
-                {
-                    "Exasol.Database",
-                    server,
-                    encrypted
-                },
+    TestConnection = (dataSourcePath) =>
+        let
+            json = Json.Document(dataSourcePath), server = json[server],
+            // connection string
+            encrypted = json[encrypted]
+        in
+            {"Exasol.Database", server, encrypted},
     Authentication = [
         UsernamePassword = [],
         Windows = [
@@ -228,14 +153,12 @@ Exasol = [
     ],
     Label = Extension.LoadString("DataSourceLabel")
 ];
+
 // Data Source UI publishing description
 Exasol.Publish = [
     Category = "Database",
     SupportsDirectQuery = true,
-    ButtonText = {
-        Extension.LoadString("ButtonTitle"),
-        Extension.LoadString("ButtonHelp")
-    },
+    ButtonText = {Extension.LoadString("ButtonTitle"), Extension.LoadString("ButtonHelp")},
     LearnMoreUrl = "http://www.exasol.com/",
     SourceImage = Exasol.Icons,
     SourceTypeImage = Exasol.Icons
@@ -257,188 +180,188 @@ Exasol.Icons = [
 
 // General information on all the Odbc Datasource options:
 // https://docs.microsoft.com/en-us/power-query/odbc
-
 // A function that allows you to modify column metadata returned by the SQLColumns function.
 // Fixing Unicode issue by mapping the Exasol VARCHAR and CHAR Datatypes to SQL_WVARCHAR and SQL_WCHAR
-Odbc.DataSource.Options.SQLColumns =
-    (catalogName, schemaName, tableName, columnName, source) =>
-        let
-            //DECLARE type values
-            OdbcSqlType.VARCHAR = 12,
-            OdbcSqlType.CHAR = 1,
-            OdbcSqlType.SQL_WVARCHAR = -9,
-            OdbcSqlType.SQL_WCHAR = -8,
-            OdbcSqlType.DECIMAL = 3,
-            OdbcSqlType.BIGINT = -5,
-            FixDataType =
-                (dataType) =>
-                    if dataType = OdbcSqlType.VARCHAR then
-                        OdbcSqlType.SQL_WVARCHAR
-                    else if dataType = OdbcSqlType.CHAR then
-                        OdbcSqlType.SQL_WVARCHAR
-                    else
-                        dataType,
-            FixDataTypeName =
-                (dataTypeName) =>
-                    if dataTypeName = "VARCHAR" then
-                        "SQL_WVARCHAR"
-                    else if dataTypeName = "CHAR" then
-                        "SQL_WVARCHAR"
-                    else if dataTypeName = "HASHTYPE" then
-                        "SQL_WVARCHAR"
-                    else
-                        dataTypeName,
-            Transform1 =
-                Table.TransformColumns(
-                    source,
-                    {
+WvarcharDatatypeName = "LONG VARCHAR";
+
+Odbc.DataSource.Options.SQLColumns = (catalogName, schemaName, tableName, columnName, source) =>
+    let
+        // List of enums: https://learn.microsoft.com/en-us/dotnet/api/system.data.odbc.odbctype?view=net-8.0-pp
+        //DECLARE type values
+        OdbcSqlType.VARCHAR = 12,
+        OdbcSqlType.CHAR = 1,
+        OdbcSqlType.SQL_WVARCHAR = -9,
+        OdbcSqlType.SQL_WCHAR = -8,
+        OdbcSqlType.DECIMAL = 3,
+        OdbcSqlType.BIGINT = -5,
+        //Step 1:
+        //a Convert datatypes VARCHAR, CHAR to SQL_WVARCHAR
+        //b Convert datatypenames VARCHAR, CHAR, HASHTYPE to SQL_WVARCHAR
+        NewDataType = (dataType) =>
+            if dataType = OdbcSqlType.VARCHAR then
+                OdbcSqlType.SQL_WVARCHAR
+            else if dataType = OdbcSqlType.CHAR then
+                OdbcSqlType.SQL_WVARCHAR
+            else
+                dataType,
+        NewDataTypeName = (dataTypeName) =>
+            if dataTypeName = "VARCHAR" then
+                WvarcharDatatypeName
+            else if dataTypeName = "CHAR" then
+                WvarcharDatatypeName
+            else if dataTypeName = "HASHTYPE" then
+                WvarcharDatatypeName
+            else
+                dataTypeName,
+        TableWithTransformedColumnDataTypeAndTypeName = Table.TransformColumns(
+            source, {{"DATA_TYPE", NewDataType}, {"TYPE_NAME", NewDataTypeName}}
+        ),
+        //Step 2: convert to BIGINT if precision of decimal type is 0
+        TableWithTransformedColumnDataTypeAndTypeNameAndTransformedFields = Table.FromRecords(
+            Table.TransformRows(
+                TableWithTransformedColumnDataTypeAndTypeName,
+                //begin of transformation function
+                (r) =>
+                    Record.TransformFields(
+                        r,
                         {
-                            "DATA_TYPE",
-                            FixDataType
-                        },
-                        {
-                            "TYPE_NAME",
-                            FixDataTypeName
+                            {
+                                "DATA_TYPE",
+                                each
+                                    if (r[DATA_TYPE] = OdbcSqlType.DECIMAL and r[DECIMAL_DIGITS] = 0) then
+                                        OdbcSqlType.BIGINT
+                                    else
+                                        _
+                            },
+                            {
+                                "TYPE_NAME",
+                                each if (r[TYPE_NAME] = "DECIMAL" and r[DECIMAL_DIGITS] = 0) then "BIGINT" else _
+                            }
                         }
-                    }
-                ),
-            Transform2 =
-                Table.FromRecords(
-                    Table.TransformRows(
-                        Transform1,
-                        (r) =>
-                            Record.TransformFields(
-                                r,
-                                {
-                                    {
-                                        "DATA_TYPE",
-                                        each
-                                            if
-                                                (
-                                                    r[DATA_TYPE]
-                                                    = OdbcSqlType.DECIMAL
-                                                    and r[DECIMAL_DIGITS]
-                                                    = 0
-                                                )
-                                            then
-                                                OdbcSqlType.BIGINT
-                                            else
-                                                _
-                                    },
-                                    {
-                                        "TYPE_NAME",
-                                        each
-                                            if
-                                                (
-                                                    r[TYPE_NAME]
-                                                    = "DECIMAL"
-                                                    and r[DECIMAL_DIGITS]
-                                                    = 0
-                                                )
-                                            then
-                                                "BIGINT"
-                                            else
-                                                _
-                                    }
-                                }
-                            )
                     )
-                ),
-            Transform3 =
-                Value.ReplaceType(
-                    Transform2,
-                    Value.Type(source)
-                )
-        in
-            Transform3;
+                //end of transformation function
+            )
+        ),
+        TransformedTableWithOriginalTypeSet =
+        //Step 3: give the table exactly the same type as the source table type
+        Value.ReplaceType(TableWithTransformedColumnDataTypeAndTypeNameAndTransformedFields, Value.Type(source)),
+        //step 4 diagnostics
+        DiagnosticsStep =
+            if (EnableTraceOutput <> true) then
+                TransformedTableWithOriginalTypeSet
+            else
+            // the if statement conditions will force the values to evaluated/written to diagnostics
+            if (
+                Diagnostics.LogValue("SQLColumns.TableName", tableName) <> "***"
+                and Diagnostics.LogValue("SQLColumns.ColumnName", columnName) <> "***"
+            ) then
+                let
+                    // Outputting the entire table might be too large, and result in the value being truncated.
+                    // We can output a row at a time instead with Table.TransformRows()
+                    rows = Table.TransformRows(
+                        TransformedTableWithOriginalTypeSet, each Diagnostics.LogValue("SQLColumns", _)
+                    ),
+                    toTable = Table.FromRecords(rows)
+                in
+                    Value.ReplaceType(toTable, Value.Type(TransformedTableWithOriginalTypeSet))
+            else
+                TransformedTableWithOriginalTypeSet
+    in
+        DiagnosticsStep;
 // A table, or function that returns a table, that overrides the type information returned by SQLGetTypeInfo.
 // ...
 // When the value is set to a function, your function will receive the result of the original call to SQLGetTypeInfo, allowing you to modify the table.
-Odbc.DataSource.Options.SQLGetTypeInfo =
-    (types as table) as table =>
-        let
-            newTypes =
-                #table(
-                    {
-                        "TYPE_NAME",
-                        "DATA_TYPE",
-                        "COLUMN_SIZE",
-                        "LITERAL_PREFIX",
-                        "LITERAL_SUFFIX",
-                        "CREATE_PARAMS",
-                        "NULLABLE",
-                        "CASE_SENSITIVE",
-                        "SEARCHABLE",
-                        "UNSIGNED_ATTRIBUTE",
-                        "FIXED_PREC_SCALE",
-                        "AUTO_UNIQUE_VALUE",
-                        "LOCAL_TYPE_NAME",
-                        "MINIMUM_SCALE",
-                        "MAXIMUM_SCALE",
-                        "SQL_DATA_TYPE",
-                        "SQL_DATETIME_SUB",
-                        "NUM_PREC_RADIX",
-                        "INTERVAL_PRECISION"
-                    },
-                    // we add a new entry for each type we want to add, the following entries are needed so that Power BI is able to handle Unicode characters
-                    {
-                        {
-                            "SQL_WCHAR",
-                            -8,
-                            2000,
-                            "'",
-                            "'",
-                            "max length",
-                            1,
-                            1,
-                            3,
-                            null,
-                            0,
-                            null,
-                            "SQL_WCHAR",
-                            null,
-                            null,
-                            -8,
-                            null,
-                            null,
-                            null
-                        },
-                        {
-                            "SQL_WVARCHAR",
-                            -9,
-                            2000000,
-                            "'",
-                            "'",
-                            "max length",
-                            1,
-                            1,
-                            3,
-                            null,
-                            0,
-                            null,
-                            "SQL_WVARCHAR",
-                            null,
-                            null,
-                            -9,
-                            null,
-                            null,
-                            null
-                        }
-                    }
-                ),
-            //the new types get added to the exising ones and the merged table gets returned
-            append =
-                Table.Combine(
-                    {
-                        types,
-                        newTypes
-                    }
-                )
-        in
-            append;
+Odbc.DataSource.Options.SQLGetTypeInfo = (types as table) as table =>
+    let
+        newTypes = #table(
+            {
+                "TYPE_NAME",
+                "DATA_TYPE",
+                "COLUMN_SIZE",
+                "LITERAL_PREFIX",
+                "LITERAL_SUFFIX",
+                "CREATE_PARAMS",
+                "NULLABLE",
+                "CASE_SENSITIVE",
+                "SEARCHABLE",
+                "UNSIGNED_ATTRIBUTE",
+                "FIXED_PREC_SCALE",
+                "AUTO_UNIQUE_VALUE",
+                "LOCAL_TYPE_NAME",
+                "MINIMUM_SCALE",
+                "MAXIMUM_SCALE",
+                "SQL_DATA_TYPE",
+                "SQL_DATETIME_SUB",
+                "NUM_PREC_RADIX",
+                "INTERVAL_PRECISION"
+            },
+            // we add a new entry for each type we want to add, the following entries are needed so that Power BI is able to handle Unicode characters
+            {
+                {
+                    "SQL_WCHAR",
+                    -8,
+                    2000,
+                    "'",
+                    "'",
+                    "max length",
+                    1,
+                    1,
+                    3,
+                    null,
+                    0,
+                    null,
+                    "SQL_WCHAR",
+                    null,
+                    null,
+                    -8,
+                    null,
+                    null,
+                    null
+                },
+                {
+                    WvarcharDatatypeName,
+                    -9,
+                    2000000,
+                    "'",
+                    "'",
+                    "max length",
+                    1,
+                    1,
+                    3,
+                    null,
+                    0,
+                    null,
+                    WvarcharDatatypeName,
+                    null,
+                    null,
+                    -9,
+                    null,
+                    null,
+                    null
+                }
+            }
+        ),
+        //the new types get added to the existing ones and the merged table gets returned
+        appendedTypesTable = Table.Combine({types, newTypes}),
+        DiagnosticsStep =
+            if (EnableTraceOutput <> true) then
+                types
+            else
+                let
+                    // Outputting the entire table might be too large, and result in the value being truncated.
+                    // We can output a row at a time instead with Table.TransformRows()
+                    rows = Table.TransformRows(
+                        appendedTypesTable, each Diagnostics.LogValue("SQLGetTypeInfo " & _[TYPE_NAME], _)
+                    ),
+                    toTable = Table.FromRecords(rows)
+                in
+                    Value.ReplaceType(toTable, Value.Type(appendedTypesTable))
+        //,
+    in
+        DiagnosticsStep;
 // A record providing various overrides of driver capabilities, and a way to specify capabilities that aren't expressed through ODBC 3.8.
 Odbc.Datasource.Options.SqlCapabilities = [
-    Sql92Conformance = 8/* SQL_SC_SQL92_FULL */ ,
+    Sql92Conformance = 8 /* SQL_SC_SQL92_FULL */,
     Sql92Translation = "PassThrough",
     //GroupByCapabilities = 2 /*SQL_GB_GROUP_BY_CONTAINS_SELECT = 0x0002*/,
     FractionalSecondsScale = 3,
@@ -463,5 +386,5 @@ Odbc.Datasource.Options.SQLGetInfo = [
     SQL_CONVERT_VARCHAR = 0x0082F1FF,
     // Tell Power BI that Exasol also is able to convert SQL_WVARCHAR, additional fix for Unicode characters (Exasol ODBC returns 0x0002F1FF)
     SQL_CONVERT_WVARCHAR = 0x0082F1FF
-//,   // Tell Power BI that Exasol also is able to convert SQL_WVARCHAR, additional fix for Unicode characters (Exasol ODBC returns 0x0002F1FF)
+    //,   // Tell Power BI that Exasol also is able to convert SQL_WVARCHAR, additional fix for Unicode characters (Exasol ODBC returns 0x0002F1FF)
 ];

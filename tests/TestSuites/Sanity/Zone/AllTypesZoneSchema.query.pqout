@@ -1,0 +1,1 @@
+#table( type table [Name = text, Kind = text, IsNullable = logical] , {{"BOROUGH", "text", true} , {"LOCATIONID", "number", true} , {"SERVICE_ZONE", "text", true} , {"TAXIZONE", "text", true} } ) 

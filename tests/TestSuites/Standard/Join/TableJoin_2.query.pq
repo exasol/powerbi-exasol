@@ -7,6 +7,7 @@
     t1134 = Table.SelectRows(t1131, (t1133) => Value.Equals(t1133[t0.BOROUGH], "Bronx") and Value.NullableEquals(Int64.From(t1133[t1.VENDORID]), 1)),
     t1139 = Table.Group(t1134, {"t1.PAYMENT_TYPE"}, {{"a0", (t1135) => List.Count(List.Select(t1135[t1.VENDORID], each _ <> null))}}),
     t1140 = Table.SelectColumns(t1139, {"t1.PAYMENT_TYPE", "a0"}),
-    FirstN = Table.FirstN(t1140, 5)
+    Sorted = Table.Sort(t1140, {{"t1.PAYMENT_TYPE", Order.Ascending}}),
+    FirstN = Table.FirstN(Sorted, 5)
 in
     FirstN

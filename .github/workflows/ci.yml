@@ -1,4 +1,4 @@
-name: CI Workflow
+name: CI Workflow / Build & test
 
 on:
   push:
@@ -47,13 +47,7 @@ jobs:
           # Install PowerQuery SDK (NuGet install) in the PowerQuerySDKPath
           nuget install Microsoft.PowerQuery.SdkTools -Version 2.144.1 -OutputDirectory $env:PowerQuerySDKPath -ExcludeVersion
 
-      - name: List contents of PowerQuerySDKPath
-        shell: pwsh
-        run: |
-          Write-Host "Listing contents of: $env:PowerQuerySDKPath"
-          Get-ChildItem -Path $env:PowerQuerySDKPath
-
-      # Check if the Exasol.mproj file exists before running MakePqx
+      # Compile step/ Create .mez file
       - name: Compile step/ Create .mez file
         run: |
           

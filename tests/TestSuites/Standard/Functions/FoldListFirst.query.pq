@@ -1,7 +1,13 @@
-(parameter) => 
+(parameter) =>
 let
-	SelectColumns = Table.Group(parameter[taxi_table], {"PULOCATIONID"}, {{"First", each List.First([TRIP_DISTANCE]), type number}}),
-    Sort = Table.Sort(SelectColumns,{"PULOCATIONID", Order.Descending}),
-    FirstN = Table.FirstN(Sort, 1)
+    Sorted = Table.Sort(
+        parameter[taxi_table],
+        {{"PULOCATIONID", Order.Descending}, {"TRIP_DISTANCE", Order.Ascending}}
+    ),
+    SelectColumns = Table.Group(Sorted, {"PULOCATIONID"}, {
+        {"First", each List.First([TRIP_DISTANCE]), type number}
+    }),
+    FinalSort = Table.Sort(SelectColumns, {"PULOCATIONID", Order.Descending}),
+    FirstN = Table.FirstN(FinalSort, 1)
 in
     FirstN

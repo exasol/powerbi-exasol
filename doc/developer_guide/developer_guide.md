@@ -6,27 +6,99 @@
 
 DEPRECATED ( https://github.com/microsoft/DataConnectors)
 
-Please use PowerQuery SDK for Visual Studio Code instead (see next section)
+Please use PowerQuery SDK for Visual Studio Code instead (see next section).
 
 ### PowerQuery SDK for Visual Studio Code
 
+Current build and test suite.
+
+#### Official documentation.
+
+- Detailed setup and usage instructions found [here](https://learn.microsoft.com/en-us/power-query/power-query-sdk-vs-code)
+
+- Repository of SDK + issues section found [here](https://github.com/microsoft/vscode-powerquery-sdk)
+
+
 #### Instructions
 
-Install extension via VS code 
-Detailed setup instructions found  [here](https://learn.microsoft.com/en-us/power-query/power-query-sdk-vs-code)
+### Develop a connector using the PowerQuery SDK for Visual Studio Code
 
-Repository of SDK + issues section: 
-https://github.com/microsoft/vscode-powerquery-sdk 
+https://learn.microsoft.com/en-us/power-query/install-sdk
+
+#### "Power Query / M Language" extension for VSCode
+
+Dependency of PowerQuery SDK for Visual Studio Code
+Provides M Language support.
+
+#### Building via Visual Studio Code UI
+
+After you've installed the PowerQuery SDK for Visual Studio Code:
+Select Terminal > "Run build task ..." > And then pick one of 2 options
+- "Build connector project using MakePQX (newer)
+- "MSBuild" (legacy) (requires msbuild)
+
+You should pick the first option (MakePqx)
+A .mez file will be created if all goes well.
+
+##### Building the extension and running the CI test suite locally (quickstart)
+
+To run the tests locally:
+- Have the 'Microsoft.PowerQuery.SdkTools' visual studio code extension installed. (Easiest via visual studio code extensions)
+- Build the '.mez' file using 'MakePqx.exe', either through visual studio code UI or the command line. Make sure you navigate to the 'Exasol' folder before doing so.
+- Make sure the "PQTestExePath" in 'tests/RunPQSDKTestSuitesSettings.json' points towards 'PQTest.exe' found in the 'Microsoft.PowerQuery.SdkTools' installation directory.
+- Replace the username and password placeholders ( "$$USERNAME$$", "$$PASSWORD$$")) in 'tests/credentials.json'.
+- Set the credentials for PQTest using: '<sdk installation path>\Microsoft.PowerQuery.SdkTools.2.144.1\tools\PQTest.exe set-credential -e ..\Exasol\bin\AnyCPU\Debug\Exasol.mez -q ..\Exasol\Exasol.query.pq -p < credentials.json'
+
+##### Testing changes in PowerBI locally
+
+You can install your newly created .mez file in:
+
+C:\Users\<username>>\Documents\Power BI Desktop\Custom Connectors
+
+You'll also need to enable some settings in PowerBI Desktop locally:
+https://learn.microsoft.com/en-us/power-bi/connect-data/desktop-connector-extensibility#custom-connectors
+
+If you go to 'Get Data >' and look for 'Exasol' you'll see 'Exasol (Custom)' if the extension's loaded correctly.
+
+##### Testing in the service using the on-prem gateway.
+If you wish to run a custom version of the connector on the PowerBI service you'll also need to put the connector in place for the On-Prem Data Gateway.
+The on prem data gateway has a UI menu where you can see and specify the folder to be used for custom data connectors. 
+Make sure the service has access to the folder. You also might need to restart the gateway after making changes.
+
+##### Running the CI test suite on push
+
+The tests will be ran automatically during pushes, merges, etc.
 
 #### Database setup
 
-Exasol-ready SQL scripts for the new test framework [here](./testdata.sql)
-
+Exasol-ready SQL scripts for setting up the required tables and test data for the new test framework can be found [here](./testdata.sql)
 
 ### Issues we've encountered developing and using this connector, fixes and workarounds
+
 #### Unicode character filtering
+
+We've encountered issues with using filters and slicers when filtering on unicode characters. 
+As a workaround new 'unicode' datatypes have been added by overriding SQLGetTypeInfo in the connector.
+
+The 'problem' with the ODBC datasource for PBI is also that it was first and foremost designed to work on SQL server and their text datatypes are very different from ours, as they distinguish between CHAR, NCHAR, VARCHAR, NVARCHAR etc. While Exasol has just a CHAR and VARCHAR datatype. PBI will ask for NCHAR, NVARCHAR types when starting up and these types aren't defined (you can see this in the diagnostics/traces).
+
 #### Hashtype not automatlcally being recognized as text
+
+Hashtype was being read in as a 'Binary' data type. The workaround for this was to map hashtype to the NVARCHAR type defined in SQLGetTypeInfo.  This issue has since been solved
+
 #### Issue with DECIMAL datatype breaking visuals/ data type lookup matchup miss
+
+Issue was due to an ODBC driver bug. 
+DataSource uses SQLColumns to look up
+The native query uses SQLColAttributeW to get information about the queried column's datatype. The datatype returned here was 'DOUBLE' instead of 'DOUBLE PRECISION'. 
+The datatype's defined as 'DOUBLE PRECISION' in SqlGetTypeInfo.This resulted in a datatype naming mismatch and the double precision datatype couldn't be found and was as such seen as 'not searchable' by the mashup engine, resulting in a failure to fold and a broken visual. This issue is resolved in ODBC driver version 25.2.3
+
+#### Failing cast to WVARCHAR_T type in pushed down query
+
+In some very complex queries using NativeQuery we saw the pushdown/folding create casts on certain joins:
+The cast was to type "WVARCHAR_T".
+This was the name of the type we defined for our earlier unicode fix (see above). 
+We worked around this issue by renaming the type to 'LONG VARCHAR', a VARCHAR alias used in the database.
 
 ### Connector "architecture"
 
@@ -62,41 +134,6 @@ PowerBI asks for these types explicitly when opening a report using the datasour
 
 - Sql92Translation = "PassThrough" : enables NativeQuery
 
-### Develop a connector using the PowerQuery SDK for Visual Studio Code
-
-https://learn.microsoft.com/en-us/power-query/install-sdk
-
-#### "Power Query / M Language" extension
-
-Dependency of PowerQuery SDK for Visual Studio Code
-Provides M Language support.
-
-#### Building 
-
-Select Terminal > "Run build task ..." > And then pick one of 2 options
-- "Build connector project using MakePQX (newer)
-- "MSBuild" (legacy)
-
-A .mez file will be created if all goes well.
-
-#### Testing
-
-TBC
-
-#### Testing changes in PowerBI locally
-
-You can install your newly created .mez file in:
-
-C:\Users\<username>>\Documents\Power BI Desktop\Custom Connectors
-
-You'll also need to enable some settings in PowerBI Desktop locally:
-https://learn.microsoft.com/en-us/power-bi/connect-data/desktop-connector-extensibility#custom-connectors
-
-If you go to Get Data > and look for Exasol you'll see 'Exasol (Custom)' if the extension's loaded correctly.
-
-
-If you wish to run a custom version of the connector on the PowerBI service you'll also need to put the connector in place for the On-Prem Data Gateway.
-
 ## Submission for certification / reporting issues with data connector.
 
 "The Connector Certification portal will be decommissioned by the end of this calendar year (https://connectorcertification.azurewebsites.net/). Effective December 16, 2024, all connector certification submissions should be made via email to dataconnectors@microsoft.com."
@@ -109,7 +146,6 @@ https://github.com/microsoft/vscode-powerquery-sdk
 
 #### Creating a trace/doing diagnostics within PowerBI + additional diagnostics added in the connector (for investigation)
 
-
 #### ODBC QueryTool :  
 Analyses an active ODBC data source connection  (needs a DSN)
 Brought to you by: edohuisman  
@@ -119,19 +155,17 @@ Found here: https://sourceforge.net/projects/odbcquerytool/
 Microsoft ODBC Test is an ODBC-enabled application that you can use to test ODBC drivers and the ODBC Driver Manager. ODBC Test is included as part of the Microsoft Data Access Components (MDAC) 2.8 Software Development Kit.  
 Found here: https://www.microsoft.com/en-us/download/details.aspx?id=21995
 
-#### DAX Studio
-
 ### Helpful queries
 
 #### Check last generated query
 
-select * 
+'select * 
 from 
-EXA_DBA_AUDIT_SQL where trunc(START_TIME) = current_date
+EXA_DBA_AUDIT_SQL where trunc(START_TIME) = current_date'
 
-you can run FLUSH Statistics; before
+you can run 'FLUSH Statistics;' before
 
-### Understanding Mashup language
+### Understanding PowerQuery/M/Mashup language
 
 each keyword :
 The each keyword is used to easily create simple functions. “each …” is syntactic sugar for a function signature that takes the _ parameter “(_) => …”

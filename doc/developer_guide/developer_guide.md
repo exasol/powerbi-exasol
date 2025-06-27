@@ -58,7 +58,7 @@ C:\Users\<username>>\Documents\Power BI Desktop\Custom Connectors
 You'll also need to enable some settings in PowerBI Desktop locally:
 https://learn.microsoft.com/en-us/power-bi/connect-data/desktop-connector-extensibility#custom-connectors
 
-If you go to 'Get Data >' and look for 'Exasol' you'll see 'Exasol (Custom)' if the extension's loaded correctly.
+If you go to 'Get Data >' and look for 'Exasol' you'll see 'Exasol (Custom)' if the extension is loaded correctly.
 
 ##### Testing in the service using the on-prem gateway.
 If you wish to run a custom version of the connector on the PowerBI service you'll also need to put the connector in place for the On-Prem Data Gateway.
@@ -71,7 +71,7 @@ The tests will be ran automatically during pushes, merges, etc.
 
 #### Database setup
 
-Exasol-ready SQL scripts for setting up the required tables and test data for the new test framework can be found [here](./testdata.sql)
+Exasol-ready SQL scripts for setting up the required tables and test data for the new test framework can be found in file [testdata.sql](testdata.sql).
 
 ### Issues we've encountered developing and using this connector, fixes and workarounds
 
@@ -80,18 +80,18 @@ Exasol-ready SQL scripts for setting up the required tables and test data for th
 We've encountered issues with using filters and slicers when filtering on unicode characters. 
 As a workaround new 'unicode' datatypes have been added by overriding SQLGetTypeInfo in the connector.
 
-The 'problem' with the ODBC datasource for PBI is also that it was first and foremost designed to work on SQL server and their text datatypes are very different from ours, as they distinguish between CHAR, NCHAR, VARCHAR, NVARCHAR etc. While Exasol has just a CHAR and VARCHAR datatype. PBI will ask for NCHAR, NVARCHAR types when starting up and these types aren't defined (you can see this in the diagnostics/traces).
+The 'problem' with the ODBC datasource for PBI is also that it was first and foremost designed to work on SQL server and their text datatypes are very different from the datatypes in Exasol. SQL server distinguishes between `CHAR`, `NCHAR`, `VARCHAR`, `NVARCHAR` etc. While Exasol has just a `CHAR` and `VARCHAR` datatype. PBI will ask for `NCHAR`, `NVARCHAR` types when starting up and these types aren't defined (you can see this in the diagnostics/traces).
 
-#### Hashtype not automatlcally being recognized as text
+#### Hashtype not automatically being recognized as text
 
-Hashtype was being read in as a 'Binary' data type. The workaround for this was to map hashtype to the NVARCHAR type defined in SQLGetTypeInfo.  This issue has since been solved
+Hashtype was being read in as a 'Binary' data type. The workaround for this was to map hashtype to the `NVARCHAR` type defined in `SQLGetTypeInfo` which solved the issue.
 
 #### Issue with DECIMAL datatype breaking visuals/ data type lookup matchup miss
 
 Issue was due to an ODBC driver bug. 
 DataSource uses SQLColumns to look up
 The native query uses SQLColAttributeW to get information about the queried column's datatype. The datatype returned here was 'DOUBLE' instead of 'DOUBLE PRECISION'. 
-The datatype's defined as 'DOUBLE PRECISION' in SqlGetTypeInfo.This resulted in a datatype naming mismatch and the double precision datatype couldn't be found and was as such seen as 'not searchable' by the mashup engine, resulting in a failure to fold and a broken visual. This issue is resolved in ODBC driver version 25.2.3
+The datatype is defined as 'DOUBLE PRECISION' in SqlGetTypeInfo. This resulted in a datatype naming mismatch and the double precision datatype couldn't be found and was as such seen as 'not searchable' by the mashup engine, resulting in a failure to fold and a broken visual. This issue is resolved in ODBC driver version 25.2.3.
 
 #### Failing cast to WVARCHAR_T type in pushed down query
 
@@ -116,7 +116,7 @@ Done as a fix because hashtype used to beseen as a Byte type instead of a text t
 
 - Sometimes SQLColumns is not being triggered:
 This could be due to a number of reasons: Empty dataset, an earlier error (such as a folding error), caching, data import mode.
-You can force this function to be run by going to the Data transformation window, picking the query and selecting "Refresh all"
+You can force this function to be run by going to the Data transformation window, picking the query and selecting "Refresh all".
 
 #### SQLGetTypeInfo
 

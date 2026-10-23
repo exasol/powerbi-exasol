@@ -155,6 +155,11 @@ Found here: https://sourceforge.net/projects/odbcquerytool/
 Microsoft ODBC Test is an ODBC-enabled application that you can use to test ODBC drivers and the ODBC Driver Manager. ODBC Test is included as part of the Microsoft Data Access Components (MDAC) 2.8 Software Development Kit.  
 Found here: https://www.microsoft.com/en-us/download/details.aspx?id=21995
 
+#### pbi tools
+Tool used to extract .pbix files to a readable form in a folder or archive, can then be converted to a .pbit file that can then be saved as pbix again after the data gets (re)loaded in PowerBI Desktop. 
+
+Handy to bulk edit, for example, datasources in a report.
+
 ### Helpful queries
 
 #### Check last generated query
